@@ -70,7 +70,7 @@ BEGIN
   END IF;
 END $$;
 
--- 3. Profiles Table
+-- 3. Create public.profiles Table
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   full_name TEXT,
@@ -82,22 +82,25 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- 4. Enable Row Level Security (RLS) & Policies
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow public read profiles" ON public.profiles;
-CREATE POLICY "Allow public read profiles" 
+DROP POLICY IF EXISTS "Allow all users to select profiles" ON public.profiles;
+CREATE POLICY "Allow all users to select profiles" 
 ON public.profiles FOR SELECT 
+TO public 
 USING (true);
 
-DROP POLICY IF EXISTS "Allow public insert profiles" ON public.profiles;
-CREATE POLICY "Allow public insert profiles" 
+DROP POLICY IF EXISTS "Allow all users to insert profile" ON public.profiles;
+CREATE POLICY "Allow all users to insert profile" 
 ON public.profiles FOR INSERT 
+TO public 
 WITH CHECK (true);
 
-DROP POLICY IF EXISTS "Allow public update profiles" ON public.profiles;
-CREATE POLICY "Allow public update profiles" 
+DROP POLICY IF EXISTS "Allow all users to update profile" ON public.profiles;
+CREATE POLICY "Allow all users to update profile" 
 ON public.profiles FOR UPDATE 
+TO public 
 USING (true);
 
--- 5. Automatic User Profile Creation Trigger
+-- 5. Automatic User Profile Creation Function & Trigger
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 DECLARE
@@ -127,9 +130,22 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Recreate Trigger cleanly on auth.users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- 6. Populate Existing Auth Users into public.profiles Table
+INSERT INTO public.profiles (id, full_name, role)
+SELECT 
+  id, 
+  COALESCE(raw_user_meta_data->>'full_name', split_part(email, '@', 1)),
+  COALESCE((raw_user_meta_data->>'role')::app_role, 'STUDENT'::app_role)
+FROM auth.users
+ON CONFLICT (id) DO UPDATE SET
+  full_name = EXCLUDED.full_name,
+  role = EXCLUDED.role;
 ```
 
 ---
