@@ -56,31 +56,6 @@ const PricingFAQ = () => {
         </div>
       </section>
 
-      <section id="pricing" className="pricing-section bg-white">
-        <div className="container">
-          <div className="section-header text-center">
-            <h2>Campus Integration</h2>
-            <p>Seamlessly connecting students, parents, and faculty.</p>
-          </div>
-          <div className="pricing-grid">
-            <div className="pricing-card">
-              <h3>Starter</h3>
-              <p className="price-desc">For small boutique academies.</p>
-              <button className="btn btn-secondary" style={{width:'100%', marginTop: '2rem'}}>Contact Sales</button>
-            </div>
-            <div className="pricing-card featured">
-              <h3>Professional</h3>
-              <p className="price-desc">Comprehensive suite for grades 9-12.</p>
-              <button className="btn btn-primary" style={{width:'100%', marginTop: '2rem'}}>Register</button>
-            </div>
-            <div className="pricing-card">
-              <h3>Enterprise</h3>
-              <p className="price-desc">For large academies with advanced needs.</p>
-              <button className="btn btn-secondary" style={{width:'100%', marginTop: '2rem'}}>Contact Sales</button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section className="faq-section container">
         <div className="section-header text-center">
