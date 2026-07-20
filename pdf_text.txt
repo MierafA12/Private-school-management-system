@@ -1,0 +1,486 @@
+Private School Management System — SRS v2.0  
+Page 1 of 16  
+ 
+ 
+ 
+ 
+ 
+   Private School Management System  
+              Software specification document  
+ 
+ 
+ 
+     
+Private School Management System — SRS v2.0  
+Page 2 of 16  
+  
+1. Introduction ................................................................................................................................................................... 3 
+1.1 Purpose .................................................................................................................................................................... 3 
+1.2 Intended Audience .................................................................................................................................................. 3 
+    1.3 Scope ......................................................................................................................................................................... 3 
+1.4 Definitions, Acronyms, and Abbreviations ............................................................................................................. 3 
+2. Overall Description ........................................................................................................................................................ 4 
+2.1 Product Perspective ................................................................................................................................................. 4 
+2.2 Product Functions (Summary) ................................................................................................................................. 4 
+2.3 User Classes and Characteristics ............................................................................................................................. 4 
+2.4 Operating Environment ........................................................................................................................................... 5 
+2.5 Design and Implementation Constraints ................................................................................................................ 5 
+2.6 Assumptions and Dependencies ............................................................................................................................. 5 
+3. System Architecture Overview ...................................................................................................................................... 5 
+4. External Interface Requirements .................................................................................................................................. 6 
+4.1 User Interfaces ......................................................................................................................................................... 6 
+4.2 Hardware Interfaces ................................................................................................................................................ 6 
+4.3 Software Interfaces ................................................................................................................................................. 6 
+4.4 Communication Interfaces ...................................................................................................................................... 6 
+5. Functional Requirements .............................................................................................................................................. 6 
+5.1 Authentication and Authorization Management ................................................................................................... 6 
+5.2 Student Management .............................................................................................................................................. 7 
+5.3 Parent Management ................................................................................................................................................ 8 
+5.4 Teacher Management .............................................................................................................................................. 9 
+5.5 Class and Subject Management .............................................................................................................................. 9 
+5.6 Academic Year and Enrollment Management ...................................................................................................... 10 
+5.7 Attendance Management...................................................................................................................................... 10 
+5.8 Examination and Assessment Management......................................................................................................... 11 
+5.9 Grade Calculation and Report Card Management ............................................................................................... 12 
+5.10 Fee Management and Payment .......................................................................................................................... 12 
+5.11 Parent-Teacher Communication ......................................................................................................................... 13 
+5.12 Announcement and Event Management ............................................................................................................ 14 
+5.13 Notification Management ................................................................................................................................... 14 
+5.14 Reporting and Dashboard Management ............................................................................................................ 15 
+6. Non-Functional Requirements .................................................................................................................................... 15 
+ 
+  
+    
+Private School Management System — SRS v2.0  
+Page 3 of 16  
+1. Introduction  
+ 
+1.1 Purpose  
+This Software Requirements Specification (SRS) defines the functional and non-functional requirements for the 
+Private School Management System (SMS): an integrated, cloud-ready platform for managing the academic, 
+administrative, communication, and financial operations of a private school. It is intended to guide design, 
+development, testing, and stakeholder sign-off.  
+1.2 Intended Audience  
+This document is intended for school leadership, project sponsors, software architects, developers, QA engineers, and 
+third-party implementation partners involved in building or evaluating the system.  
+1.3 Scope  
+The system will support the following capability areas:  
+• User authentication and role-based authorization  
+• Student registration, enrollment, and lifecycle management  
+• Parent account management and self-service portal  
+• Teacher management and teaching workflows  
+• Class, section, and subject configuration  
+• Academic year and enrollment/promotion management  
+• Attendance tracking and reporting  
+• Examination and assessment management  
+• Automated grade calculation and report card generation  
+• Fee management and online payment processing  
+• Parent-teacher communication  
+• Announcement and event management  
+• Multi-channel notifications  
+• Reporting and role-based dashboards  
+The system targets private primary and secondary schools, and is architected to scale from a single campus to a 
+multicampus/multi-tenant deployment.  
+1.4 Definitions, Acronyms, and Abbreviations  
+Term  Definition  
+SMS  School Management System (this system).  
+RBAC  Role-Based Access Control.  
+GPA  Grade Point Average.  
+Private School Management System — SRS v2.0  
+Page 4 of 16  
+SRS  Software Requirements Specification.  
+API  Application Programming Interface.  
+TLS  Transport Layer Security.  
+Term  Definition  
+PII  Personally Identifiable Information.  
+FERPA  Family Educational Rights and Privacy Act (US student-data privacy law).  
+GDPR  General Data Protection Regulation (EU data-privacy law).  
+SLA  Service Level Agreement.  
+MFA  Multi-Factor Authentication.  
+CI/CD  Continuous Integration / Continuous Deployment.  
+  
+2. Overall Description  
+ 
+2.1 Product Perspective  
+The SMS is a new, self-contained, cloud-hosted product that replaces manual, spreadsheet-based, or legacy 
+onpremise processes. It is designed as a modular system so schools can adopt capabilities incrementally, and so 
+additional modules (e.g., transportation, library, or HR) can be added without re-architecting the platform.  
+2.2 Product Functions (Summary)  
+The product functions are detailed fully in Section 5. At a high level, the system authenticates users, manages student 
+and staff records across academic years, tracks attendance, administers examinations and grading, generates report 
+cards, manages fee billing and online payments, and provides communication, announcement, notification, and 
+reporting capabilities.  
+2.3 User Classes and Characteristics  
+Actor  Description  
+Student  End user; views own academic, attendance, and financial data.  
+Parent / Guardian  End user; monitors linked children and communicates with staff.  
+Teacher  Staff; manages attendance, marks, and communication for assigned classes.  
+Private School Management System — SRS v2.0  
+Page 5 of 16  
+Registrar  Staff; manages enrollment, classes, and academic records.  
+Accountant  Staff; manages fee structures, invoicing, and payments.  
+Principal  Staff; oversight, approvals, and school-wide announcements.  
+System Administrator  Technical staff; manages accounts, roles, and system configuration.  
+  
+2.4 Operating Environment  
+• Server-side: cloud-hosted (e.g., AWS/Azure/GCP), containerized, horizontally scalable.  
+• Client-side: any modern evergreen browser (Chrome, Edge, Safari, Firefox) on desktop or mobile; native/PWA mobile 
+app on iOS and Android.  
+• Database: relational database engine with daily automated encrypted backups.  
+2.5 Design and Implementation Constraints  
+• Must comply with applicable student-data-privacy regulations (e.g., FERPA/GDPR or local equivalent).  
+• Must integrate with a PCI-DSS-compliant payment gateway; the system itself must not store raw card data.  
+• Must support the academic calendar and grading conventions configured per school (not hard -coded).  
+2.6 Assumptions and Dependencies  
+• Users have access to a reliable internet connection and a modern browser or smartphone.   
+• The school provides an initial data set (students, staff, classes) for onboarding/migration.   
+• Third-party providers (payment gateway, SMS, email) are available and contracted separately.   
+3. System Architecture Overview  
+ 
+The system follows a modern, modular client-server architecture designed for cloud deployment, horizontal 
+scalability, and future multi-campus tenancy.  
+Layer  Description  
+Client Layer  Responsive web app (React/Vue/Angular) and a mobile app (React Native/Flutter or PWA) 
+consuming a shared REST/GraphQL API.  
+API / Application Layer  
+A modular, versioned API (e.g., Node.js, Python/Django, or .NET) organized around the 
+modules in this document, deployed behind an API gateway with rate limiting and RBAC 
+enforcement.  
+Data Layer  
+A relational database (e.g., PostgreSQL/MySQL) for transactional data, with object storage 
+(e.g., S3-compatible) for documents, photos, and generated PDFs.  
+Integration Layer  
+Payment gateway, email/SMS/push providers, and optional third-party SIS/LMS connectors, 
+all accessed via adapters so providers can be swapped without core changes.  
+Private School Management System — SRS v2.0  
+Page 6 of 16  
+Infrastructure  
+Cloud hosting with containerized deployment (Docker/Kubernetes), automated CI/CD, 
+centralized logging/monitoring, and automated encrypted backups.  
+  
+4. External Interface Requirements  
+ 
+4.1 User Interfaces  
+• Responsive web application (desktop, tablet, mobile browsers).  
+• Companion mobile app (iOS/Android or Progressive Web App) for parents and teachers, covering attendance, grades, 
+messaging, and payments.  
+• Role-specific dashboards for Principal, Registrar, Accountant, and Teacher.  
+4.2 Hardware Interfaces  
+• No specialized hardware required; standard desktop, laptop, tablet, or smartphone with a modern browser.   
+• Optional: barcode/QR or biometric attendance devices integrated via a dedicated attendance -device API.  
+4.3 Software Interfaces  
+• Payment gateway integration (e.g., Stripe, PayPal, or a regional equivalent) for online fee collection.   
+• Email delivery service (e.g., SendGrid/SES) for transactional email and notifications.  
+• Push notification service for mobile and web push.  
+• Optional integration with external SIS/LMS systems via REST API for data exchange.   
+4.4 Communication Interfaces  
+• All client-server communication occurs over a versioned REST (or GraphQL) API secured with TLS 1.2+.   
+• API authentication uses short-lived JWT access tokens with refresh tokens.  
+  
+5. Functional Requirements  
+This section details the requirements for each of the system's fourteen functional modules. Each module lists its 
+purpose, involved actors, governing business rules, and a table of individually identified, prioritized functional 
+requirements.  
+5.1 Authentication and Authorization Management  
+Provide secure, auditable authentication and role-based access control for every user of the system.  
+Actors: Student, Parent, Teacher, Registrar, Accountant, Principal, System Administrator  
+Business Rules  
+• Student and parent accounts are automatically created during student registration.  
+• Students and parents have separate, independently authenticated accounts.   
+Private School Management System — SRS v2.0  
+Page 7 of 16  
+• A parent account may be linked to one or more student accounts.  
+• Teacher, registrar, and accountant accounts are created only by the principal or system administrator.  
+• Every account has exactly one primary role; permission overrides require administrator approval.   
+• Accounts inactive for 12 consecutive months are automatically flagged for administrator review.  Functional 
+Requirements  
+ID  Functional Requirement  Priority  
+FR-AUTH-01  Support login via email + password or phone number + password.  High  
+FR-AUTH-02  Support optional multi-factor authentication (MFA) via SMS or authenticator app.  High  
+FR-AUTH-03  Allow users to log out securely, invalidating the active session token.  High  
+FR-AUTH-04  Allow authenticated users to change their password.  High  
+FR-AUTH-05  Provide a self-service, token-based forgotten-password reset flow.  High  
+FR-AUTH-06  Lock an account for 15 minutes after 5 consecutive failed login attempts.  High  
+FR-AUTH-07  Enforce role-based access control (RBAC) on every API endpoint and UI view.  High  
+FR-AUTH-08  Maintain an immutable login audit log (timestamp, IP, device, outcome).  Medium  
+FR-AUTH-09  Support single sign-on (SSO) via Google or Microsoft for staff accounts.  Low  
+  
+5.2 Student Management  
+Manage student information across the full academic lifecycle, from admission to graduation.  
+Actors: Registrar, Principal, Student, Parent  
+Business Rules  
+• Every student is assigned a unique, system-generated student ID at registration.  
+• Every student is linked to at least one parent or legal guardian.  
+• Newly admitted students are assigned a grade and section before enrollment is finalized.   
+• Student records are never permanently deleted; only status changes to inactive/archived.   
+• Student records and their history are preserved across all academic years.  
+• A student's status may only be one of: active, promoted, retained, transferred, withdrawn, graduated, or inactive.  
+Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-STU-01  Register new students with personal, medical, and emergency-contact details.  High  
+FR-STU-02  Automatically create linked student and parent accounts on registration.  High  
+FR-STU-03  Assign or reassign a student's grade and section.  High  
+Private School Management System — SRS v2.0  
+Page 8 of 16  
+FR-STU-04  Update student profile information, subject to audit logging.  Medium  
+FR-STU-05  Upload and update student photographs (with parental consent on file).  Medium  
+FR-STU-06  Search students by ID, name, grade, section, academic year, or status.  High  
+FR-STU-07  View a student's complete academic history across all enrolled years.  Medium  
+FR-STU-08  Change and track a student's enrollment status with a reason code.  High  
+FR-STU-09  Generate class, grade, or school-wide student lists as PDF/Excel.  Medium  
+FR-STU-10  
+[Student Portal] View profile, schedule, exam schedule, attendance, assignments, 
+grades, report cards, announcements, and events.  High  
+FR-STU-11  [Student Portal] Receive push/email/SMS notifications and message teachers.  Medium  
+  
+5.3 Parent Management  
+Give parents secure, self-service visibility into their children's academic and financial records.  
+Actors: Parent, Registrar, Principal  
+Business Rules  
+• A parent account may be associated with one or more students.  
+• Parents may only access information for students explicitly linked to their account.   
+• Linking a parent to a new student requires registrar or system verification.   
+Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-PAR-01  View linked children's profiles, attendance, grades, and report cards.  High  
+FR-PAR-02  View examination schedules and results as they are published.  High  
+FR-PAR-03  View fee statements, outstanding balances, and payment history.  High  
+FR-PAR-04  Make online fee payments and download digital receipts.  High  
+ID  Functional Requirement  Priority  
+FR-PAR-05  Search and filter payment history by date range or fee type.  Medium  
+FR-PAR-06  Receive notifications for grades, attendance, invoices, and announcements.  High  
+FR-PAR-07  View school announcements and RSVP to events.  Medium  
+FR-PAR-08  Message assigned teachers directly from the portal.  High  
+  
+Private School Management System — SRS v2.0  
+Page 9 of 16  
+5.4 Teacher Management  
+Manage teacher records, class/subject assignments, and day-to-day teaching workflows.  
+Actors: Principal, Teacher  
+Business Rules  
+• Every teacher is assigned a unique employee identifier.  
+• A teacher may be assigned to multiple classes and multiple subjects.  
+• Only assigned teachers may record attendance or enter marks for a given class/subject.   
+Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-TCH-01  Create and update teacher accounts and employment profiles.  High  
+FR-TCH-02  Assign teachers to one or more classes and sections.  High  
+FR-TCH-03  Assign teachers to one or more subjects.  High  
+FR-TCH-04  View personal teaching schedule and assigned-student rosters.  High  
+FR-TCH-05  Search students within assigned classes.  Medium  
+FR-TCH-06  Record and edit attendance for assigned classes prior to daily submission.  High  
+FR-TCH-07  Enter and update marks for assigned subjects prior to publication.  High  
+FR-TCH-08  Generate report cards and enter narrative remarks for assigned students.  High  
+FR-TCH-09  Message parents and students directly.  High  
+FR-TCH-10  View school announcements and events.  Low  
+  
+5.5 Class and Subject Management  
+Configure the academic structure: classes, sections, subjects, and teaching assignments.  
+Actors: Principal, Registrar  
+Business Rules  
+• Every subject has a unique subject code.  
+• A class may contain one or more sections, each with a defined capacity.   
+• Every subject is assigned to at least one qualified teacher before it can be scheduled.   
+Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-CLS-01  Create, rename, and archive classes and grade levels.  High  
+Private School Management System — SRS v2.0  
+Page 10 of 16  
+FR-CLS-02  Create and manage sections within a class, including capacity limits.  Medium  
+FR-CLS-03  Create and manage subjects, including subject codes and credit weight.  High  
+FR-CLS-04  Assign one or more teachers to a subject.  High  
+FR-CLS-05  Assign students to a class/section.  High  
+FR-CLS-06  Search and filter classes and subjects.  Low  
+FR-CLS-07  Configure semesters, terms, or trimesters per academic year.  High  
+  
+5.6 Academic Year and Enrollment Management  
+Manage the academic calendar and student progression across academic years while preserving history.  
+Actors: Registrar, Principal  
+Business Rules  
+• Every enrollment record belongs to exactly one academic year.  
+• Academic records from prior years are preserved and remain read-accessible.  
+• Promotion to a new academic year creates a new enrollment record rather than overwriting the prior one.   
+• A closed academic year becomes read-only and cannot be further edited. Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-ENR-01  Create and configure new academic years with start/end dates.  High  
+FR-ENR-02  Open and close academic years, enforcing read-only status once closed.  High  
+FR-ENR-03  Enroll students into a class/section for a given academic year.  High  
+FR-ENR-04  Bulk-promote eligible students to the next grade at year-end.  High  
+FR-ENR-05  Retain students in the current grade when required.  Medium  
+FR-ENR-06  Transfer students between sections, grades, or campuses.  Medium  
+FR-ENR-07  Archive completed academic years for long-term retention.  Medium  
+FR-ENR-08  View and search enrollment history by student or academic year.  Medium  
+  
+5.7 Attendance Management  
+Record and report daily student attendance.  
+Actors: Teacher, Parent, Student, Principal  
+Private School Management System — SRS v2.0  
+Page 11 of 16  
+Business Rules  
+• Attendance is recorded once per student per school day, per configured period policy.   
+• Once a daily attendance record is finally submitted, it cannot be deleted — only corrected via an audited amendment.  
+• Three or more consecutive unexplained absences automatically trigger a parent notification.   
+Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-ATT-01  Record daily attendance (present, absent, late, excused) per class.  High  
+FR-ATT-02  Edit attendance entries prior to final daily submission.  High  
+FR-ATT-03  Submit amendments to finalized attendance with a reason and audit trail.  Medium  
+FR-ATT-04  Generate class-level and student-level attendance reports.  Medium  
+FR-ATT-05  Generate monthly and term attendance summary reports.  Medium  
+FR-ATT-06  Automatically notify parents of same-day absences.  High  
+FR-ATT-07  Search attendance records by student, class, or date range.  Low  
+FR-ATT-08  Allow students and parents to view attendance history.  High  
+  
+5.8 Examination and Assessment Management  
+Manage the creation, scheduling, and grading of examinations and assessments.  
+Actors: Teacher, Student, Parent, Principal  
+Business Rules  
+• Marks may only be entered or edited by the teacher assigned to that subject/class.   
+• Results follow the grading policy configured for the academic year.  
+• Marks become read-only for teachers once results are officially published.  
+Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-EXM-01  Create examinations and assessment categories (quiz, midterm, final, project).  High  
+FR-EXM-02  Create examination schedules with date, time, and venue.  High  
+FR-EXM-03  Enter and update marks prior to publication.  High  
+FR-EXM-04  Route mark changes after submission through an approval workflow.  Medium  
+FR-EXM-05  Publish results to students and parents on a configured release date.  High  
+Private School Management System — SRS v2.0  
+Page 12 of 16  
+FR-EXM-06  Search examination records by student, subject, or term.  Low  
+FR-EXM-07  View historical examination results across academic years.  Medium  
+  
+5.9 Grade Calculation and Report Card Management  
+Automatically calculate grades and generate report cards according to school grading policy.  
+Actors: Teacher, Student, Parent, Principal  
+Business Rules  
+• Grade calculations follow the configurable school grading policy (weighted or unweighted).   
+• Report cards are generated only after all required marks have been approved.   
+• A published report card is immutable; corrections require a new versioned reissue.   
+Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-GRD-01  Calculate total marks, averages, and percentages per subject.  High  
+FR-GRD-02  Calculate letter grades and/or GPA per configured grading scale.  High  
+FR-GRD-03  Generate report cards including teacher remarks and attendance summary.  High  
+FR-GRD-04  Generate printable, digitally signed PDF report cards.  High  
+FR-GRD-05  Publish report cards to the student and parent portals.  High  
+FR-GRD-06  Search and filter report cards by student, class, or academic year.  Medium  
+FR-GRD-07  Support reissue/versioning of corrected report cards with change history.  Medium  
+  
+5.10 Fee Management and Payment  
+Manage fee structures, invoicing, online payment collection, and financial reporting.  
+Actors: Accountant, Parent, Principal  
+Business Rules  
+• Every successful payment automatically generates a digital receipt.  
+• Parents may only view or pay fees for students linked to their account.   
+• Online payments are processed only through PCI-DSS-compliant payment gateways; the system never stores raw card 
+data.  
+• Overdue invoices trigger automated reminder notifications on a configurable schedule. Functional Requirements  
+ID  Functional Requirement  Priority  
+Private School Management System — SRS v2.0  
+Page 13 of 16  
+FR-FEE-01  Define fee structures by grade, term, and fee category (tuition, transport, activities).  High  
+FR-FEE-02  Generate and issue invoices to parents on a defined billing schedule.  High  
+FR-FEE-03  Record manual (cash/cheque/bank transfer) payments.  High  
+FR-FEE-04  
+Process online payments via an integrated payment gateway (card, mobile money, 
+bank transfer).  High  
+FR-FEE-05  Automatically generate and email/download PDF receipts.  High  
+FR-FEE-06  View payment history and outstanding balances per student.  High  
+FR-FEE-07  Search and filter payment records by date, method, or status.  Medium  
+FR-FEE-08  Generate financial reports: collections, arrears, and revenue by category.  Medium  
+FR-FEE-09  Support partial payments and configurable installment plans.  Medium  
+  
+5.11 Parent-Teacher Communication  
+Provide a secure, auditable channel for communication about student performance and welfare.  
+Actors: Parent, Teacher  
+Business Rules  
+• Parents may only initiate conversations with teachers assigned to their linked children.   
+• Complete communication history is retained and is not editable after sending (edits create a visible revision).   
+• All messaging content is subject to the same data-retention and privacy policy as academic records. Functional 
+Requirements  
+ID  Functional Requirement  Priority  
+FR-COM-01  Send and receive one-to-one messages between parents and teachers.  High  
+FR-COM-02  View complete conversation history per student.  Medium  
+FR-COM-03  Receive real-time notifications for new messages.  High  
+FR-COM-04  Share student progress updates, attaching grades or attendance snapshots.  Medium  
+FR-COM-05  
+Support structured discussion threads for attendance, behavior, assignments, and 
+grades.  Low  
+FR-COM-06  Search conversations by keyword, student, or date.  Low  
+  
+Private School Management System — SRS v2.0  
+Page 14 of 16  
+5.12 Announcement and Event Management  
+Communicate school-wide or targeted information, events, and meetings.  
+Actors: Principal, System Administrator, Teacher, Parent, Student  
+Business Rules  
+• Only authorized roles (principal, administrator, and delegated teachers) may publish announcements or events.   
+• Published announcements and events are versioned; edits are logged with a timestamp and editor identity.  
+Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-ANN-01  Create announcements with rich text, attachments, and target audience.  High  
+FR-ANN-02  Create events with date, time, location, and RSVP option.  High  
+FR-ANN-03  Schedule parent-teacher meetings with time-slot booking.  Medium  
+FR-ANN-04  Target announcements/events to specific grades, sections, or roles.  High  
+FR-ANN-05  Edit or cancel announcements and events with automatic re-notification.  Medium  
+FR-ANN-06  View announcement and event history/archive.  Low  
+FR-ANN-07  
+Support common templates: parent meetings, exam notices, holidays, emergency 
+notices.  Low  
+  
+5.13 Notification Management  
+Deliver timely, multi-channel notifications to all user roles.  
+Actors: All roles  
+Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-NOT-01  Deliver in-app, email, and push notifications for announcements and events.  High  
+FR-NOT-02  Deliver attendance alerts to parents in near real time.  High  
+FR-NOT-03  Deliver examination and result-publication notifications.  High  
+FR-NOT-04  Deliver report-card publication notifications.  High  
+FR-NOT-05  Deliver payment confirmations and overdue-invoice reminders.  High  
+FR-NOT-06  Deliver chat/message notifications.  Medium  
+FR-NOT-07  Allow users to configure notification channel preferences.  Medium  
+  
+Private School Management System — SRS v2.0  
+Page 15 of 16  
+5.14 Reporting and Dashboard Management  
+Provide operational and analytical reporting for decision-making.  
+Actors: Principal, Registrar, Accountant, Teacher  
+Functional Requirements  
+ID  Functional Requirement  Priority  
+FR-RPT-01  Provide role-specific dashboards with key statistics (enrollment, attendance, revenue).  High  
+FR-RPT-02  Generate student, attendance, academic, financial, and enrollment reports.  High  
+FR-RPT-03  Export any report to PDF and Excel.  High  
+FR-RPT-04  Search and filter reports by date range, grade, section, or academic year.  Medium  
+FR-RPT-05  Support scheduled, automatically emailed recurring reports.  Low  
+  
+6. Non-Functional Requirements  
+ 
+Non-functional requirements define the quality attributes the system must exhibit. They are grouped by category and, 
+where applicable, expressed with a measurable target.  
+ID  Category  Requirement  Priority  
+NFR-SEC-01  Security  All passwords are hashed with a modern algorithm (e.g., 
+bcrypt/Argon2); never stored in plaintext.  High  
+NFR-SEC-02  Security  
+Role-based access control is enforced consistently across web, 
+mobile, and API layers.  High  
+NFR-PERF-01  Performance  
+95% of interactive page/API requests complete within 2 seconds 
+under normal load.  High  
+NFR-REL-01  Reliability  
+System uptime is at least 99.5% measured monthly, excluding 
+scheduled maintenance.  High  
+NFR-USE-01  Usability  
+The web interface is responsive and fully usable on desktop, 
+tablet, and mobile browsers.  High  
+ID  Category  Requirement  Priority  
+NFR-MAI-01  Maintainability  The codebase follows a modular architecture with automated 
+tests and a CI/CD pipeline.  Medium  
+Private School Management System — SRS v2.0  
+Page 16 of 16  
+NFR-DAT-01  Data Integrity  
+Historical student, academic-year, financial, and communication 
+records are never hard-deleted.  High  
+  
+  
