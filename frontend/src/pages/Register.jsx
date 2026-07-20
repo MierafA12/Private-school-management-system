@@ -89,35 +89,7 @@ const Register = () => {
 
       if (supabaseError) {
         const parsed = parseAuthError(supabaseError);
-
-        if (parsed?.isRateLimit) {
-          // Attempt instant login in case user was created
-          const { data: loginData } = await supabase.auth.signInWithPassword({
-            email: cleanEmail,
-            password
-          });
-
-          if (loginData?.session) {
-            navigate('/dashboard');
-            return;
-          }
-
-          // Fallback test session
-          const demoUser = {
-            id: `usr-${Date.now()}`,
-            email: cleanEmail,
-            user_metadata: { full_name: name || 'Academic User', role: role },
-            app_metadata: { provider: 'test-session' }
-          };
-          localStorage.setItem('demo_session', JSON.stringify({ user: demoUser }));
-          
-          setSuccessInfo({
-            title: 'Account Created Successfully!',
-            message: `Welcome! Your portal account as ${role} for ${cleanEmail} is ready.`
-          });
-        } else {
-          setErrorInfo(parsed);
-        }
+        setErrorInfo(parsed);
       } else {
         // Explicitly sync profile record into public.profiles database table
         if (data?.user?.id) {
@@ -132,30 +104,9 @@ const Register = () => {
           }
         }
 
-        if (data?.session) {
-          navigate('/dashboard');
-          return;
-        }
-
-        const newUser = {
-          id: data?.user?.id || `usr-${Date.now()}`,
-          email: cleanEmail,
-          full_name: name || cleanEmail.split('@')[0],
-          role: role,
-          user_metadata: { full_name: name || cleanEmail.split('@')[0], role: role }
-        };
-        
-        try {
-          const regList = JSON.parse(localStorage.getItem('registered_users') || '[]');
-          regList.push(newUser);
-          localStorage.setItem('registered_users', JSON.stringify(regList));
-        } catch(e) {}
-
-        localStorage.setItem('demo_session', JSON.stringify({ user: newUser }));
-
         setSuccessInfo({
-          title: 'Account Created Successfully!',
-          message: `Your account was created as a ${role} for ${cleanEmail}.`
+          title: 'Account Registered Successfully!',
+          message: `Your portal account as ${role} for ${cleanEmail} has been registered in the database. You can now sign in.`
         });
       }
     } catch (err) {
