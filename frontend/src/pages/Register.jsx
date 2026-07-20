@@ -30,12 +30,10 @@ const Register = () => {
   // Password strength calculation
   const getPasswordStrength = () => {
     if (!password) return 0;
-    let strength = 0;
-    if (password.length >= 6) strength += 1;
-    if (password.length >= 10) strength += 1;
-    if (/[A-Z]/.test(password)) strength += 1;
+    let strength = 1;
+    if (password.length >= 5) strength += 1;
+    if (password.length >= 8) strength += 1;
     if (/[0-9]/.test(password)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
     return strength;
   };
 
@@ -67,10 +65,10 @@ const Register = () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (password.length < 4) {
       setErrorInfo({
-        title: 'Weak Password',
-        message: 'Password must be at least 6 characters long.'
+        title: 'Short Password',
+        message: 'Password must be at least 4 characters long.'
       });
       setLoading(false);
       return;
@@ -277,12 +275,12 @@ const Register = () => {
                 {password && (
                   <div className="strength-meter">
                     <div className="strength-bars">
-                      <div className="strength-bar" style={{ background: strengthScore >= 1 ? '#ef4444' : '' }}></div>
-                      <div className="strength-bar" style={{ background: strengthScore >= 3 ? '#f59e0b' : '' }}></div>
-                      <div className="strength-bar" style={{ background: strengthScore >= 4 ? '#00f5a0' : '' }}></div>
+                      <div className="strength-bar" style={{ background: strengthScore >= 1 ? '#10B981' : '' }}></div>
+                      <div className="strength-bar" style={{ background: strengthScore >= 2 ? '#059669' : '' }}></div>
+                      <div className="strength-bar" style={{ background: strengthScore >= 3 ? '#047857' : '' }}></div>
                     </div>
-                    <span className="strength-text">
-                      {strengthScore <= 2 ? 'Weak' : strengthScore <= 3 ? 'Medium' : 'Strong'}
+                    <span className="strength-text" style={{ color: '#059669', fontWeight: 600 }}>
+                      {strengthScore <= 1 ? 'Acceptable' : strengthScore <= 2 ? 'Good' : 'Strong'}
                     </span>
                   </div>
                 )}

@@ -9,6 +9,23 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      // 1. Check demo session first
+      const demoRaw = localStorage.getItem('demo_session');
+      if (demoRaw) {
+        try {
+          const parsed = JSON.parse(demoRaw);
+          if (parsed && parsed.user) {
+            setProfile({
+              full_name: parsed.user.user_metadata?.full_name || 'Academic User',
+              role: parsed.user.user_metadata?.role || 'STUDENT'
+            });
+            setLoading(false);
+            return;
+          }
+        } catch (e) {}
+      }
+
+      // 2. Check Supabase auth session
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -16,7 +33,7 @@ const Dashboard = () => {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .select('role, full_name')
         .eq('id', session.user.id)
@@ -24,6 +41,11 @@ const Dashboard = () => {
 
       if (data) {
         setProfile(data);
+      } else {
+        setProfile({
+          full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Academic User',
+          role: session.user.user_metadata?.role || 'STUDENT'
+        });
       }
       setLoading(false);
     };
@@ -31,8 +53,14 @@ const Dashboard = () => {
     fetchProfile();
   }, [navigate]);
 
+  const handleSignOut = async () => {
+    localStorage.removeItem('demo_session');
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
+
   if (loading) {
-    return <div style={{ padding: '4rem', textAlign: 'center', fontSize: '1.2rem' }}>Loading secure dashboard...</div>;
+    return <div style={{ padding: '4rem', textAlign: 'center', fontSize: '1.2rem', color: '#111827' }}>Loading portal dashboard...</div>;
   }
 
   return (
@@ -50,14 +78,14 @@ const Dashboard = () => {
         marginTop: '2rem'
       }}>
         <h2 style={{ color: '#991B1B', marginBottom: '1rem' }}>
-          This dashboard is for {profile?.role || 'STUDENT'}
+          Portal Role: {profile?.role || 'STUDENT'}
         </h2>
         <p style={{ color: '#6B7280', marginBottom: '2rem' }}>
-          (The full UI for this specific role will be built here later)
+          You have successfully authenticated into the Private School Management System portal.
         </p>
         
         <button 
-          onClick={async () => { await supabase.auth.signOut(); navigate('/'); }} 
+          onClick={handleSignOut} 
           className="btn btn-primary"
         >
           Sign Out Securely
