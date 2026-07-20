@@ -143,7 +143,7 @@ const Login = () => {
                 <Mail className="input-icon" size={18} />
                 <input 
                   type="email" 
-                  placeholder="student@school.edu" 
+                  placeholder="student@gmail.com" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -242,7 +242,7 @@ const Login = () => {
                     <Mail className="input-icon" size={18} />
                     <input 
                       type="email" 
-                      placeholder="name@school.edu"
+                      placeholder="user@gmail.com"
                       value={resetEmail}
                       onChange={(e) => setResetEmail(e.target.value)}
                       required 

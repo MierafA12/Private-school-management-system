@@ -21,9 +21,9 @@ const Register = () => {
 
   const navigate = useNavigate();
 
-  // Email format validation (at least 2 chars local part)
+  // Standard email format validation (accepts any valid domain e.g. @gmail.com)
   const isValidEmail = (emailStr) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]{2,}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test((emailStr || '').trim());
   };
 
@@ -52,7 +52,7 @@ const Register = () => {
     if (!isValidEmail(cleanEmail)) {
       setErrorInfo({
         title: 'Invalid Email Format',
-        message: 'Please enter a standard email address (e.g. alex@school.edu).'
+        message: 'Please enter a valid email address (e.g. alex@gmail.com).'
       });
       setLoading(false);
       return;
@@ -245,7 +245,7 @@ const Register = () => {
                   <Mail className="input-icon" size={18} />
                   <input 
                     type="email" 
-                    placeholder="student@school.edu" 
+                    placeholder="student@gmail.com" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
