@@ -82,13 +82,19 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- 4. Enable Row Level Security (RLS) & Policies
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view own profile" 
+DROP POLICY IF EXISTS "Allow public read profiles" ON public.profiles;
+CREATE POLICY "Allow public read profiles" 
 ON public.profiles FOR SELECT 
-USING (auth.uid() = id);
+USING (true);
 
-CREATE POLICY "Authenticated users can view profiles" 
-ON public.profiles FOR SELECT 
-TO authenticated 
+DROP POLICY IF EXISTS "Allow public insert profiles" ON public.profiles;
+CREATE POLICY "Allow public insert profiles" 
+ON public.profiles FOR INSERT 
+WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public update profiles" ON public.profiles;
+CREATE POLICY "Allow public update profiles" 
+ON public.profiles FOR UPDATE 
 USING (true);
 
 -- 5. Automatic User Profile Creation Trigger

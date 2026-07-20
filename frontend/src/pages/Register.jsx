@@ -119,6 +119,19 @@ const Register = () => {
           setErrorInfo(parsed);
         }
       } else {
+        // Explicitly sync profile record into public.profiles database table
+        if (data?.user?.id) {
+          try {
+            await supabase.from('profiles').upsert({
+              id: data.user.id,
+              full_name: name || cleanEmail.split('@')[0],
+              role: role
+            });
+          } catch (dbErr) {
+            console.warn('Profile DB insertion notice:', dbErr);
+          }
+        }
+
         if (data?.session) {
           navigate('/dashboard');
           return;
