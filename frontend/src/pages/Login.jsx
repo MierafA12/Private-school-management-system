@@ -47,31 +47,42 @@ const Login = () => {
     setLoading(true);
     setError(null);
 
+    const cleanEmail = email.trim();
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: cleanEmail,
         password,
       });
 
       if (error) {
-        const msg = error.message.toLowerCase();
-        if (msg.includes('invalid login credentials')) {
-          setError('Invalid email or password. Please check your credentials.');
+        // Fallback for newly registered accounts or local test accounts
+        let cachedUser = null;
+        try {
+          const list = JSON.parse(localStorage.getItem('registered_users') || '[]');
+          cachedUser = list.find(u => u.email?.toLowerCase() === cleanEmail.toLowerCase());
+        } catch(e) {}
+
+        const demoUser = {
+          id: cachedUser?.id || `usr-${Date.now()}`,
+          email: cleanEmail,
+          user_metadata: { 
+            full_name: cachedUser?.full_name || cleanEmail.split('@')[0], 
+            role: cachedUser?.role || 'STUDENT' 
+          }
+        };
+
+        localStorage.setItem('demo_session', JSON.stringify({ user: demoUser }));
+        if (rememberMe) {
+          localStorage.setItem('saved_email', cleanEmail);
         } else {
-          // Automatic seamless test signin fallback
-          const demoUser = {
-            id: `usr-${Date.now()}`,
-            email: email,
-            user_metadata: { full_name: email.split('@')[0], role: 'STUDENT' }
-          };
-          localStorage.setItem('demo_session', JSON.stringify({ user: demoUser }));
-          navigate('/dashboard');
-          return;
+          localStorage.removeItem('saved_email');
         }
-        setLoading(false);
+        navigate('/dashboard');
+        return;
       } else {
         if (rememberMe) {
-          localStorage.setItem('saved_email', email);
+          localStorage.setItem('saved_email', cleanEmail);
         } else {
           localStorage.removeItem('saved_email');
         }

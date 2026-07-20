@@ -140,9 +140,17 @@ const Register = () => {
         const newUser = {
           id: data?.user?.id || `usr-${Date.now()}`,
           email: cleanEmail,
-          user_metadata: { full_name: name || 'Academic User', role: role },
-          app_metadata: { provider: 'user' }
+          full_name: name || cleanEmail.split('@')[0],
+          role: role,
+          user_metadata: { full_name: name || cleanEmail.split('@')[0], role: role }
         };
+        
+        try {
+          const regList = JSON.parse(localStorage.getItem('registered_users') || '[]');
+          regList.push(newUser);
+          localStorage.setItem('registered_users', JSON.stringify(regList));
+        } catch(e) {}
+
         localStorage.setItem('demo_session', JSON.stringify({ user: newUser }));
 
         setSuccessInfo({
