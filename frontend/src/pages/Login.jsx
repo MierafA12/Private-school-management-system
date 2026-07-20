@@ -26,13 +26,8 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
+    // Check if user is already logged in via Supabase Auth
     const checkSession = async () => {
-      const demoSession = localStorage.getItem('demo_session');
-      if (demoSession) {
-        navigate('/dashboard');
-        return;
-      }
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         navigate('/dashboard');
@@ -56,38 +51,19 @@ const Login = () => {
       });
 
       if (error) {
-        // Fallback for newly registered accounts or local test accounts
-        let cachedUser = null;
-        try {
-          const list = JSON.parse(localStorage.getItem('registered_users') || '[]');
-          cachedUser = list.find(u => u.email?.toLowerCase() === cleanEmail.toLowerCase());
-        } catch(e) {}
-
-        const demoUser = {
-          id: cachedUser?.id || `usr-${Date.now()}`,
-          email: cleanEmail,
-          user_metadata: { 
-            full_name: cachedUser?.full_name || cleanEmail.split('@')[0], 
-            role: cachedUser?.role || 'STUDENT' 
-          }
-        };
-
-        localStorage.setItem('demo_session', JSON.stringify({ user: demoUser }));
-        if (rememberMe) {
-          localStorage.setItem('saved_email', cleanEmail);
-        } else {
-          localStorage.removeItem('saved_email');
-        }
-        navigate('/dashboard');
+        setError('Invalid email or password. Please check your credentials or register an account.');
+        setLoading(false);
         return;
-      } else {
-        if (rememberMe) {
-          localStorage.setItem('saved_email', cleanEmail);
-        } else {
-          localStorage.removeItem('saved_email');
-        }
-        navigate('/dashboard');
       }
+
+      if (rememberMe) {
+        localStorage.setItem('saved_email', cleanEmail);
+      } else {
+        localStorage.removeItem('saved_email');
+      }
+      
+      localStorage.removeItem('demo_session');
+      navigate('/dashboard');
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
       setLoading(false);

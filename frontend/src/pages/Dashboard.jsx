@@ -9,23 +9,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      // 1. Check demo session first
-      const demoRaw = localStorage.getItem('demo_session');
-      if (demoRaw) {
-        try {
-          const parsed = JSON.parse(demoRaw);
-          if (parsed && parsed.user) {
-            setProfile({
-              full_name: parsed.user.user_metadata?.full_name || 'Academic User',
-              role: parsed.user.user_metadata?.role || 'STUDENT'
-            });
-            setLoading(false);
-            return;
-          }
-        } catch (e) {}
-      }
-
-      // 2. Check Supabase auth session
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
