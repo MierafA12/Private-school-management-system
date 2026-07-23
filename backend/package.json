@@ -6,16 +6,25 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:create": "node-pg-migrate create",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "node-pg-migrate": {
+    "migrations-dir": "migrations",
+    "migrations-schema": "public",
+    "verbose": true
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "node-pg-migrate": "9.0.0",
     "pg": "^8.22.0"
   },
   "devDependencies": {
