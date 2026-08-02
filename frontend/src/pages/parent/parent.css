@@ -1,0 +1,431 @@
+/* ═══════════════════════════════════════════════════════════
+   Parent Portal — Accent Overrides & Specific Components
+   Inherits all layout from student/student.css (sl-*, sp-*)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Brand accent — Prestige Gold for parent portal ── */
+.pp-logo-icon {
+  background: var(--accent) !important;
+}
+.pp-avatar {
+  background: var(--accent) !important;
+}
+.pp-user-card {
+  background: #FFFBEB !important;
+  border-color: #FDE68A !important;
+}
+.pp-role-badge {
+  color: var(--accent) !important;
+}
+.pp-nav-active {
+  background: #FFFBEB !important;
+  color: var(--accent) !important;
+}
+.pp-nav-active svg:first-child {
+  color: var(--accent) !important;
+}
+
+/* ── Child Card ── */
+.pp-child-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.pp-child-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  cursor: pointer;
+  position: relative;
+}
+.pp-child-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+.pp-child-card--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+.pp-child-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.pp-child-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.pp-child-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+.pp-child-grade {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+.pp-child-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+.pp-child-stat {
+  background: var(--bg-color);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+}
+.pp-child-stat-val {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-main);
+}
+.pp-child-stat-lbl {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.pp-active-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: var(--accent);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+/* ── Child Switcher bar ── */
+.pp-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.pp-switcher-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-right: 0.25rem;
+}
+.pp-switcher-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-color);
+  background: white;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.pp-switcher-tab:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.pp-switcher-tab--active {
+  border-color: var(--accent);
+  background: #FFFBEB;
+  color: var(--accent);
+  font-weight: 700;
+}
+.pp-switcher-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ── Fee Statement ── */
+.pp-fee-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.pp-fee-stat {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+.pp-fee-stat-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.pp-fee-stat-lbl {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  font-weight: 500;
+}
+.pp-fee-stat--danger .pp-fee-stat-val { color: var(--primary); }
+.pp-fee-stat--success .pp-fee-stat-val { color: #16A34A; }
+.pp-fee-stat--gold .pp-fee-stat-val { color: var(--accent); }
+
+/* ── Payment modal ── */
+.pp-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.pp-modal {
+  background: white;
+  border-radius: var(--radius);
+  padding: 2rem;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn 0.15s ease;
+}
+.pp-modal-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: var(--text-main);
+}
+.pp-modal-sub {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+.pp-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+.pp-btn-pay {
+  flex: 1;
+  padding: 0.85rem;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.pp-btn-pay:hover { background: #B45309; }
+.pp-btn-cancel {
+  padding: 0.85rem 1.25rem;
+  background: var(--bg-color);
+  color: var(--text-muted);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.pp-btn-cancel:hover { border-color: var(--text-muted); }
+
+/* ── Notice board ── */
+.pp-notice-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.pp-notice {
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: white;
+  transition: var(--transition);
+}
+.pp-notice:hover { box-shadow: var(--shadow-md); }
+.pp-notice--urgent { border-left: 4px solid var(--primary); background: #FEF2F2; }
+.pp-notice--high   { border-left: 4px solid var(--accent);  background: #FFFBEB; }
+.pp-notice--normal { border-left: 4px solid #2563EB;        background: #EFF6FF; }
+.pp-notice--low    { border-left: 4px solid #6B7280;        background: #F9FAFB; }
+.pp-notice-title   { font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
+.pp-notice-body    { font-size: 0.825rem; color: var(--text-muted); margin-top: 0.3rem; line-height: 1.55; }
+.pp-notice-footer  { display: flex; gap: 1rem; margin-top: 0.5rem; align-items: center; }
+.pp-notice-date    { font-size: 0.72rem; color: var(--text-muted); }
+
+/* ── Event card ── */
+.pp-event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+.pp-event-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+.pp-event-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.pp-event-date-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--accent);
+  color: white;
+  border-radius: 10px;
+  padding: 0.4rem 0.75rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+.pp-event-day  { font-size: 1.4rem; line-height: 1; }
+.pp-event-mon  { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.pp-event-title { font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.35rem; }
+.pp-event-meta  { font-size: 0.78rem; color: var(--text-muted); }
+.pp-rsvp-btn {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  background: white;
+  transition: var(--transition);
+}
+.pp-rsvp-btn:hover, .pp-rsvp-btn--active {
+  background: var(--accent);
+  color: white;
+}
+
+/* ── Grade subject card ── */
+.pp-grade-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.pp-grade-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+.pp-grade-card:hover { box-shadow: var(--shadow-md); }
+.pp-grade-subject { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
+.pp-grade-score {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0.5rem 0 0.25rem;
+  line-height: 1;
+}
+.pp-grade-score--pass   { color: #16A34A; }
+.pp-grade-score--warn   { color: var(--accent); }
+.pp-grade-score--fail   { color: var(--primary); }
+.pp-grade-meta { font-size: 0.75rem; color: var(--text-muted); }
+
+/* ── Profile form ── */
+.pp-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.pp-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.pp-form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.pp-form-group input,
+.pp-form-group select {
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+  background: white;
+}
+.pp-form-group input:focus,
+.pp-form-group select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(217,119,6,0.12);
+}
+.pp-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #F3F4F6;
+}
+.pp-toggle-row:last-child { border-bottom: none; }
+.pp-toggle-label { font-size: 0.875rem; font-weight: 500; color: var(--text-main); }
+.pp-toggle-sub   { font-size: 0.75rem; color: var(--text-muted); }
+.pp-toggle {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.pp-toggle input { opacity: 0; width: 0; height: 0; }
+.pp-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #D1D5DB;
+  border-radius: 999px;
+  transition: 0.2s;
+}
+.pp-toggle-slider:before {
+  content: '';
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+.pp-toggle input:checked + .pp-toggle-slider { background: var(--accent); }
+.pp-toggle input:checked + .pp-toggle-slider:before { transform: translateX(18px); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .pp-profile-grid { grid-template-columns: 1fr; }
+  .pp-fee-summary  { grid-template-columns: 1fr 1fr; }
+  .pp-grade-grid   { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .pp-fee-summary { grid-template-columns: 1fr; }
+  .pp-grade-grid  { grid-template-columns: 1fr; }
+}

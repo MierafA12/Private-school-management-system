@@ -212,3 +212,91 @@ export const studentApi = {
   },
   getAnnouncementById: (id)          => request(`/student/announcements/${id}`),
 };
+
+// ─── Parent API ───────────────────────────────────────────────────────────────
+export const parentApi = {
+  getDashboard:    ()                       => request('/parent/dashboard'),
+  getChildren:     ()                       => request('/parent/children'),
+  getChildProfile: (studentId)             => request(`/parent/children/${studentId}/profile`),
+
+  getChildAttendance: (studentId, year, month) =>
+    request(`/parent/children/${studentId}/attendance?year=${year}&month=${month}`),
+
+  getChildGrades:       (studentId)         => request(`/parent/children/${studentId}/grades`),
+  getChildReportCards:  (studentId)         => request(`/parent/children/${studentId}/report-cards`),
+  getChildReportCardById: (studentId, id)   => request(`/parent/children/${studentId}/report-cards/${id}`),
+
+  getFees:         ()                       => request('/parent/fees'),
+  getFeeById:      (invoiceId)             => request(`/parent/fees/${invoiceId}`),
+  initiatePayment: (invoiceId, amount, method) =>
+    request(`/parent/fees/${invoiceId}/pay`, {
+      method: 'POST',
+      body:   JSON.stringify({ amount, method }),
+    }),
+
+  getAnnouncements: (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return request(`/parent/announcements${qs ? `?${qs}` : ''}`);
+  },
+  getEvents:  (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return request(`/parent/events${qs ? `?${qs}` : ''}`);
+  },
+  rsvpEvent: (eventId, response) =>
+    request(`/parent/events/${eventId}/rsvp`, {
+      method: 'POST',
+      body:   JSON.stringify({ response }),
+    }),
+
+  getMessages:       ()                    => request('/parent/messages'),
+  getConversation:   (id)                  => request(`/parent/messages/${id}`),
+  startConversation: (data)               =>
+    request('/parent/messages', { method: 'POST', body: JSON.stringify(data) }),
+  sendMessage:       (convId, body)       =>
+    request(`/parent/messages/${convId}`, { method: 'POST', body: JSON.stringify({ body }) }),
+
+  getProfile:               ()            => request('/parent/profile'),
+  updateNotificationPrefs:  (prefs)       =>
+    request('/parent/notification-preferences', { method: 'PATCH', body: JSON.stringify(prefs) }),
+};
+
+// ─── Accountant API ───────────────────────────────────────────────────────────
+export const accountantApi = {
+  getDashboard:       ()       => request('/accountant/dashboard'),
+
+  // Fee structures
+  getFeeStructures:   (p={})  => request(`/accountant/fee-structures?${new URLSearchParams(p)}`),
+  createFeeStructure: (data)  => request('/accountant/fee-structures', { method:'POST', body:JSON.stringify(data) }),
+  updateFeeStructure: (id, d) => request(`/accountant/fee-structures/${id}`, { method:'PATCH', body:JSON.stringify(d) }),
+  archiveFeeStructure:(id)    => request(`/accountant/fee-structures/${id}`, { method:'DELETE' }),
+
+  // Invoices
+  generateInvoices:   (data)  => request('/accountant/invoices/generate', { method:'POST', body:JSON.stringify(data) }),
+  getInvoices:        (p={})  => request(`/accountant/invoices?${new URLSearchParams(p)}`),
+  getInvoice:         (id)    => request(`/accountant/invoices/${id}`),
+
+  // Payments
+  recordPayment:      (data)  => request('/accountant/payments', { method:'POST', body:JSON.stringify(data) }),
+  getPayments:        (p={})  => request(`/accountant/payments?${new URLSearchParams(p)}`),
+  getReceipt:         (id)    => request(`/accountant/payments/${id}/receipt`),
+
+  // Reports
+  getCollectionsReport: (p={}) => request(`/accountant/reports/collections?${new URLSearchParams(p)}`),
+  getArrearsReport:     (p={}) => request(`/accountant/reports/arrears?${new URLSearchParams(p)}`),
+  getRevenueReport:     (p={}) => request(`/accountant/reports/revenue?${new URLSearchParams(p)}`),
+
+  // Shared lookups (reuse registrar endpoints)
+  getAcademicYears: () => request('/registrar/academic-years').catch(() => []),
+  getTerms:         () => request('/registrar/terms').catch(() => []),
+  getClasses:       () => request('/registrar/classes').catch(() => []),
+};
+
+// ─── Notification API ─────────────────────────────────────────────────────────
+export const notificationApi = {
+  list:               (p={}) => request(`/notifications?${new URLSearchParams(p)}`),
+  getUnreadCount:     ()     => request('/notifications/unread-count'),
+  markRead:           (id)   => request(`/notifications/${id}/read`, { method: 'PATCH' }),
+  markAllRead:        ()     => request('/notifications/read-all',    { method: 'PATCH' }),
+  getPreferences:     ()     => request('/notifications/preferences'),
+  updatePreferences:  (data) => request('/notifications/preferences', { method: 'PATCH', body: JSON.stringify(data) }),
+};

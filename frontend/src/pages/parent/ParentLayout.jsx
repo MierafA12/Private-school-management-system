@@ -1,31 +1,31 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, CalendarDays, BookOpen, ClipboardList,
-  FileText, CreditCard, Bell, MessageSquare, LogOut,
-  Menu, X, GraduationCap, ChevronRight,
+  LayoutDashboard, Users, CalendarDays, TrendingUp,
+  FileText, CreditCard, Bell, MessageSquare,
+  User, LogOut, Menu, X, UserCheck, ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../../components/shared/NotificationBell';
-import './student.css';
+import '../student/student.css';
+import './parent.css';
 
 const NAV_ITEMS = [
-  { to: '/student/dashboard',  icon: LayoutDashboard, label: 'Dashboard'     },
-  { to: '/student/attendance', icon: CalendarDays,    label: 'Attendance'    },
-  { to: '/student/timetable',  icon: ClipboardList,   label: 'Timetable'     },
-  { to: '/student/subjects',   icon: BookOpen,        label: 'Subjects'      },
-  { to: '/student/exams',      icon: FileText,        label: 'Exams'         },
-  { to: '/student/reportcard', icon: GraduationCap,   label: 'Report Card'   },
-  { to: '/student/fees',       icon: CreditCard,      label: 'Fees'          },
-  { to: '/student/messages',   icon: MessageSquare,   label: 'Messages'      },
-  { to: '/student/notices',    icon: Bell,            label: 'Notices'       },
+  { to: '/parent/dashboard',    icon: LayoutDashboard, label: 'Dashboard'    },
+  { to: '/parent/children',     icon: Users,           label: 'My Children'  },
+  { to: '/parent/attendance',   icon: CalendarDays,    label: 'Attendance'   },
+  { to: '/parent/grades',       icon: TrendingUp,      label: 'Grades'       },
+  { to: '/parent/report-cards', icon: FileText,        label: 'Report Cards' },
+  { to: '/parent/fees',         icon: CreditCard,      label: 'Fees'         },
+  { to: '/parent/notices',      icon: Bell,            label: 'Notices'      },
+  { to: '/parent/messages',     icon: MessageSquare,   label: 'Messages'     },
+  { to: '/parent/profile',      icon: User,            label: 'Profile'      },
 ];
 
-/** Derive initials from a full name string */
 const initials = (name = '') =>
-  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'S';
+  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'P';
 
-export default function StudentLayout() {
+export default function ParentLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export default function StudentLayout() {
     navigate('/login', { replace: true });
   };
 
-  const displayName = user?.full_name || user?.email || 'Student';
+  const displayName = user?.full_name || user?.email || 'Parent';
   const avatarText  = initials(user?.full_name || '');
 
   return (
@@ -47,21 +47,23 @@ export default function StudentLayout() {
       {/* ── Sidebar ── */}
       <aside className={`sl-sidebar ${sidebarOpen ? 'sl-sidebar--open' : ''}`}>
         <div className="sl-logo">
-          <div className="sl-logo-icon"><GraduationCap size={22} color="white" /></div>
+          <div className="sl-logo-icon pp-logo-icon">
+            <UserCheck size={22} color="white" />
+          </div>
           <div>
             <div className="sl-logo-name">EduFlow</div>
-            <div className="sl-logo-sub">Student Portal</div>
+            <div className="sl-logo-sub">Parent Portal</div>
           </div>
           <button className="sl-close-btn" onClick={() => setSidebarOpen(false)}>
             <X size={20} />
           </button>
         </div>
 
-        <div className="sl-student-card">
-          <div className="sl-avatar">{avatarText}</div>
+        <div className="sl-student-card pp-user-card">
+          <div className="sl-avatar pp-avatar">{avatarText}</div>
           <div className="sl-student-info">
             <div className="sl-student-name">{displayName}</div>
-            <div className="sl-student-meta">{user?.role || 'Student'}</div>
+            <div className="sl-student-meta pp-role-badge">{user?.role || 'Parent'}</div>
           </div>
         </div>
 
@@ -71,7 +73,7 @@ export default function StudentLayout() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`
+                `sl-nav-item${isActive ? ' sl-nav-item--active pp-nav-active' : ''}`
               }
               onClick={() => setSidebarOpen(false)}
             >
@@ -94,10 +96,10 @@ export default function StudentLayout() {
           <button className="sl-menu-btn" onClick={() => setSidebarOpen(true)}>
             <Menu size={22} />
           </button>
-          <div className="sl-topbar-title">Student Portal</div>
+          <div className="sl-topbar-title">Parent Portal</div>
           <div className="sl-topbar-right">
-            <NotificationBell portalRoot="/student" />
-            <div className="sl-topbar-avatar">{avatarText}</div>
+            <NotificationBell portalRoot="/parent" />
+            <div className="sl-topbar-avatar pp-avatar">{avatarText}</div>
           </div>
         </header>
 

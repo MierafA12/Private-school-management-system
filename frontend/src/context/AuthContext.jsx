@@ -1,18 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authApi, clearTokens, getAccessToken } from '../api';
 
-const AuthContext = createContext(null);
+export { roleHomePath } from '../utils/roleHomePath';
 
-// Map role → home path
-export const roleHomePath = (role) => {
-  if (role === 'Student')   return '/student/dashboard';
-  if (role === 'Registrar') return '/registrar/dashboard';
-  if (role === 'Principal') return '/registrar/dashboard';
-  if (role === 'Super Admin') return '/registrar/dashboard';
-  if (role === 'Teacher')   return '/student/dashboard'; // teacher portal later
-  if (role === 'Parent')    return '/student/dashboard'; // parent portal later
-  return '/login';
-};
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(() => {

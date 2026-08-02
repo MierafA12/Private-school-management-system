@@ -115,4 +115,26 @@ router.patch(
   ctrl.updateStatus
 );
 
+// ── Shared lookup endpoints (used by accountant, parent, teacher portals) ─────
+const pool = require('../db');
+
+router.get('/academic-years', async (req, res) => {
+  const { rows } = await pool.query(`SELECT id, name, is_current, status FROM academic_years ORDER BY start_date DESC`);
+  res.json({ success: true, data: rows });
+});
+
+router.get('/terms', async (req, res) => {
+  const { rows } = await pool.query(
+    `SELECT t.id, t.name, t.academic_year_id, ay.name AS academic_year_name, t.status
+     FROM terms t JOIN academic_years ay ON ay.id = t.academic_year_id
+     ORDER BY ay.start_date DESC, t.start_date`
+  );
+  res.json({ success: true, data: rows });
+});
+
+router.get('/classes', async (req, res) => {
+  const { rows } = await pool.query(`SELECT id, name, grade_level FROM classes ORDER BY grade_level, name`);
+  res.json({ success: true, data: rows });
+});
+
 module.exports = router;
