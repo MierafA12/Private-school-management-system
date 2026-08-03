@@ -6,16 +6,35 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:create": "node-pg-migrate create",
+    "migrate:supabase": "node scripts/run-migration.js",
+    "seed:admin": "node scripts/seed-admin.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "node-pg-migrate": {
+    "migrations-dir": "migrations",
+    "migrations-schema": "public",
+    "verbose": true
+  },
   "dependencies": {
+    "@messagebird/sdk": "^0.16.0",
+    "@supabase/supabase-js": "2.110.8",
+    "bcryptjs": "3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "8.6.0",
+    "express-validator": "7.3.2",
+    "helmet": "8.3.0",
+    "jsonwebtoken": "9.0.3",
+    "node-cron": "^4.6.0",
+    "node-pg-migrate": "9.0.0",
     "pg": "^8.22.0"
   },
   "devDependencies": {

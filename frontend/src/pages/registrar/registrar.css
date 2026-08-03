@@ -1,0 +1,186 @@
+/* ════════════════════════════════════════════════
+   Registrar Portal Styles
+   ════════════════════════════════════════════════ */
+
+/* Form card */
+.rg-form-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  max-width: 860px;
+}
+.rg-form-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.rg-form-body {
+  padding: 1.5rem;
+}
+.rg-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+  margin: 1.5rem 0 0.875rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid #FEE2E2;
+}
+.rg-section-title:first-child { margin-top: 0; }
+
+/* Grid */
+.rg-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.rg-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+.rg-col-full { grid-column: 1 / -1; }
+
+/* Form field */
+.rg-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.rg-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.rg-label span { color: var(--primary); }   /* required asterisk */
+
+.rg-input,
+.rg-select {
+  padding: 0.6rem 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--text-main);
+  background: white;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.rg-input:focus,
+.rg-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.08);
+}
+.rg-input::placeholder { color: #C4B5B5; }
+.rg-input.error,
+.rg-select.error { border-color: var(--primary); }
+
+.rg-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Role tabs */
+.rg-role-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.rg-role-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-color);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: white;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.rg-role-tab:hover { border-color: var(--primary); color: var(--primary); }
+.rg-role-tab.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* Submit bar */
+.rg-submit-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-color);
+}
+
+/* Success card */
+.rg-success {
+  background: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+  max-width: 500px;
+  margin: 2rem auto;
+}
+.rg-success-icon { font-size: 2.5rem; }
+.rg-success h3 { font-size: 1.1rem; font-weight: 700; color: #15803D; }
+.rg-success p  { font-size: 0.875rem; color: #166534; }
+.rg-cred-box {
+  background: white;
+  border: 1px solid #BBF7D0;
+  border-radius: 8px;
+  padding: 0.875rem 1.25rem;
+  width: 100%;
+  text-align: left;
+}
+.rg-cred-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #DCFCE7;
+}
+.rg-cred-row:last-child { border-bottom: none; }
+.rg-cred-key   { color: var(--text-muted); font-weight: 500; }
+.rg-cred-value { font-weight: 700; color: var(--text-main); font-family: monospace; }
+
+/* User list */
+.rg-search-bar {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.rg-search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.6rem 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.rg-search-input:focus { border-color: var(--primary); }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .rg-grid   { grid-template-columns: 1fr; }
+  .rg-grid-3 { grid-template-columns: 1fr; }
+  .rg-form-body { padding: 1rem; }
+}
