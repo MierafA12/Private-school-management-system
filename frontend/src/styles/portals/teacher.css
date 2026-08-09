@@ -1,22 +1,38 @@
 /* ═══════════════════════════════════════════════════════════
-   Teacher Portal — accent overrides & specific components
+   Teacher Portal — 3-Tier Red Monochromatic Palette
    Inherits layout from student/student.css (sl-*, sp-*)
-   Accent colour: Indigo #4F46E5
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  --acc-indigo:       #4F46E5;
-  --acc-indigo-dark:  #4338CA;
-  --acc-indigo-light: #E0E7FF;
+  /* 3 Tiers of Red */
+  --tp-primary:        #991B1B; /* Academic Crimson */
+  --tp-primary-hover:  #7F1D1D;
+  --tp-primary-light:  #FEF2F2;
+  --tp-primary-border: #FECACA;
+
+  --tp-secondary:        #450A0A; /* Dark Burgundy / Wine */
+  --tp-secondary-hover:  #300707;
+  --tp-secondary-light:  #FDF2F2;
+  --tp-secondary-border: #F87171;
+
+  --tp-tertiary:        #E11D48; /* Ruby / Scarlet Accent */
+  --tp-tertiary-hover:  #BE123C;
+  --tp-tertiary-light:  #FFF1F2;
+  --tp-tertiary-border: #FECDD3;
+
+  /* Legacy alias compatibility */
+  --acc-indigo:       var(--tp-primary);
+  --acc-indigo-dark:  var(--tp-primary-hover);
+  --acc-indigo-light: var(--tp-primary-light);
 }
 
-/* ── Brand overrides ── */
-.tp-logo-icon  { background: var(--acc-indigo) !important; }
-.tp-avatar     { background: var(--acc-indigo) !important; }
-.tp-user-card  { background: #EEF2FF !important; border-color: #C7D2FE !important; }
-.tp-role-badge { color: var(--acc-indigo) !important; }
-.tp-nav-active { background: #EEF2FF !important; color: var(--acc-indigo) !important; }
-.tp-nav-active svg:first-child { color: var(--acc-indigo) !important; }
+/* ── Brand overrides (All Red Tiers) ── */
+.tp-logo-icon  { background: var(--tp-primary) !important; }
+.tp-avatar     { background: var(--tp-primary) !important; }
+.tp-user-card  { background: var(--tp-primary-light) !important; border-color: var(--tp-primary-border) !important; }
+.tp-role-badge { color: var(--tp-primary) !important; }
+.tp-nav-active { background: var(--tp-primary-light) !important; color: var(--tp-primary) !important; }
+.tp-nav-active svg:first-child { color: var(--tp-primary) !important; }
 
 /* ── KPI stat cards ── */
 .tp-kpi-grid {
@@ -40,10 +56,10 @@
   top: 0; left: 0; right: 0;
   height: 3px;
 }
-.tp-kpi--indigo::before { background: var(--acc-indigo); }
-.tp-kpi--green::before  { background: #059669; }
-.tp-kpi--red::before    { background: var(--primary); }
-.tp-kpi--gold::before   { background: #D97706; }
+.tp-kpi--indigo::before { background: var(--tp-primary); }
+.tp-kpi--green::before  { background: var(--tp-secondary); }
+.tp-kpi--red::before    { background: var(--tp-primary); }
+.tp-kpi--gold::before   { background: var(--tp-tertiary); }
 
 .tp-kpi-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); letter-spacing: .05em; }
 .tp-kpi-value { font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin: .3rem 0 .15rem; line-height: 1; }
@@ -101,20 +117,20 @@
 .tp-form-group input:focus,
 .tp-form-group select:focus,
 .tp-form-group textarea:focus {
-  border-color: var(--acc-indigo);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  border-color: var(--tp-primary);
+  box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.12);
 }
 
 /* ── buttons ── */
 .tp-btn-primary {
   padding: .75rem 1.5rem;
-  background: var(--acc-indigo); color: white;
+  background: var(--tp-primary); color: white;
   font-weight: 700; font-size: .9rem;
   border-radius: var(--radius-sm); border: none;
   cursor: pointer; transition: var(--transition);
   display: inline-flex; align-items: center; gap: .5rem;
 }
-.tp-btn-primary:hover     { background: var(--acc-indigo-dark); }
+.tp-btn-primary:hover     { background: var(--tp-primary-hover); }
 .tp-btn-primary:disabled  { opacity: .6; cursor: not-allowed; }
 
 .tp-btn-secondary {
@@ -124,7 +140,7 @@
   border: 1px solid var(--border-color); cursor: pointer;
   transition: var(--transition);
 }
-.tp-btn-secondary:hover { border-color: var(--text-muted); color: var(--text-main); }
+.tp-btn-secondary:hover { border-color: var(--tp-primary); color: var(--tp-primary); }
 
 /* ── Select states ── */
 .tp-status-select {
@@ -135,9 +151,9 @@
   font-size: 0.8rem;
   cursor: pointer;
 }
-.tp-status-present { color: #059669; background: #ECFDF5; border-color: #6EE7B7; }
-.tp-status-absent { color: #DC2626; background: #FEF2F2; border-color: #FCA5A5; }
-.tp-status-late { color: #D97706; background: #FFFBEB; border-color: #FDE68A; }
+.tp-status-present { color: #15803D; background: #F0FDF4; border-color: #86EFAC; }
+.tp-status-absent  { color: var(--tp-primary); background: var(--tp-primary-light); border-color: var(--tp-primary-border); }
+.tp-status-late    { color: #C2410C; background: #FFF7ED; border-color: #FDBA74; }
 
 @media (max-width: 768px) {
   .tp-kpi-grid   { grid-template-columns: 1fr 1fr; }
