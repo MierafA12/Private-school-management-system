@@ -9,7 +9,7 @@ import {
   Users
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import './principal.css';
+import "../../styles/portals/principal.css";
 
 export default function PrincipalLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

@@ -24,7 +24,6 @@
 .rg-section-title {
   font-size: 0.75rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--primary);
   margin: 1.5rem 0 0.875rem;
@@ -52,7 +51,6 @@
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-muted);
-  text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 .rg-label span { color: var(--primary); }   /* required asterisk */
@@ -96,7 +94,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1.1rem;
-  border-radius: 999px;
+  border-radius: 6px;
   border: 1.5px solid var(--border-color);
   font-size: 0.85rem;
   font-weight: 500;

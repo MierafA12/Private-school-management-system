@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../context/NotificationContext';
 import { LoadingSpinner } from './PageState';
-import './notifications.css';
+import "../../styles/components/notifications.css";
 
 const TYPE_ICON = {
   fee_reminder: '💳', payment_confirmation: '✅', attendance_alert: '📅',

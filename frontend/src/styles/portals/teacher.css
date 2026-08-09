@@ -1,0 +1,148 @@
+/* ═══════════════════════════════════════════════════════════
+   Teacher Portal — accent overrides & specific components
+   Inherits layout from student/student.css (sl-*, sp-*)
+   Accent colour: Indigo #4F46E5
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --acc-indigo:       #4F46E5;
+  --acc-indigo-dark:  #4338CA;
+  --acc-indigo-light: #E0E7FF;
+}
+
+/* ── Brand overrides ── */
+.tp-logo-icon  { background: var(--acc-indigo) !important; }
+.tp-avatar     { background: var(--acc-indigo) !important; }
+.tp-user-card  { background: #EEF2FF !important; border-color: #C7D2FE !important; }
+.tp-role-badge { color: var(--acc-indigo) !important; }
+.tp-nav-active { background: #EEF2FF !important; color: var(--acc-indigo) !important; }
+.tp-nav-active svg:first-child { color: var(--acc-indigo) !important; }
+
+/* ── KPI stat cards ── */
+.tp-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.tp-kpi {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.tp-kpi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.tp-kpi--indigo::before { background: var(--acc-indigo); }
+.tp-kpi--green::before  { background: #059669; }
+.tp-kpi--red::before    { background: var(--primary); }
+.tp-kpi--gold::before   { background: #D97706; }
+
+.tp-kpi-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); letter-spacing: .05em; }
+.tp-kpi-value { font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin: .3rem 0 .15rem; line-height: 1; }
+.tp-kpi-sub   { font-size: 0.75rem; color: var(--text-muted); }
+.tp-kpi-icon  { position: absolute; bottom: 1rem; right: 1.25rem; opacity: .08; }
+
+/* ── Attendance/Grades Tables ── */
+.tp-table-wrapper {
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+}
+.tp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.tp-table th {
+  text-align: left;
+  padding: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-color);
+  letter-spacing: .04em;
+}
+.tp-table td {
+  padding: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-color);
+}
+.tp-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── form fields ── */
+.tp-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+.tp-form-group { display: flex; flex-direction: column; gap: .4rem; }
+.tp-form-group label {
+  font-size: .78rem; font-weight: 600; color: var(--text-muted);
+  letter-spacing: .04em;
+}
+.tp-form-group input,
+.tp-form-group select,
+.tp-form-group textarea {
+  padding: .65rem .9rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: .875rem; font-family: inherit;
+  outline: none; transition: border-color .2s; background: white;
+}
+.tp-form-group input:focus,
+.tp-form-group select:focus,
+.tp-form-group textarea:focus {
+  border-color: var(--acc-indigo);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+/* ── buttons ── */
+.tp-btn-primary {
+  padding: .75rem 1.5rem;
+  background: var(--acc-indigo); color: white;
+  font-weight: 700; font-size: .9rem;
+  border-radius: var(--radius-sm); border: none;
+  cursor: pointer; transition: var(--transition);
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.tp-btn-primary:hover     { background: var(--acc-indigo-dark); }
+.tp-btn-primary:disabled  { opacity: .6; cursor: not-allowed; }
+
+.tp-btn-secondary {
+  padding: .75rem 1.25rem;
+  background: var(--bg-color); color: var(--text-muted);
+  font-weight: 600; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color); cursor: pointer;
+  transition: var(--transition);
+}
+.tp-btn-secondary:hover { border-color: var(--text-muted); color: var(--text-main); }
+
+/* ── Select states ── */
+.tp-status-select {
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.tp-status-present { color: #059669; background: #ECFDF5; border-color: #6EE7B7; }
+.tp-status-absent { color: #DC2626; background: #FEF2F2; border-color: #FCA5A5; }
+.tp-status-late { color: #D97706; background: #FFFBEB; border-color: #FDE68A; }
+
+@media (max-width: 768px) {
+  .tp-kpi-grid   { grid-template-columns: 1fr 1fr; }
+  .tp-form-grid  { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .tp-kpi-grid    { grid-template-columns: 1fr; }
+}

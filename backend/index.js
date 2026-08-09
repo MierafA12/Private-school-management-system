@@ -11,6 +11,7 @@ const registrarRoutes = require('./src/routes/registrarRoutes');
 const parentRoutes        = require('./src/routes/parentRoutes');
 const principalRoutes     = require('./src/routes/principalRoutes');
 const accountantRoutes    = require('./src/routes/accountantRoutes');
+const teacherRoutes       = require('./src/routes/teacherRoutes');
 const notificationRoutes  = require('./src/routes/notificationRoutes');
 const overdueCheck        = require('./src/jobs/overdueInvoiceCheck');
 const errorHandler = require('./src/middleware/errorHandler');
@@ -57,6 +58,7 @@ app.use('/api/registrar', registrarRoutes);
 app.use('/api/principal', principalRoutes);
 app.use('/api/parent',         parentRoutes);
 app.use('/api/accountant',    accountantRoutes);
+app.use('/api/teacher',       teacherRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 // ─── Health Check ────────────────────────────────────────────────────────────
@@ -91,6 +93,7 @@ app.listen(PORT, () => {
   console.log(`  Principal:  http://localhost:${PORT}/api/principal`);
   console.log(`  Parent:        http://localhost:${PORT}/api/parent`);
   console.log(`  Accountant:    http://localhost:${PORT}/api/accountant`);
+  console.log(`  Teacher:       http://localhost:${PORT}/api/teacher`);
   console.log(`  Notifications: http://localhost:${PORT}/api/notifications`);
 
   // ── Overdue invoice check — runs daily at 06:00 ──────────────────────────

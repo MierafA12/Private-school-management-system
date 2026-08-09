@@ -45,7 +45,7 @@
 .ap-kpi--red::before    { background: var(--primary); }
 .ap-kpi--gold::before   { background: var(--acc-gold); }
 .ap-kpi--blue::before   { background: #2563EB; }
-.ap-kpi-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+.ap-kpi-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); letter-spacing: .05em; }
 .ap-kpi-value { font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin: .3rem 0 .15rem; line-height: 1; }
 .ap-kpi-sub   { font-size: 0.75rem; color: var(--text-muted); }
 .ap-kpi-icon  { position: absolute; bottom: 1rem; right: 1.25rem; opacity: .08; }
@@ -89,7 +89,7 @@
 .ap-form-group { display: flex; flex-direction: column; gap: .4rem; }
 .ap-form-group label {
   font-size: .78rem; font-weight: 600; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: .04em;
+  letter-spacing: .04em;
 }
 .ap-form-group input,
 .ap-form-group select,

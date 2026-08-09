@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../context/NotificationContext';
-import './notifications.css';
+import "../../styles/components/notifications.css";
 
 const TYPE_ICON = {
   fee_reminder:          '💳',
