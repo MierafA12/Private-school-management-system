@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Users, GraduationCap, UserCheck, TrendingUp, Bell } from 'lucide-react';
+import { Users, GraduationCap, UserCheck, TrendingUp, ShieldCheck } from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 
@@ -21,70 +21,67 @@ export default function PrincipalDashboard() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   if (loading) return <LoadingSpinner message="Loading school analytics…" />;
   if (error) return <ErrorBanner message={error} onRetry={load} />;
   if (!data) return null;
 
   return (
-    <div className="principal-dashboard">
+    <div>
       <div className="sp-page-header">
-        <h1 className="sp-page-title">School Analytics</h1>
-        <p className="sp-page-sub">High-level overview of Haile-Manas Academy</p>
+        <h1 className="sp-page-title">Executive Analytics</h1>
+        <p className="sp-page-sub">High-level institutional oversight and student metrics</p>
       </div>
 
-      <div className="principal-stats-grid">
-        <div className="principal-stat-card">
-          <div className="stat-icon-wrapper blue">
-            <GraduationCap size={24} />
+      {/* Modern Metric Cards */}
+      <div className="sp-stats-grid">
+        <div className="sp-stat-card">
+          <div className="sp-stat-header">
+            <span className="sp-stat-label">Active Students</span>
+            <div className="sp-stat-icon">
+              <GraduationCap size={16} />
+            </div>
           </div>
-          <div className="stat-info">
-            <div className="stat-val">{data.totalStudents || 0}</div>
-            <div className="stat-lbl">Active Students</div>
-          </div>
+          <div className="sp-stat-value">{data.totalStudents || 0}</div>
+          <div className="sp-stat-sub">Enrolled students</div>
         </div>
 
-        <div className="principal-stat-card">
-          <div className="stat-icon-wrapper green">
-            <Users size={24} />
+        <div className="sp-stat-card">
+          <div className="sp-stat-header">
+            <span className="sp-stat-label">Faculty & Teachers</span>
+            <div className="sp-stat-icon">
+              <Users size={16} />
+            </div>
           </div>
-          <div className="stat-info">
-            <div className="stat-val">{data.totalTeachers || 0}</div>
-            <div className="stat-lbl">Total Teachers</div>
-          </div>
+          <div className="sp-stat-value">{data.totalTeachers || 0}</div>
+          <div className="sp-stat-sub">Active teaching staff</div>
         </div>
 
-        <div className="principal-stat-card">
-          <div className="stat-icon-wrapper purple">
-            <UserCheck size={24} />
+        <div className="sp-stat-card">
+          <div className="sp-stat-header">
+            <span className="sp-stat-label">Support Staff</span>
+            <div className="sp-stat-icon">
+              <UserCheck size={16} />
+            </div>
           </div>
-          <div className="stat-info">
-            <div className="stat-val">{data.totalStaff || 0}</div>
-            <div className="stat-lbl">Support Staff</div>
-          </div>
+          <div className="sp-stat-value">{data.totalStaff || 0}</div>
+          <div className="sp-stat-sub">Admin & operations staff</div>
         </div>
 
-        <div className="principal-stat-card">
-          <div className="stat-icon-wrapper yellow">
-            <TrendingUp size={24} />
+        <div className="sp-stat-card">
+          <div className="sp-stat-header">
+            <span className="sp-stat-label">Today's Attendance</span>
+            <div className="sp-stat-icon">
+              <TrendingUp size={16} />
+            </div>
           </div>
-          <div className="stat-info">
-            <div className="stat-val">{data.todayAttendancePct != null ? `${data.todayAttendancePct}%` : '—'}</div>
-            <div className="stat-lbl">Today's Attendance</div>
+          <div className="sp-stat-value">
+            {data.todayAttendancePct != null ? `${data.todayAttendancePct}%` : '—'}
           </div>
-        </div>
-      </div>
-      
-      <div className="sp-card" style={{ marginTop: '2rem' }}>
-        <div className="sp-card-header">
-          <span className="sp-card-title"><Bell size={18} style={{ marginRight: 8, verticalAlign: 'middle' }} /> Quick Actions</span>
-        </div>
-        <div style={{ padding: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <p style={{ color: 'var(--text-light)', marginBottom: '1rem', width: '100%' }}>
-            Welcome to the Principal Dashboard. This is your central hub for school-wide oversight. 
-            More actionable insights, approval workflows, and teacher management tools will be added here.
-          </p>
+          <div className="sp-stat-sub">School-wide presence rate</div>
         </div>
       </div>
     </div>

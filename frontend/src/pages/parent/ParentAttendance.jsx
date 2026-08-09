@@ -8,7 +8,6 @@ import { useSearchParams } from 'react-router-dom';
 const DAYS        = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const STATUS_CLS  = { Present: 'present', Absent: 'absent', Late: 'late', Excused: 'excused', Sick: 'excused', Permission: 'excused' };
-const BADGE_CLR   = { Present: 'green', Absent: 'red', Late: 'yellow', Excused: 'blue', Sick: 'blue', Permission: 'blue' };
 const EMOJI       = { Present: '✅', Absent: '❌', Late: '⏰', Excused: '📝', Sick: '🤒', Permission: '📋' };
 
 export default function ParentAttendance() {

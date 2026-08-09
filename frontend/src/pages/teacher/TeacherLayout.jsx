@@ -1,94 +1,111 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Calendar, CheckSquare, FileText, MessageSquare, Menu, X, LogOut, Bell } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
-import '../../styles/portals/teacher.css';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import {
+  LayoutDashboard, Users, Calendar, CheckSquare,
+  FileText, LogOut, Menu, X, GraduationCap,
+} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import NotificationBell from '../../components/shared/NotificationBell';
+import "../../styles/portals/student.css";
+import "../../styles/portals/teacher.css";
+
+const NAV = [
+  { to: '/teacher/dashboard',    icon: LayoutDashboard, label: 'Dashboard'  },
+  { to: '/teacher/classes',      icon: Users,           label: 'My Classes' },
+  { to: '/teacher/timetable',    icon: Calendar,        label: 'Timetable'  },
+  { to: '/teacher/attendance',   icon: CheckSquare,     label: 'Attendance' },
+  { to: '/teacher/grades',       icon: FileText,        label: 'Grades'     },
+];
+
+const initials = (name = '') =>
+  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'TC';
 
 export default function TeacherLayout() {
+  const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
-  const navLinks = [
-    { to: '/teacher/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/teacher/classes',    icon: Users,           label: 'My Classes' },
-    { to: '/teacher/timetable',  icon: Calendar,        label: 'Timetable' },
-    { to: '/teacher/attendance', icon: CheckSquare,     label: 'Attendance' },
-    { to: '/teacher/grades',     icon: FileText,        label: 'Grades' },
-    { to: '/teacher/notifications', icon: Bell,         label: 'Notices' },
-  ];
+  const name   = user?.full_name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || user?.email || 'Teacher';
+  const avatar = initials(name);
+
+  // Derive current page label for breadcrumb
+  const currentNav = NAV.find(n => location.pathname.startsWith(n.to));
+  const currentPage = currentNav ? currentNav.label : 'Dashboard';
 
   return (
-    <div className="sl-layout">
-      {/* Mobile Header */}
-      <div className="sl-mobile-header">
-        <div className="sl-mobile-brand">
-          <div className="sl-logo-icon tp-logo-icon"><Users size={20} /></div>
-          <span>Teacher Portal</span>
-        </div>
-        <button className="sl-mobile-menu-btn" onClick={() => setMobileMenuOpen(true)}>
-          <Menu size={24} />
-        </button>
-      </div>
+    <div className="sl-root">
+      {open && <div className="sl-overlay" onClick={() => setOpen(false)} />}
 
-      {/* Sidebar Navigation */}
-      <nav className={`sl-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
-        <div className="sl-sidebar-header">
-          <div className="sl-logo-icon tp-logo-icon"><Users size={20} /></div>
-          <span className="sl-logo-text">Teacher Portal</span>
-          <button className="sl-close-menu" onClick={() => setMobileMenuOpen(false)}>
-            <X size={24} />
-          </button>
-        </div>
-
-        <div className="sl-user-profile tp-user-card">
-          <div className="sl-avatar tp-avatar">
-            {user?.first_name?.charAt(0) || 'T'}
+      {/* ── Clean Sidebar ── */}
+      <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''}`}>
+        <div className="sl-logo">
+          <div className="sl-logo-icon"><GraduationCap size={18} color="white" /></div>
+          <div>
+            <div className="sl-logo-name">EduFlow</div>
+            <div className="sl-logo-sub">Teacher Portal</div>
           </div>
-          <div className="sl-user-info">
-            <div className="sl-user-name">{user?.first_name} {user?.last_name}</div>
-            <div className="sl-user-role tp-role-badge">Teacher</div>
-          </div>
+          <button className="sl-close-btn" onClick={() => setOpen(false)}><X size={18} /></button>
         </div>
 
-        <ul className="sl-nav-list">
-          {navLinks.map((link) => (
-            <li key={link.to}>
-              <NavLink
-                to={link.to}
-                className={({ isActive }) => `sl-nav-link ${isActive ? 'tp-nav-active' : ''}`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <link.icon size={20} />
-                <span>{link.label}</span>
-              </NavLink>
-            </li>
+        <nav className="sl-nav">
+          {NAV.map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`
+              }
+              onClick={() => setOpen(false)}
+            >
+              <Icon size={16} />
+              <span>{label}</span>
+            </NavLink>
           ))}
-        </ul>
+        </nav>
 
+        {/* ── User Profile at Bottom of Sidebar ── */}
         <div className="sl-sidebar-footer">
-          <button onClick={handleLogout} className="sl-nav-link" style={{ width: '100%', border: 'none', background: 'none' }}>
-            <LogOut size={20} />
-            <span>Sign Out</span>
-          </button>
+          <div className="sl-user-row">
+            <div className="sl-avatar">{avatar}</div>
+            <div className="sl-user-details">
+              <span className="sl-user-name">{name}</span>
+              <span className="sl-user-role">Teacher</span>
+            </div>
+            <button className="sl-logout-btn" onClick={handleLogout} title="Sign Out">
+              <LogOut size={16} />
+            </button>
+          </div>
         </div>
-      </nav>
+      </aside>
 
-      {mobileMenuOpen && (
-        <div className="sl-mobile-overlay" onClick={() => setMobileMenuOpen(false)} />
-      )}
+      {/* ── Main Area ── */}
+      <div className="sl-main">
+        {/* ── Ultra-Clean Topbar ── */}
+        <header className="sl-topbar">
+          <div className="sl-topbar-left">
+            <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={20} /></button>
+            <div className="sl-breadcrumb">
+              <span>Teacher</span>
+              <span>/</span>
+              <span className="sl-breadcrumb-current">{currentPage}</span>
+            </div>
+          </div>
+          <div className="sl-topbar-right">
+            <NotificationBell portalRoot="/teacher" />
+            <div className="sl-topbar-avatar" title={name}>{avatar}</div>
+          </div>
+        </header>
 
-      {/* Main Content Area */}
-      <main className="sl-main-content">
-        <div className="sl-content-wrapper">
+        <main className="sl-content">
           <Outlet />
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

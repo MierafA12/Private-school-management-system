@@ -1,34 +1,33 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, CalendarDays, TrendingUp,
-  FileText, CreditCard, Bell, MessageSquare,
-  User, LogOut, Menu, X, UserCheck, ChevronRight,
+  LayoutDashboard, Users, Calendar, Award,
+  CreditCard, Bell, MessageSquare, User, LogOut,
+  Menu, X, HeartHandshake,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../../components/shared/NotificationBell';
 import "../../styles/portals/student.css";
-import "../../styles/portals/parent.css";
 
-const NAV_ITEMS = [
-  { to: '/parent/dashboard',    icon: LayoutDashboard, label: 'Dashboard'    },
-  { to: '/parent/children',     icon: Users,           label: 'My Children'  },
-  { to: '/parent/attendance',   icon: CalendarDays,    label: 'Attendance'   },
-  { to: '/parent/grades',       icon: TrendingUp,      label: 'Grades'       },
-  { to: '/parent/report-cards', icon: FileText,        label: 'Report Cards' },
-  { to: '/parent/fees',         icon: CreditCard,      label: 'Fees'         },
-  { to: '/parent/notices',      icon: Bell,            label: 'Notices'      },
-  { to: '/parent/messages',     icon: MessageSquare,   label: 'Messages'     },
-  { to: '/parent/profile',      icon: User,            label: 'Profile'      },
+const NAV = [
+  { to: '/parent/dashboard',   icon: LayoutDashboard, label: 'Dashboard'     },
+  { to: '/parent/children',    icon: Users,           label: 'My Children'   },
+  { to: '/parent/attendance',  icon: Calendar,        label: 'Attendance'    },
+  { to: '/parent/grades',      icon: Award,           label: 'Academics'     },
+  { to: '/parent/fees',        icon: CreditCard,      label: 'Fee Payments'  },
+  { to: '/parent/messages',    icon: MessageSquare,   label: 'Messages'      },
+  { to: '/parent/notices',     icon: Bell,            label: 'Announcements' },
+  { to: '/parent/profile',     icon: User,            label: 'My Profile'    },
 ];
 
 const initials = (name = '') =>
-  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'P';
+  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'PR';
 
 export default function ParentLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
@@ -36,70 +35,68 @@ export default function ParentLayout() {
   };
 
   const displayName = user?.full_name || user?.email || 'Parent';
-  const avatarText  = initials(user?.full_name || '');
+  const avatarText  = initials(displayName);
+
+  const currentNav = NAV.find(n => location.pathname.startsWith(n.to));
+  const currentPage = currentNav ? currentNav.label : 'Dashboard';
 
   return (
     <div className="sl-root">
-      {sidebarOpen && (
-        <div className="sl-overlay" onClick={() => setSidebarOpen(false)} />
-      )}
+      {open && <div className="sl-overlay" onClick={() => setOpen(false)} />}
 
-      {/* ── Sidebar ── */}
-      <aside className={`sl-sidebar ${sidebarOpen ? 'sl-sidebar--open' : ''}`}>
+      <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''}`}>
         <div className="sl-logo">
-          <div className="sl-logo-icon pp-logo-icon">
-            <UserCheck size={22} color="white" />
-          </div>
+          <div className="sl-logo-icon"><HeartHandshake size={18} color="white" /></div>
           <div>
             <div className="sl-logo-name">EduFlow</div>
             <div className="sl-logo-sub">Parent Portal</div>
           </div>
-          <button className="sl-close-btn" onClick={() => setSidebarOpen(false)}>
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="sl-student-card pp-user-card">
-          <div className="sl-avatar pp-avatar">{avatarText}</div>
-          <div className="sl-student-info">
-            <div className="sl-student-name">{displayName}</div>
-            <div className="sl-student-meta pp-role-badge">{user?.role || 'Parent'}</div>
-          </div>
+          <button className="sl-close-btn" onClick={() => setOpen(false)}><X size={18} /></button>
         </div>
 
         <nav className="sl-nav">
-          {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+          {NAV.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
-                `sl-nav-item${isActive ? ' sl-nav-item--active pp-nav-active' : ''}`
+                `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`
               }
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => setOpen(false)}
             >
-              <Icon size={18} />
+              <Icon size={16} />
               <span>{label}</span>
-              <ChevronRight size={14} className="sl-nav-chevron" />
             </NavLink>
           ))}
         </nav>
 
-        <button className="sl-logout" onClick={handleLogout}>
-          <LogOut size={18} />
-          <span>Sign Out</span>
-        </button>
+        <div className="sl-sidebar-footer">
+          <div className="sl-user-row">
+            <div className="sl-avatar">{avatarText}</div>
+            <div className="sl-user-details">
+              <span className="sl-user-name">{displayName}</span>
+              <span className="sl-user-role">Parent</span>
+            </div>
+            <button className="sl-logout-btn" onClick={handleLogout} title="Sign Out">
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
       </aside>
 
-      {/* ── Main ── */}
       <div className="sl-main">
         <header className="sl-topbar">
-          <button className="sl-menu-btn" onClick={() => setSidebarOpen(true)}>
-            <Menu size={22} />
-          </button>
-          <div className="sl-topbar-title">Parent Portal</div>
+          <div className="sl-topbar-left">
+            <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={20} /></button>
+            <div className="sl-breadcrumb">
+              <span>Parent</span>
+              <span>/</span>
+              <span className="sl-breadcrumb-current">{currentPage}</span>
+            </div>
+          </div>
           <div className="sl-topbar-right">
             <NotificationBell portalRoot="/parent" />
-            <div className="sl-topbar-avatar pp-avatar">{avatarText}</div>
+            <div className="sl-topbar-avatar" title={displayName}>{avatarText}</div>
           </div>
         </header>
 

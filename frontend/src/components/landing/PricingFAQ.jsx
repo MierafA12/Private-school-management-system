@@ -80,10 +80,9 @@ const PricingFAQ = () => {
 
       <section className="cta-section container text-center">
         <h2>Access Your Secure Portal</h2>
-        <p>Please log in with your registered school credentials to access your dashboard.</p>
+        <p>Sign in with your credentials to access your dashboard.</p>
         <div className="cta-buttons">
           <Link to="/login" className="btn btn-primary">Sign In to Portal</Link>
-          <Link to="/support" className="btn btn-secondary">IT Support</Link>
         </div>
       </section>
     </>

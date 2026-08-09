@@ -1,83 +1,102 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Megaphone,
-  Menu,
-  X,
-  LogOut,
-  Users
+  LayoutDashboard, Megaphone, LogOut,
+  Menu, X, ShieldAlert,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import "../../styles/portals/principal.css";
+import NotificationBell from '../../components/shared/NotificationBell';
+import "../../styles/portals/student.css";
+
+const NAV = [
+  { to: '/principal/dashboard',     icon: LayoutDashboard, label: 'Dashboard'     },
+  { to: '/principal/announcements', icon: Megaphone,       label: 'Announcements' },
+];
+
+const initials = (name = '') =>
+  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'PR';
 
 export default function PrincipalLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
-  const closeSidebar = () => setSidebarOpen(false);
+  const name   = user?.full_name || user?.email || 'Principal';
+  const avatar = initials(name);
+
+  const currentNav = NAV.find(n => location.pathname.startsWith(n.to));
+  const currentPage = currentNav ? currentNav.label : 'Dashboard';
 
   return (
-    <div className="portal-layout">
-      {/* Mobile Header */}
-      <div className="portal-mobile-header">
-        <div className="portal-brand">Haile-Manas Academy</div>
-        <button className="portal-menu-btn" onClick={() => setSidebarOpen(true)}>
-          <Menu size={24} />
-        </button>
-      </div>
+    <div className="sl-root">
+      {open && <div className="sl-overlay" onClick={() => setOpen(false)} />}
 
-      {/* Sidebar overlay for mobile */}
-      {sidebarOpen && (
-        <div className="portal-sidebar-overlay" onClick={closeSidebar} />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`portal-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="portal-sidebar-header">
-          <div className="portal-brand">Haile-Manas</div>
-          <button className="portal-close-btn" onClick={closeSidebar}>
-            <X size={24} />
-          </button>
-        </div>
-
-        <div className="portal-user-info">
-          <div className="portal-user-avatar">
-            {user?.full_name?.charAt(0) || 'P'}
-          </div>
+      <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''}`}>
+        <div className="sl-logo">
+          <div className="sl-logo-icon"><ShieldAlert size={18} color="white" /></div>
           <div>
-            <div className="portal-user-name">{user?.full_name || 'Principal'}</div>
-            <div className="portal-user-role">Principal</div>
+            <div className="sl-logo-name">EduFlow</div>
+            <div className="sl-logo-sub">Principal Portal</div>
           </div>
+          <button className="sl-close-btn" onClick={() => setOpen(false)}><X size={18} /></button>
         </div>
 
-        <nav className="portal-nav">
-          <NavLink to="/principal/dashboard" onClick={closeSidebar} className={({ isActive }) => `portal-nav-link ${isActive ? 'active' : ''}`}>
-            <LayoutDashboard size={20} /> Dashboard
-          </NavLink>
-          <NavLink to="/principal/announcements" onClick={closeSidebar} className={({ isActive }) => `portal-nav-link ${isActive ? 'active' : ''}`}>
-            <Megaphone size={20} /> Announcements
-          </NavLink>
-          {/* Add more links here like reports or approvals in the future */}
+        <nav className="sl-nav">
+          {NAV.map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`
+              }
+              onClick={() => setOpen(false)}
+            >
+              <Icon size={16} />
+              <span>{label}</span>
+            </NavLink>
+          ))}
         </nav>
 
-        <div className="portal-sidebar-footer">
-          <button onClick={handleLogout} className="portal-logout-btn">
-            <LogOut size={20} /> Logout
-          </button>
+        <div className="sl-sidebar-footer">
+          <div className="sl-user-row">
+            <div className="sl-avatar">{avatar}</div>
+            <div className="sl-user-details">
+              <span className="sl-user-name">{name}</span>
+              <span className="sl-user-role">Principal</span>
+            </div>
+            <button className="sl-logout-btn" onClick={handleLogout} title="Sign Out">
+              <LogOut size={16} />
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="portal-main">
-        <Outlet />
-      </main>
+      <div className="sl-main">
+        <header className="sl-topbar">
+          <div className="sl-topbar-left">
+            <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={20} /></button>
+            <div className="sl-breadcrumb">
+              <span>Principal</span>
+              <span>/</span>
+              <span className="sl-breadcrumb-current">{currentPage}</span>
+            </div>
+          </div>
+          <div className="sl-topbar-right">
+            <NotificationBell portalRoot="/principal" />
+            <div className="sl-topbar-avatar" title={name}>{avatar}</div>
+          </div>
+        </header>
+
+        <main className="sl-content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

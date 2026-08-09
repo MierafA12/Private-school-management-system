@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, CalendarDays, BookOpen, ClipboardList,
   FileText, CreditCard, Bell, MessageSquare, LogOut,
-  Menu, X, GraduationCap, ChevronRight,
+  Menu, X, GraduationCap,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../../components/shared/NotificationBell';
@@ -21,14 +21,14 @@ const NAV_ITEMS = [
   { to: '/student/notices',    icon: Bell,            label: 'Notices'       },
 ];
 
-/** Derive initials from a full name string */
 const initials = (name = '') =>
-  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'S';
+  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'ST';
 
 export default function StudentLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
@@ -36,33 +36,23 @@ export default function StudentLayout() {
   };
 
   const displayName = user?.full_name || user?.email || 'Student';
-  const avatarText  = initials(user?.full_name || '');
+  const avatarText  = initials(displayName);
+
+  const currentNav = NAV_ITEMS.find(n => location.pathname.startsWith(n.to));
+  const currentPage = currentNav ? currentNav.label : 'Dashboard';
 
   return (
     <div className="sl-root">
-      {sidebarOpen && (
-        <div className="sl-overlay" onClick={() => setSidebarOpen(false)} />
-      )}
+      {open && <div className="sl-overlay" onClick={() => setOpen(false)} />}
 
-      {/* ── Sidebar ── */}
-      <aside className={`sl-sidebar ${sidebarOpen ? 'sl-sidebar--open' : ''}`}>
+      <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''}`}>
         <div className="sl-logo">
-          <div className="sl-logo-icon"><GraduationCap size={22} color="white" /></div>
+          <div className="sl-logo-icon"><GraduationCap size={18} color="white" /></div>
           <div>
             <div className="sl-logo-name">EduFlow</div>
             <div className="sl-logo-sub">Student Portal</div>
           </div>
-          <button className="sl-close-btn" onClick={() => setSidebarOpen(false)}>
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="sl-student-card">
-          <div className="sl-avatar">{avatarText}</div>
-          <div className="sl-student-info">
-            <div className="sl-student-name">{displayName}</div>
-            <div className="sl-student-meta">{user?.role || 'Student'}</div>
-          </div>
+          <button className="sl-close-btn" onClick={() => setOpen(false)}><X size={18} /></button>
         </div>
 
         <nav className="sl-nav">
@@ -73,31 +63,41 @@ export default function StudentLayout() {
               className={({ isActive }) =>
                 `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`
               }
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => setOpen(false)}
             >
-              <Icon size={18} />
+              <Icon size={16} />
               <span>{label}</span>
-              <ChevronRight size={14} className="sl-nav-chevron" />
             </NavLink>
           ))}
         </nav>
 
-        <button className="sl-logout" onClick={handleLogout}>
-          <LogOut size={18} />
-          <span>Sign Out</span>
-        </button>
+        <div className="sl-sidebar-footer">
+          <div className="sl-user-row">
+            <div className="sl-avatar">{avatarText}</div>
+            <div className="sl-user-details">
+              <span className="sl-user-name">{displayName}</span>
+              <span className="sl-user-role">Student</span>
+            </div>
+            <button className="sl-logout-btn" onClick={handleLogout} title="Sign Out">
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
       </aside>
 
-      {/* ── Main ── */}
       <div className="sl-main">
         <header className="sl-topbar">
-          <button className="sl-menu-btn" onClick={() => setSidebarOpen(true)}>
-            <Menu size={22} />
-          </button>
-          <div className="sl-topbar-title">Student Portal</div>
+          <div className="sl-topbar-left">
+            <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={20} /></button>
+            <div className="sl-breadcrumb">
+              <span>Student</span>
+              <span>/</span>
+              <span className="sl-breadcrumb-current">{currentPage}</span>
+            </div>
+          </div>
           <div className="sl-topbar-right">
             <NotificationBell portalRoot="/student" />
-            <div className="sl-topbar-avatar">{avatarText}</div>
+            <div className="sl-topbar-avatar" title={displayName}>{avatarText}</div>
           </div>
         </header>
 

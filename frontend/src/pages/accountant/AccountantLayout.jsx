@@ -1,13 +1,12 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Layers, FileText, PlusSquare,
-  CreditCard, BarChart2, LogOut, Menu, X, ChevronRight, Calculator,
+  CreditCard, BarChart2, LogOut, Menu, X, Calculator,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../../components/shared/NotificationBell';
 import "../../styles/portals/student.css";
-import "../../styles/portals/accountant.css";
 
 const NAV = [
   { to: '/accountant/dashboard',        icon: LayoutDashboard, label: 'Dashboard'        },
@@ -26,10 +25,18 @@ export default function AccountantLayout() {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogout = async () => { await logout(); navigate('/login', { replace: true }); };
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login', { replace: true });
+  };
+
   const name   = user?.full_name || user?.email || 'Accountant';
-  const avatar = initials(user?.full_name || '');
+  const avatar = initials(name);
+
+  const currentNav = NAV.find(n => location.pathname.startsWith(n.to));
+  const currentPage = currentNav ? currentNav.label : 'Dashboard';
 
   return (
     <div className="sl-root">
@@ -37,20 +44,12 @@ export default function AccountantLayout() {
 
       <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''}`}>
         <div className="sl-logo">
-          <div className="sl-logo-icon ap-logo-icon"><Calculator size={22} color="white" /></div>
+          <div className="sl-logo-icon"><Calculator size={18} color="white" /></div>
           <div>
             <div className="sl-logo-name">EduFlow</div>
             <div className="sl-logo-sub">Finance Portal</div>
           </div>
-          <button className="sl-close-btn" onClick={() => setOpen(false)}><X size={20} /></button>
-        </div>
-
-        <div className="sl-student-card ap-user-card">
-          <div className="sl-avatar ap-avatar">{avatar}</div>
-          <div className="sl-student-info">
-            <div className="sl-student-name">{name}</div>
-            <div className="sl-student-meta ap-role-badge">{user?.role || 'Accountant'}</div>
-          </div>
+          <button className="sl-close-btn" onClick={() => setOpen(false)}><X size={18} /></button>
         </div>
 
         <nav className="sl-nav">
@@ -59,31 +58,49 @@ export default function AccountantLayout() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `sl-nav-item${isActive ? ' sl-nav-item--active ap-nav-active' : ''}`
+                `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`
               }
               onClick={() => setOpen(false)}
             >
-              <Icon size={18} /><span>{label}</span>
-              <ChevronRight size={14} className="sl-nav-chevron" />
+              <Icon size={16} />
+              <span>{label}</span>
             </NavLink>
           ))}
         </nav>
 
-        <button className="sl-logout" onClick={handleLogout}>
-          <LogOut size={18} /><span>Sign Out</span>
-        </button>
+        <div className="sl-sidebar-footer">
+          <div className="sl-user-row">
+            <div className="sl-avatar">{avatar}</div>
+            <div className="sl-user-details">
+              <span className="sl-user-name">{name}</span>
+              <span className="sl-user-role">Accountant</span>
+            </div>
+            <button className="sl-logout-btn" onClick={handleLogout} title="Sign Out">
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
       </aside>
 
       <div className="sl-main">
         <header className="sl-topbar">
-          <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={22} /></button>
-          <div className="sl-topbar-title">Finance Portal</div>
+          <div className="sl-topbar-left">
+            <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={20} /></button>
+            <div className="sl-breadcrumb">
+              <span>Finance</span>
+              <span>/</span>
+              <span className="sl-breadcrumb-current">{currentPage}</span>
+            </div>
+          </div>
           <div className="sl-topbar-right">
             <NotificationBell portalRoot="/accountant" />
-            <div className="sl-topbar-avatar ap-avatar">{avatar}</div>
+            <div className="sl-topbar-avatar" title={name}>{avatar}</div>
           </div>
         </header>
-        <main className="sl-content"><Outlet /></main>
+
+        <main className="sl-content">
+          <Outlet />
+        </main>
       </div>
     </div>
   );

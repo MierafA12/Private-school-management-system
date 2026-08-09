@@ -1,23 +1,45 @@
-
-
 :root {
-  /* Exact Spec Colors */
-  --bg-color: #F6F8FA;
-  --card-bg: #FDFDFE;
-  --primary: #991B1B; /* Academic Crimson */
-  --dark: #7F1D1D;    /* Deep Burgundy */
-  --accent: #D97706;  /* Prestige Gold */
-  --text-main: #111827;
-  --text-muted: #6B7280;
-  --border-color: #E5E7EB;
+  /* ═══════════════════════════════════════════════════════════
+     3-Tier All-Red Monochromatic Color Palette
+     ═══════════════════════════════════════════════════════════ */
   
+  /* 1. Primary: Academic Crimson (Main Actions & Hero Elements) */
+  --primary:         #991B1B; /* Strong Academic Crimson */
+  --primary-hover:   #7F1D1D;
+  --primary-light:   #FEF2F2;
+  --primary-border:  #FECACA;
+
+  /* 2. Secondary: Deep Burgundy / Dark Wine (Structure & Sidebar) */
+  --secondary:        #450A0A; /* Deep Oxblood / Maroon */
+  --secondary-hover:  #300707;
+  --secondary-light:  #FDF2F2;
+  --secondary-border: #F87171;
+
+  /* 3. Tertiary: Ruby Rose / Scarlet (Accents, Badges & Highlights) */
+  --tertiary:        #E11D48; /* Vibrant Rose Ruby */
+  --tertiary-hover:  #BE123C;
+  --tertiary-light:  #FFF1F2;
+  --tertiary-border: #FECDD3;
+
+  /* Neutrals & Surfaces (Reduced harsh white for rich visual depth) */
+  --bg-color:       #F1F5F9; /* Rich Slate 100 canvas */
+  --card-bg:        #FFFFFF; /* Crisp cards */
+  --card-header-bg: #F8FAFC; /* Soft surface header */
+  --sidebar-bg:     #F8FAFC; /* Slate-tinted sidebar */
+  --text-main:      #0F172A; /* Slate 900 */
+  --text-muted:     #64748B; /* Slate 500 */
+  --border-color:   #E2E8F0; /* Slate 200 border */
+
+  /* Layout & Geometry */
   --radius: 8px;
   --radius-sm: 4px;
-  
+  --radius-pill: 9999px;
+
+  /* Elevation */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08);
-  
+  --shadow-md: 0 2px 8px rgba(153, 27, 27, 0.06);
+  --shadow-lg: 0 4px 16px rgba(153, 27, 27, 0.1);
+
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --layout-width: 1440px;
 }
@@ -50,7 +72,7 @@ button {
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.15;
   color: var(--text-main);
   letter-spacing: -0.02em;
 }
@@ -61,35 +83,95 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0 2rem;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   3-Tier Red Buttons
+   ═══════════════════════════════════════════════════════════ */
+
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-weight: 500;
-  padding: 0.8rem 1.75rem;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
   border-radius: var(--radius-sm);
-  transition: transform 0.1s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  font-size: 0.95rem;
-}
-.btn:active {
-  background-color: var(--border-color);
+  transition: var(--transition);
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 
+/* 1. Primary Red Button (Crimson) */
 .btn-primary {
   background-color: var(--primary);
   color: white;
+  border: 1px solid transparent;
 }
 .btn-primary:hover {
-  background-color: var(--dark);
+  background-color: var(--primary-hover);
 }
 
+/* 2. Secondary Red Button (Dark Burgundy / Wine) */
 .btn-secondary {
-  background-color: var(--card-bg);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
+  background-color: var(--secondary);
+  color: white;
+  border: 1px solid transparent;
 }
 .btn-secondary:hover {
-  border-color: var(--text-muted);
+  background-color: var(--secondary-hover);
+}
+
+/* 2b. Secondary Red Outline */
+.btn-secondary-outline {
+  background-color: var(--card-bg);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+  box-shadow: var(--shadow-sm);
+}
+.btn-secondary-outline:hover {
+  border-color: var(--primary);
+  background-color: var(--primary-light);
+}
+
+/* 3. Tertiary Red Button (Ruby / Rose Accent) */
+.btn-tertiary {
+  background-color: var(--tertiary);
+  color: white;
+  border: 1px solid transparent;
+}
+.btn-tertiary:hover {
+  background-color: var(--tertiary-hover);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3-Tier Red Badges
+   ═══════════════════════════════════════════════════════════ */
+
+.badge-primary {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-secondary {
+  background: var(--secondary-light);
+  color: var(--secondary);
+  border: 1px solid var(--secondary-border);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-tertiary {
+  background: var(--tertiary-light);
+  color: var(--tertiary);
+  border: 1px solid var(--tertiary-border);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
