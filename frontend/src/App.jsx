@@ -2,8 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useAuth, roleHomePath } from './context/AuthContext';
 
 // Public
-import Landing  from './pages/Landing';
-import Login    from './pages/Login';
+import Landing  from './pages/landing/Landing';
+import Login    from './pages/auth/Login';
 
 // Student portal
 import StudentLayout     from './pages/student/StudentLayout';
@@ -35,6 +35,19 @@ import ParentNotices     from './pages/parent/ParentNotices';
 import ParentMessages    from './pages/parent/ParentMessages';
 import ParentProfile     from './pages/parent/ParentProfile';
 
+// Principal portal
+import PrincipalLayout        from './pages/principal/PrincipalLayout';
+import PrincipalDashboard     from './pages/principal/PrincipalDashboard';
+import PrincipalAnnouncements from './pages/principal/PrincipalAnnouncements';
+
+// Teacher portal
+import TeacherLayout      from './pages/teacher/TeacherLayout';
+import TeacherDashboard   from './pages/teacher/TeacherDashboard';
+import TeacherClasses     from './pages/teacher/TeacherClasses';
+import TeacherTimetable   from './pages/teacher/TeacherTimetable';
+import TeacherAttendance  from './pages/teacher/TeacherAttendance';
+import TeacherGrades      from './pages/teacher/TeacherGrades';
+
 // Accountant portal
 import AccountantLayout    from './pages/accountant/AccountantLayout';
 import AccountantDashboard from './pages/accountant/AccountantDashboard';
@@ -45,7 +58,7 @@ import GenerateInvoices    from './pages/accountant/GenerateInvoices';
 import PaymentList         from './pages/accountant/PaymentList';
 import FinancialReports    from './pages/accountant/FinancialReports';
 
-import './index.css';
+import "./styles/index.css";
 import { LoadingSpinner } from './components/shared/PageState';
 import { NotificationProvider } from './context/NotificationContext';
 import NotificationCenter from './components/shared/NotificationCenter';
@@ -139,6 +152,37 @@ export default function App() {
           <Route path="profile"      element={<ParentProfile />} />
         </Route>
 
+        {/* ── Principal portal ── */}
+        <Route
+          path="/principal"
+          element={
+            <PrivateRoute allowedRoles={['Principal', 'Super Admin']}>
+              <PrincipalLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard"     element={<PrincipalDashboard />} />
+          <Route path="announcements" element={<PrincipalAnnouncements />} />
+        </Route>
+
+        {/* ── Teacher portal ── */}
+        <Route
+          path="/teacher"
+          element={
+            <PrivateRoute allowedRoles={['Teacher', 'Super Admin']}>
+              <TeacherLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard"  element={<TeacherDashboard />} />
+          <Route path="classes"    element={<TeacherClasses />} />
+          <Route path="timetable"  element={<TeacherTimetable />} />
+          <Route path="attendance" element={<TeacherAttendance />} />
+          <Route path="grades"     element={<TeacherGrades />} />
+        </Route>
+
         {/* ── Accountant portal ── */}
         <Route
           path="/accountant"
@@ -170,6 +214,9 @@ export default function App() {
           <Route index element={<NotificationCenter />} />
         </Route>
         <Route path="/accountant/notifications" element={<PrivateRoute allowedRoles={['Accountant','Super Admin']}><AccountantLayout /></PrivateRoute>}>
+          <Route index element={<NotificationCenter />} />
+        </Route>
+        <Route path="/teacher/notifications"    element={<PrivateRoute allowedRoles={['Teacher','Super Admin']}><TeacherLayout /></PrivateRoute>}>
           <Route index element={<NotificationCenter />} />
         </Route>
 

@@ -43,8 +43,6 @@
   position: relative;
 }
 .pp-child-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
   border-color: var(--accent);
 }
 .pp-child-card--active {
@@ -109,8 +107,7 @@
   font-size: 0.65rem;
   font-weight: 700;
   padding: 0.2rem 0.5rem;
-  border-radius: 999px;
-  text-transform: uppercase;
+  border-radius: 6px;
 }
 
 /* ── Child Switcher bar ── */
@@ -132,7 +129,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.45rem 1rem;
-  border-radius: 999px;
+  border-radius: 6px;
   border: 1.5px solid var(--border-color);
   background: white;
   font-size: 0.82rem;
@@ -257,7 +254,7 @@
   background: white;
   transition: var(--transition);
 }
-.pp-notice:hover { box-shadow: var(--shadow-md); }
+.pp-notice:hover { border-color: var(--text-muted); }
 .pp-notice--urgent { border-left: 4px solid var(--primary); background: #FEF2F2; }
 .pp-notice--high   { border-left: 4px solid var(--accent);  background: #FFFBEB; }
 .pp-notice--normal { border-left: 4px solid #2563EB;        background: #EFF6FF; }
@@ -281,20 +278,20 @@
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
 }
-.pp-event-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.pp-event-card:hover { border-color: var(--text-muted); }
 .pp-event-date-badge {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   background: var(--accent);
   color: white;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 0.4rem 0.75rem;
   margin-bottom: 0.75rem;
   font-weight: 700;
 }
 .pp-event-day  { font-size: 1.4rem; line-height: 1; }
-.pp-event-mon  { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.pp-event-mon  { font-size: 0.65rem; letter-spacing: 0.05em; }
 .pp-event-title { font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-bottom: 0.35rem; }
 .pp-event-meta  { font-size: 0.78rem; color: var(--text-muted); }
 .pp-rsvp-btn {
@@ -328,7 +325,7 @@
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
 }
-.pp-grade-card:hover { box-shadow: var(--shadow-md); }
+.pp-grade-card:hover { border-color: var(--text-muted); }
 .pp-grade-subject { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
 .pp-grade-score {
   font-size: 2rem;
@@ -356,7 +353,6 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-muted);
-  text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 .pp-form-group input,

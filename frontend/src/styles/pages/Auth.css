@@ -4,8 +4,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background-image: radial-gradient(circle at top right, var(--primary-light), transparent 40%),
-    radial-gradient(circle at bottom left, #ECFDF5, transparent 40%);
+  background-color: var(--bg-color);
 }
 
 .auth-wrapper {
@@ -39,8 +38,8 @@
   gap: 1.5rem;
   background-color: white;
   border: 1px solid #E5E7EB;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
 }
 
 .auth-header {
@@ -231,18 +230,15 @@
   font-size: 1rem;
   font-weight: 600;
   border: 1.5px solid #059669;
-  border-radius: var(--radius-sm, 8px);
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(153, 27, 27, 0.25);
   margin-top: 0.5rem;
 }
 
 .btn-ocean-primary:hover {
   background-color: var(--dark, #7F1D1D);
   border-color: #10B981;
-  box-shadow: 0 6px 16px rgba(153, 27, 27, 0.35);
-  transform: translateY(-1px);
 }
 
 .btn-ocean-primary:active {

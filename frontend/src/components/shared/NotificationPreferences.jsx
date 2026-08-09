@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { notificationApi } from '../../api';
 import { LoadingSpinner } from './PageState';
-import './notifications.css';
+import "../../styles/components/notifications.css";
 
 const ROWS = [
   { key: 'fee_alerts',          label: 'Fee & Invoice Alerts',      sub: 'Due dates, overdue reminders'         },

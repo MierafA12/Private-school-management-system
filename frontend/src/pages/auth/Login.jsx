@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, AlertCircle, ArrowLeft, Eye, EyeOff, Waves } from 'lucide-react';
-import { useAuth, roleHomePath } from '../context/AuthContext';
-import './Auth.css';
+import { useAuth, roleHomePath } from '../../context/AuthContext';
+import "../../styles/pages/Auth.css";
 
 export default function Login() {
   const { login } = useAuth();

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { GraduationCap, UserCheck, BookOpen, Briefcase, RotateCcw } from 'lucide-react';
 import { registrarApi } from '../../api';
 import { ErrorBanner } from '../../components/shared/PageState';
-import './registrar.css';
+import "../../styles/portals/registrar.css";
 
 const ROLES = [
   { key: 'student',   label: 'Student',    icon: GraduationCap },
