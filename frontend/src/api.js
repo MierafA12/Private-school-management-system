@@ -291,6 +291,14 @@ export const accountantApi = {
   getClasses:       () => request('/registrar/classes').catch(() => []),
 };
 
+// ─── Principal API ────────────────────────────────────────────────────────────
+export const principalApi = {
+  getDashboard:        ()      => request('/principal/dashboard'),
+  getAnnouncements:    (p={})  => request(`/principal/announcements?${new URLSearchParams(p)}`),
+  createAnnouncement:  (data)  => request('/principal/announcements', { method: 'POST', body: JSON.stringify(data) }),
+  deleteAnnouncement:  (id)    => request(`/principal/announcements/${id}`, { method: 'DELETE' }),
+};
+
 // ─── Notification API ─────────────────────────────────────────────────────────
 export const notificationApi = {
   list:               (p={}) => request(`/notifications?${new URLSearchParams(p)}`),

@@ -35,6 +35,11 @@ import ParentNotices     from './pages/parent/ParentNotices';
 import ParentMessages    from './pages/parent/ParentMessages';
 import ParentProfile     from './pages/parent/ParentProfile';
 
+// Principal portal
+import PrincipalLayout        from './pages/principal/PrincipalLayout';
+import PrincipalDashboard     from './pages/principal/PrincipalDashboard';
+import PrincipalAnnouncements from './pages/principal/PrincipalAnnouncements';
+
 // Accountant portal
 import AccountantLayout    from './pages/accountant/AccountantLayout';
 import AccountantDashboard from './pages/accountant/AccountantDashboard';
@@ -137,6 +142,20 @@ export default function App() {
           <Route path="notices"      element={<ParentNotices />} />
           <Route path="messages"     element={<ParentMessages />} />
           <Route path="profile"      element={<ParentProfile />} />
+        </Route>
+
+        {/* ── Principal portal ── */}
+        <Route
+          path="/principal"
+          element={
+            <PrivateRoute allowedRoles={['Principal', 'Super Admin']}>
+              <PrincipalLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard"     element={<PrincipalDashboard />} />
+          <Route path="announcements" element={<PrincipalAnnouncements />} />
         </Route>
 
         {/* ── Accountant portal ── */}
