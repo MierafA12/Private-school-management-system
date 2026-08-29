@@ -5,9 +5,10 @@ const rateLimit  = require('express-rate-limit');
 require('dotenv').config();
 
 const pool         = require('./src/db');
-const authRoutes      = require('./src/routes/authRoutes');
-const studentRoutes   = require('./src/routes/studentRoutes');
-const registrarRoutes = require('./src/routes/registrarRoutes');
+const authRoutes       = require('./src/routes/authRoutes');
+const studentRoutes    = require('./src/routes/studentRoutes');
+const registrarRoutes  = require('./src/routes/registrarRoutes');
+const principalRoutes  = require('./src/routes/principalRoutes');
 const errorHandler = require('./src/middleware/errorHandler');
 
 const app  = express();
@@ -46,9 +47,10 @@ app.use('/api/auth',    authLimiter);
 app.use('/api',         apiLimiter);
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
-app.use('/api/auth',      authRoutes);
-app.use('/api/student',  studentRoutes);
+app.use('/api/auth',       authRoutes);
+app.use('/api/student',   studentRoutes);
 app.use('/api/registrar', registrarRoutes);
+app.use('/api/principal', principalRoutes);
 
 // ─── Health Check ────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
@@ -78,5 +80,5 @@ app.listen(PORT, () => {
   console.log(`  Health:     http://localhost:${PORT}/health`);
   console.log(`  Auth:       http://localhost:${PORT}/api/auth`);
   console.log(`  Student:    http://localhost:${PORT}/api/student`);
-  console.log(`  Registrar:  http://localhost:${PORT}/api/registrar`);
+  console.log(`  Principal:  http://localhost:${PORT}/api/principal`);
 });

@@ -1,30 +1,30 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, UserPlus, Users, ClipboardList, LogOut,
-  Menu, X, GraduationCap, ChevronRight,
+  LayoutDashboard, CalendarDays, Layers, BookOpen,
+  GraduationCap, LogOut, Menu, X, ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import '../student/student.css';
-import './registrar.css';
+import './principal.css';
 
 const NAV = [
-  { to: '/registrar/dashboard',   icon: LayoutDashboard, label: 'Dashboard'    },
-  { to: '/registrar/register',    icon: UserPlus,        label: 'Register User' },
-  { to: '/registrar/users',       icon: Users,           label: 'All Users'     },
-  { to: '/registrar/enrollments', icon: ClipboardList,   label: 'Enrollments'   },
+  { to: '/principal/dashboard',      icon: LayoutDashboard, label: 'Dashboard'       },
+  { to: '/principal/academic-years', icon: CalendarDays,    label: 'Academic Years'  },
+  { to: '/principal/classes',        icon: Layers,          label: 'Classes'         },
+  { to: '/principal/subjects',       icon: BookOpen,        label: 'Subjects'        },
 ];
 
 const initials = (name = '') =>
-  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'R';
+  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'P';
 
-export default function RegistrarLayout() {
+export default function PrincipalLayout() {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => { await logout(); navigate('/login', { replace: true }); };
-  const name = user?.full_name || user?.email || 'Registrar';
+  const name = user?.full_name || user?.email || 'Principal';
   const av   = initials(user?.full_name || '');
 
   return (
@@ -36,7 +36,7 @@ export default function RegistrarLayout() {
           <div className="sl-logo-icon"><GraduationCap size={22} color="white" /></div>
           <div>
             <div className="sl-logo-name">EduFlow</div>
-            <div className="sl-logo-sub">Registrar Portal</div>
+            <div className="sl-logo-sub">Principal Portal</div>
           </div>
           <button className="sl-close-btn" onClick={() => setOpen(false)}><X size={20} /></button>
         </div>
@@ -45,7 +45,7 @@ export default function RegistrarLayout() {
           <div className="sl-avatar">{av}</div>
           <div className="sl-student-info">
             <div className="sl-student-name">{name}</div>
-            <div className="sl-student-meta">{user?.role || 'Registrar'}</div>
+            <div className="sl-student-meta">{user?.role || 'Principal'}</div>
           </div>
         </div>
 
@@ -70,7 +70,7 @@ export default function RegistrarLayout() {
       <div className="sl-main">
         <header className="sl-topbar">
           <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={22} /></button>
-          <div className="sl-topbar-title">Registrar Portal</div>
+          <div className="sl-topbar-title">Principal Portal</div>
           <div className="sl-topbar-right">
             <div className="sl-topbar-avatar">{av}</div>
           </div>

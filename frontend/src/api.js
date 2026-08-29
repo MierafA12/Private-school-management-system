@@ -170,7 +170,45 @@ export const authApi = {
     }),
 };
 
-// ─── Registrar API ────────────────────────────────────────────────────────────
+// ─── Principal API ────────────────────────────────────────────────────────────
+export const principalApi = {
+  getDashboard: () => request('/principal/dashboard'),
+
+  // Academic years
+  getAcademicYears:    ()        => request('/principal/academic-years'),
+  getAcademicYearById: (id)      => request(`/principal/academic-years/${id}`),
+  createAcademicYear:  (data)    => request('/principal/academic-years', { method: 'POST', body: JSON.stringify(data) }),
+  updateAcademicYear:  (id, data)=> request(`/principal/academic-years/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
+  // Terms
+  createTerm: (yearId, data) => request(`/principal/academic-years/${yearId}/terms`, { method: 'POST', body: JSON.stringify(data) }),
+  updateTerm: (id, data)     => request(`/principal/terms/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteTerm: (id)           => request(`/principal/terms/${id}`, { method: 'DELETE' }),
+
+  // Classes
+  getClasses:   ()           => request('/principal/classes'),
+  getClassById: (id)         => request(`/principal/classes/${id}`),
+  createClass:  (data)       => request('/principal/classes', { method: 'POST', body: JSON.stringify(data) }),
+  updateClass:  (id, data)   => request(`/principal/classes/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteClass:  (id)         => request(`/principal/classes/${id}`, { method: 'DELETE' }),
+
+  // Sections
+  createSection: (classId, data) => request(`/principal/classes/${classId}/sections`, { method: 'POST', body: JSON.stringify(data) }),
+  updateSection: (id, data)      => request(`/principal/sections/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteSection: (id)            => request(`/principal/sections/${id}`, { method: 'DELETE' }),
+
+  // Subjects
+  getSubjects:   ()          => request('/principal/subjects'),
+  createSubject: (data)      => request('/principal/subjects', { method: 'POST', body: JSON.stringify(data) }),
+  updateSubject: (id, data)  => request(`/principal/subjects/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteSubject: (id)        => request(`/principal/subjects/${id}`, { method: 'DELETE' }),
+
+  // Curriculum
+  getCurriculum:    (academic_year_id, class_id) =>
+    request(`/principal/curriculum?academic_year_id=${academic_year_id}&class_id=${class_id}`),
+  assignSubject:    (data) => request('/principal/curriculum', { method: 'POST', body: JSON.stringify(data) }),
+  removeSubject:    (id)   => request(`/principal/curriculum/${id}`, { method: 'DELETE' }),
+};
 export const registrarApi = {
   registerStudent: (data) => request('/registrar/students', { method: 'POST', body: JSON.stringify(data) }),
   registerParent:  (data) => request('/registrar/parents',  { method: 'POST', body: JSON.stringify(data) }),
@@ -211,4 +249,24 @@ export const studentApi = {
     return request(`/student/announcements${qs ? `?${qs}` : ''}`);
   },
   getAnnouncementById: (id)          => request(`/student/announcements/${id}`),
+};
+
+// ─── Enrollment API ───────────────────────────────────────────────────────────
+export const enrollmentApi = {
+  getOptions: () => request('/registrar/enrollments/options'),
+
+  getUnenrolled: (academic_year_id, search) => {
+    const qs = new URLSearchParams({ academic_year_id, ...(search ? { search } : {}) }).toString();
+    return request(`/registrar/enrollments/unenrolled?${qs}`);
+  },
+
+  list: (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return request(`/registrar/enrollments${qs ? `?${qs}` : ''}`);
+  },
+
+  getById:  (id)       => request(`/registrar/enrollments/${id}`),
+  create:   (data)     => request('/registrar/enrollments',         { method: 'POST',  body: JSON.stringify(data) }),
+  update:   (id, data) => request(`/registrar/enrollments/${id}`,   { method: 'PATCH', body: JSON.stringify(data) }),
+  promote:  (data)     => request('/registrar/enrollments/promote', { method: 'POST',  body: JSON.stringify(data) }),
 };
