@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Menu, X } from 'lucide-react';
 
 const Navbar = () => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const closeMenu = () => setMobileOpen(false);
+
   return (
     <nav className="saas-navbar">
       <div className="container nav-container">
@@ -10,17 +14,44 @@ const Navbar = () => {
           <ShieldCheck size={24} className="brand-icon" />
           <span className="brand-text">Haile-Manas Academy</span>
         </div>
+
+        {/* Desktop Links */}
         <div className="nav-links">
           <a href="#product">Product</a>
           <a href="#solutions">Solutions</a>
           <a href="#resources">Resources</a>
           <a href="#pricing">Pricing</a>
         </div>
+
+        {/* Desktop Actions */}
         <div className="nav-actions">
-          <Link to="/login" className="login-link">Log in</Link>
-          <Link to="/register" className="btn btn-primary">Register</Link>
+          <Link to="/login" className="btn btn-primary">Sign In</Link>
         </div>
+
+        {/* Mobile Hamburger Toggle */}
+        <button
+          className="mobile-nav-toggle"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
+
+      {/* Mobile Menu Drawer */}
+      {mobileOpen && (
+        <div className="mobile-nav-menu">
+          <a href="#product" onClick={closeMenu}>Product</a>
+          <a href="#solutions" onClick={closeMenu}>Solutions</a>
+          <a href="#resources" onClick={closeMenu}>Resources</a>
+          <a href="#pricing" onClick={closeMenu}>Pricing</a>
+          <div className="mobile-nav-actions">
+            <Link to="/login" className="btn btn-primary" onClick={closeMenu}>
+              Sign In to Portal
+            </Link>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

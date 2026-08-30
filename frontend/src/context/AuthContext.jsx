@@ -1,62 +1,39 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authApi, clearTokens, getAccessToken } from '../api';
 
+// Re-export so old imports still work
+export { roleHomePath } from '../utils/roleHomePath';
+
 const AuthContext = createContext(null);
 
-// ─── Demo user — shown when backend is unreachable ────────────────────────────
+// ─── Demo mode ────────────────────────────────────────────────────────────────
 const DEMO_USER = {
-  id:        'demo-registrar-001',
-  email:     'registrar@school.com',
-  phone:     null,
-  role:      'Registrar',
-  full_name: 'School Registrar',
-  isDemo:    true,
+  id: 'demo-registrar-001', email: 'registrar@school.com',
+  phone: null, role: 'Registrar', full_name: 'School Registrar', isDemo: true,
 };
-
-// Check if we should run in demo mode
-// Demo mode activates when: no real token AND VITE_DEMO_MODE=true
 const isDemoMode = () => import.meta.env.VITE_DEMO_MODE === 'true';
 
-// Map role → home path
-export const roleHomePath = (role) => {
-  if (role === 'Student')     return '/student/dashboard';
-  if (role === 'Registrar')   return '/registrar/dashboard';
-  if (role === 'Principal')   return '/principal/dashboard';
-  if (role === 'Super Admin') return '/principal/dashboard';
-  if (role === 'Teacher')     return '/student/dashboard';
-  if (role === 'Parent')      return '/student/dashboard';
-  return '/login';
-};
-
 export function AuthProvider({ children }) {
-  const [user, setUser]       = useState(() => {
-    // In demo mode, start logged in as registrar
+  const [user, setUser] = useState(() => {
     if (isDemoMode()) return DEMO_USER;
     try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isDemoMode()) {
-      // Demo mode — skip token check
-      setLoading(false);
-      return;
-    }
-    if (!getAccessToken()) {
-      clearTokens();
-      setUser(null);
-    }
+    if (isDemoMode()) { setLoading(false); return; }
+    if (!getAccessToken()) { clearTokens(); setUser(null); }
     setLoading(false);
   }, []);
 
   const login = useCallback(async (credentials) => {
     if (isDemoMode()) {
-      // Demo login — just set demo user based on email
-      const roleMap = {
-        'registrar@school.com': { ...DEMO_USER, role: 'Registrar', full_name: 'School Registrar' },
+      const map = {
+        'registrar@school.com': { ...DEMO_USER },
         'admin@school.com':     { ...DEMO_USER, id: 'demo-admin-001', role: 'Super Admin', email: 'admin@school.com', full_name: 'Super Admin' },
+        'principal@school.com': { ...DEMO_USER, id: 'demo-principal-001', role: 'Principal', email: 'principal@school.com', full_name: 'School Principal' },
       };
-      const u = roleMap[credentials.email] || DEMO_USER;
+      const u = map[credentials.email] || DEMO_USER;
       setUser(u);
       return { user: u, access_token: 'demo-token', refresh_token: 'demo-refresh' };
     }
@@ -68,7 +45,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     if (!isDemoMode()) await authApi.logout();
     else clearTokens();
-    setUser(isDemoMode() ? null : null);
+    setUser(null);
   }, []);
 
   return (

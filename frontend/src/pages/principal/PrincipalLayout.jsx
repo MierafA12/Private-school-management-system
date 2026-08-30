@@ -1,31 +1,37 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, CalendarDays, Layers, BookOpen,
-  GraduationCap, LogOut, Menu, X, ChevronRight,
+  Megaphone, GraduationCap, LogOut, Menu, X, ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import '../student/student.css';
-import './principal.css';
+import NotificationBell from '../../components/shared/NotificationBell';
+import '../../styles/portals/student.css';
+import '../principal/principal.css';
 
 const NAV = [
   { to: '/principal/dashboard',      icon: LayoutDashboard, label: 'Dashboard'       },
   { to: '/principal/academic-years', icon: CalendarDays,    label: 'Academic Years'  },
   { to: '/principal/classes',        icon: Layers,          label: 'Classes'         },
   { to: '/principal/subjects',       icon: BookOpen,        label: 'Subjects'        },
+  { to: '/principal/announcements',  icon: Megaphone,       label: 'Announcements'   },
 ];
 
 const initials = (name = '') =>
-  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'P';
+  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'PR';
 
 export default function PrincipalLayout() {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
+  const location  = useLocation();
 
   const handleLogout = async () => { await logout(); navigate('/login', { replace: true }); };
-  const name = user?.full_name || user?.email || 'Principal';
-  const av   = initials(user?.full_name || '');
+  const name   = user?.full_name || user?.email || 'Principal';
+  const avatar = initials(name);
+
+  const currentNav  = NAV.find(n => location.pathname.startsWith(n.to));
+  const currentPage = currentNav?.label || 'Dashboard';
 
   return (
     <div className="sl-root">
@@ -42,7 +48,7 @@ export default function PrincipalLayout() {
         </div>
 
         <div className="sl-student-card">
-          <div className="sl-avatar">{av}</div>
+          <div className="sl-avatar">{avatar}</div>
           <div className="sl-student-info">
             <div className="sl-student-name">{name}</div>
             <div className="sl-student-meta">{user?.role || 'Principal'}</div>
@@ -51,8 +57,7 @@ export default function PrincipalLayout() {
 
         <nav className="sl-nav">
           {NAV.map(({ to, icon: Icon, label }) => (
-            <NavLink
-              key={to} to={to}
+            <NavLink key={to} to={to}
               className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
               onClick={() => setOpen(false)}
             >
@@ -69,10 +74,15 @@ export default function PrincipalLayout() {
 
       <div className="sl-main">
         <header className="sl-topbar">
-          <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={22} /></button>
-          <div className="sl-topbar-title">Principal Portal</div>
+          <div className="sl-topbar-left" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={22} /></button>
+            <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+              Principal / <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{currentPage}</span>
+            </div>
+          </div>
           <div className="sl-topbar-right">
-            <div className="sl-topbar-avatar">{av}</div>
+            <NotificationBell portalRoot="/principal" />
+            <div className="sl-topbar-avatar" title={name}>{avatar}</div>
           </div>
         </header>
         <main className="sl-content"><Outlet /></main>

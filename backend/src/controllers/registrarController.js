@@ -70,6 +70,26 @@ const resetPassword = async (req, res, next) => {
 // ─── PATCH /api/registrar/users/:id/status ───────────────────────────────────
 const updateStatus = async (req, res, next) => {
   try {
+    // Prevent any user from deactivating their own account
+    if (req.params.id === req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'You cannot change the status of your own account.',
+      });
+    }
+
+    // Prevent deactivating another Super Admin
+    const target = await svc.getUserById(req.params.id);
+    if (!target) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+    if (target.role === 'Super Admin' && req.body.status !== 'ACTIVE') {
+      return res.status(403).json({
+        success: false,
+        message: 'Super Admin accounts cannot be deactivated.',
+      });
+    }
+
     const { status } = req.body;
     await svc.setUserStatus(req.params.id, status);
     res.json({ success: true, message: `User status updated to ${status}.` });

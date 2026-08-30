@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Users, BookOpen, Layers, CalendarDays, TrendingUp } from 'lucide-react';
+import { Users, BookOpen, Layers, CalendarDays, TrendingUp, UserCheck } from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 import { useAuth } from '../../context/AuthContext';
 
-const fmtDate = (iso) => iso
-  ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  : '';
+const fmtDate = (iso) =>
+  iso ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+}
 
 export default function PrincipalDashboard() {
-  const { user } = useAuth();
+  const { user }  = useAuth();
   const [data,    setData]    = useState(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null);
@@ -26,21 +30,29 @@ export default function PrincipalDashboard() {
 
   if (loading) return <LoadingSpinner message="Loading dashboard…" />;
   if (error)   return <ErrorBanner message={error} onRetry={load} />;
+  if (!data)   return null;
 
-  const { stats = {}, enrollment_overview = [], attendance_trend = [] } = data || {};
+  // Support both field naming conventions from the service
+  const stats              = data.stats || data;
+  const enrollment_overview = data.enrollment_overview || [];
+  const attendance_trend    = data.attendance_trend    || [];
 
   const statCards = [
-    { icon: Users,       label: 'Active Students',  value: stats.active_students    ?? '—', color: 'blue'   },
-    { icon: BookOpen,    label: 'Active Teachers',   value: stats.active_teachers    ?? '—', color: 'green'  },
-    { icon: Users,       label: 'Staff',             value: stats.active_staff       ?? '—', color: 'yellow' },
-    { icon: Layers,      label: 'Classes',           value: stats.total_classes      ?? '—', color: 'purple' },
-    { icon: CalendarDays,label: 'Enrolled (Current)',value: stats.current_enrollments ?? '—', color: 'blue'  },
-    { icon: TrendingUp,  label: "Today's Attendance",
-      value: stats.today_attendance_pct != null ? `${stats.today_attendance_pct}%` : '—',
-      color: stats.today_attendance_pct >= 90 ? 'green' : stats.today_attendance_pct >= 70 ? 'yellow' : 'red' },
+    { icon: Users,       label: 'Active Students',   value: stats.active_students   ?? stats.totalStudents    ?? '—', color: 'blue'   },
+    { icon: BookOpen,    label: 'Active Teachers',    value: stats.active_teachers   ?? stats.totalTeachers    ?? '—', color: 'green'  },
+    { icon: UserCheck,   label: 'Staff',              value: stats.active_staff      ?? stats.totalStaff       ?? '—', color: 'yellow' },
+    { icon: Layers,      label: 'Classes',            value: stats.total_classes     ?? '—',                           color: 'purple' },
+    { icon: CalendarDays,label: 'Enrolled (Current)', value: stats.current_enrollments ?? '—',                        color: 'blue'   },
+    {
+      icon: TrendingUp, label: "Today's Attendance",
+      value: (stats.today_attendance_pct ?? stats.todayAttendancePct) != null
+        ? `${stats.today_attendance_pct ?? stats.todayAttendancePct}%` : '—',
+      color: (stats.today_attendance_pct ?? stats.todayAttendancePct) >= 90 ? 'green'
+           : (stats.today_attendance_pct ?? stats.todayAttendancePct) >= 70 ? 'yellow' : 'red',
+    },
   ];
 
-  // Group enrollment overview by class
+  // Group enrollment by class
   const byClass = {};
   enrollment_overview.forEach(r => {
     if (!byClass[r.class_name]) byClass[r.class_name] = { grade_level: r.grade_level, sections: [] };
@@ -57,7 +69,6 @@ export default function PrincipalDashboard() {
         <p className="sp-page-sub">School overview — current academic year</p>
       </div>
 
-      {/* Stats */}
       <div className="sp-stats-grid">
         {statCards.map(({ icon: Icon, label, value, color }) => (
           <div className="sp-stat-card" key={label}>
@@ -79,23 +90,18 @@ export default function PrincipalDashboard() {
           <div className="sp-card-body">
             {attendance_trend.length === 0 ? (
               <div className="sp-empty"><div className="sp-empty-icon">📊</div>No attendance data yet</div>
-            ) : (
-              attendance_trend.map(r => (
-                <div className="trend-row" key={r.date}>
-                  <span className="trend-label">{fmtDate(r.date)}</span>
-                  <div className="trend-bar-wrap">
-                    <div
-                      className="trend-bar-fill"
-                      style={{
-                        width: `${r.pct}%`,
-                        background: r.pct >= 90 ? '#16A34A' : r.pct >= 70 ? '#D97706' : '#DC2626',
-                      }}
-                    />
-                  </div>
-                  <span className="trend-pct">{r.pct}%</span>
+            ) : attendance_trend.map(r => (
+              <div className="trend-row" key={r.date}>
+                <span className="trend-label">{fmtDate(r.date)}</span>
+                <div className="trend-bar-wrap">
+                  <div className="trend-bar-fill" style={{
+                    width: `${r.pct}%`,
+                    background: r.pct >= 90 ? '#16A34A' : r.pct >= 70 ? '#D97706' : '#DC2626',
+                  }} />
                 </div>
-              ))
-            )}
+                <span className="trend-pct">{r.pct}%</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -110,9 +116,7 @@ export default function PrincipalDashboard() {
           ) : (
             <div className="sp-table-wrap">
               <table className="sp-table">
-                <thead>
-                  <tr><th>Class</th><th>Section</th><th>Students</th></tr>
-                </thead>
+                <thead><tr><th>Class</th><th>Section</th><th>Students</th></tr></thead>
                 <tbody>
                   {sortedClasses.flatMap(([className, { sections }]) =>
                     sections.map((s, i) => (
@@ -135,9 +139,4 @@ export default function PrincipalDashboard() {
       </div>
     </div>
   );
-}
-
-function greeting() {
-  const h = new Date().getHours();
-  return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
 }

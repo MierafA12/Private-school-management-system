@@ -1,0 +1,196 @@
+/* ═══════════════════════════════════════════════════════════
+   Accountant Portal — accent overrides & specific components
+   Inherits layout from student/student.css (sl-*, sp-*)
+   Accent colour: Emerald Green #059669
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --acc-green:       #059669;
+  --acc-green-dark:  #047857;
+  --acc-green-light: #D1FAE5;
+  --acc-gold:        var(--accent);
+}
+
+/* ── Brand overrides ── */
+.ap-logo-icon  { background: var(--acc-green) !important; }
+.ap-avatar     { background: var(--acc-green) !important; }
+.ap-user-card  { background: #ECFDF5 !important; border-color: #A7F3D0 !important; }
+.ap-role-badge { color: var(--acc-green) !important; }
+.ap-nav-active { background: #ECFDF5 !important; color: var(--acc-green) !important; }
+.ap-nav-active svg:first-child { color: var(--acc-green) !important; }
+
+/* ── KPI stat cards ── */
+.ap-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.ap-kpi {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.ap-kpi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.ap-kpi--green::before  { background: var(--acc-green); }
+.ap-kpi--red::before    { background: var(--primary); }
+.ap-kpi--gold::before   { background: var(--acc-gold); }
+.ap-kpi--blue::before   { background: #2563EB; }
+.ap-kpi-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); letter-spacing: .05em; }
+.ap-kpi-value { font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin: .3rem 0 .15rem; line-height: 1; }
+.ap-kpi-sub   { font-size: 0.75rem; color: var(--text-muted); }
+.ap-kpi-icon  { position: absolute; bottom: 1rem; right: 1.25rem; opacity: .08; }
+
+/* ── trend bar chart (CSS only) ── */
+.ap-trend-bars { display: flex; align-items: flex-end; gap: .5rem; height: 80px; }
+.ap-trend-bar  {
+  flex: 1;
+  background: var(--acc-green-light);
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  transition: background .2s;
+  min-width: 20px;
+}
+.ap-trend-bar:hover { background: var(--acc-green); }
+.ap-trend-label { font-size: .6rem; color: var(--text-muted); text-align: center; margin-top: .3rem; }
+
+/* ── fee structure form modal ── */
+.ap-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.ap-modal {
+  background: white;
+  border-radius: var(--radius);
+  padding: 2rem;
+  width: 100%; max-width: 480px;
+  box-shadow: var(--shadow-lg);
+  animation: apFadeIn .15s ease;
+}
+.ap-modal-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: .25rem; }
+.ap-modal-sub   { font-size: .875rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+.ap-modal-actions { display: flex; gap: .75rem; margin-top: 1.5rem; }
+
+/* ── form fields ── */
+.ap-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+.ap-form-full { grid-column: 1 / -1; }
+.ap-form-group { display: flex; flex-direction: column; gap: .4rem; }
+.ap-form-group label {
+  font-size: .78rem; font-weight: 600; color: var(--text-muted);
+  letter-spacing: .04em;
+}
+.ap-form-group input,
+.ap-form-group select,
+.ap-form-group textarea {
+  padding: .65rem .9rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: .875rem; font-family: inherit;
+  outline: none; transition: border-color .2s; background: white;
+}
+.ap-form-group input:focus,
+.ap-form-group select:focus,
+.ap-form-group textarea:focus {
+  border-color: var(--acc-green);
+  box-shadow: 0 0 0 3px rgba(5,150,105,.12);
+}
+
+/* ── buttons ── */
+.ap-btn-primary {
+  padding: .75rem 1.5rem;
+  background: var(--acc-green); color: white;
+  font-weight: 700; font-size: .9rem;
+  border-radius: var(--radius-sm); border: none;
+  cursor: pointer; transition: var(--transition);
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.ap-btn-primary:hover     { background: var(--acc-green-dark); }
+.ap-btn-primary:disabled  { opacity: .6; cursor: not-allowed; }
+.ap-btn-secondary {
+  padding: .75rem 1.25rem;
+  background: var(--bg-color); color: var(--text-muted);
+  font-weight: 600; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color); cursor: pointer;
+  transition: var(--transition);
+}
+.ap-btn-secondary:hover { border-color: var(--text-muted); }
+.ap-btn-danger {
+  padding: .6rem 1rem;
+  background: #FEF2F2; color: var(--primary);
+  font-weight: 600; font-size: .82rem;
+  border-radius: var(--radius-sm); border: 1px solid #FECACA;
+  cursor: pointer; transition: var(--transition);
+  display: inline-flex; align-items: center; gap: .35rem;
+}
+.ap-btn-danger:hover { background: var(--primary); color: white; }
+
+/* ── filter bar ── */
+.ap-filter-bar {
+  display: flex; gap: .75rem; flex-wrap: wrap;
+  margin-bottom: 1.25rem; align-items: flex-end;
+}
+.ap-filter-bar select,
+.ap-filter-bar input {
+  padding: .55rem .85rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: .875rem; outline: none;
+  background: white; min-width: 140px;
+}
+.ap-filter-bar select:focus,
+.ap-filter-bar input:focus  { border-color: var(--acc-green); }
+
+/* ── report cards ── */
+.ap-report-section { margin-bottom: 2rem; }
+.ap-report-kpis    { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+
+/* ── receipt card ── */
+.ap-receipt {
+  max-width: 480px; margin: 2rem auto;
+  background: white; border: 1px solid var(--border-color);
+  border-radius: var(--radius); padding: 2rem;
+  box-shadow: var(--shadow-md);
+}
+.ap-receipt-header { text-align: center; margin-bottom: 1.5rem; }
+.ap-receipt-logo   { font-size: 1.5rem; font-weight: 800; color: var(--acc-green); }
+.ap-receipt-title  { font-size: .85rem; color: var(--text-muted); margin-top: .25rem; }
+.ap-receipt-row    { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid #F3F4F6; font-size: .875rem; }
+.ap-receipt-row:last-child { border-bottom: none; font-weight: 700; font-size: 1rem; }
+.ap-receipt-amount { color: var(--acc-green); font-weight: 800; font-size: 1.75rem; text-align: center; margin: 1rem 0; }
+
+/* ── inline generate result ── */
+.ap-result-box {
+  padding: 1.5rem; border-radius: var(--radius);
+  border: 1px solid; margin-top: 1.5rem; text-align: center;
+}
+.ap-result-box--success { background: #ECFDF5; border-color: #6EE7B7; color: var(--acc-green-dark); }
+.ap-result-box--warn    { background: #FFFBEB; border-color: #FDE68A; color: #92400E; }
+.ap-result-num  { font-size: 2.5rem; font-weight: 800; }
+.ap-result-text { font-size: .9rem; margin-top: .25rem; }
+
+@keyframes apFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .ap-kpi-grid   { grid-template-columns: 1fr 1fr; }
+  .ap-form-grid  { grid-template-columns: 1fr; }
+  .ap-report-kpis{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .ap-kpi-grid    { grid-template-columns: 1fr; }
+  .ap-report-kpis { grid-template-columns: 1fr; }
+}

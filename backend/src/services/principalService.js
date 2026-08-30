@@ -28,15 +28,24 @@ const getDashboardStats = async () => {
 
   const att = attendanceToday.rows[0];
   return {
-    active_students:    parseInt(students.rows[0].count),
-    active_teachers:    parseInt(teachers.rows[0].count),
-    active_staff:       parseInt(staff.rows[0].count),
-    total_classes:      parseInt(classes.rows[0].count),
-    current_enrollments:parseInt(enrollments.rows[0].count),
+    active_students:      parseInt(students.rows[0].count),
+    active_teachers:      parseInt(teachers.rows[0].count),
+    active_staff:         parseInt(staff.rows[0].count),
+    total_classes:        parseInt(classes.rows[0].count),
+    current_enrollments:  parseInt(enrollments.rows[0].count),
+    // alias used by the incoming dashboard component
+    totalStudents:        parseInt(students.rows[0].count),
+    totalTeachers:        parseInt(teachers.rows[0].count),
+    totalStaff:           parseInt(staff.rows[0].count),
     today_attendance_pct:
+      att.total > 0 ? Math.round((att.present / att.total) * 100) : null,
+    todayAttendancePct:
       att.total > 0 ? Math.round((att.present / att.total) * 100) : null,
   };
 };
+
+// alias for incoming code that calls getDashboardAnalytics
+const getDashboardAnalytics = getDashboardStats;
 
 // ═════════════════════════════════════════════════════════════════════════════
 // ACADEMIC YEARS
@@ -54,11 +63,8 @@ const getAcademicYears = async () => {
 };
 
 const getAcademicYearById = async (id) => {
-  const { rows: ay } = await pool.query(
-    `SELECT * FROM academic_years WHERE id = $1`, [id]
-  );
+  const { rows: ay } = await pool.query(`SELECT * FROM academic_years WHERE id = $1`, [id]);
   if (!ay.length) return null;
-
   const { rows: terms } = await pool.query(
     `SELECT * FROM terms WHERE academic_year_id = $1 ORDER BY start_date`, [id]
   );
@@ -81,12 +87,8 @@ const createAcademicYear = async ({ name, start_date, end_date, is_current = fal
     );
     await client.query('COMMIT');
     return rows[0];
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
+  } catch (err) { await client.query('ROLLBACK'); throw err; }
+  finally { client.release(); }
 };
 
 const updateAcademicYear = async (id, fields) => {
@@ -112,12 +114,8 @@ const updateAcademicYear = async (id, fields) => {
     );
     await client.query('COMMIT');
     return rows[0] || null;
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
+  } catch (err) { await client.query('ROLLBACK'); throw err; }
+  finally { client.release(); }
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -147,9 +145,7 @@ const updateTerm = async (id, fields) => {
   return rows[0] || null;
 };
 
-const deleteTerm = async (id) => {
-  await pool.query(`DELETE FROM terms WHERE id = $1`, [id]);
-};
+const deleteTerm = async (id) => pool.query(`DELETE FROM terms WHERE id = $1`, [id]);
 
 // ═════════════════════════════════════════════════════════════════════════════
 // CLASSES
@@ -159,8 +155,7 @@ const getClasses = async () => {
   const { rows } = await pool.query(
     `SELECT c.*,
        (SELECT COUNT(*) FROM sections s WHERE s.class_id = c.id) AS section_count
-     FROM classes c
-     ORDER BY c.grade_level, c.name`
+     FROM classes c ORDER BY c.grade_level, c.name`
   );
   return rows;
 };
@@ -168,7 +163,6 @@ const getClasses = async () => {
 const getClassById = async (id) => {
   const { rows: cls } = await pool.query(`SELECT * FROM classes WHERE id = $1`, [id]);
   if (!cls.length) return null;
-
   const { rows: sections } = await pool.query(
     `SELECT s.*,
        (SELECT COUNT(*) FROM enrollments e
@@ -202,9 +196,7 @@ const updateClass = async (id, fields) => {
   return rows[0] || null;
 };
 
-const deleteClass = async (id) => {
-  await pool.query(`DELETE FROM classes WHERE id = $1`, [id]);
-};
+const deleteClass = async (id) => pool.query(`DELETE FROM classes WHERE id = $1`, [id]);
 
 // ═════════════════════════════════════════════════════════════════════════════
 // SECTIONS
@@ -232,9 +224,7 @@ const updateSection = async (id, fields) => {
   return rows[0] || null;
 };
 
-const deleteSection = async (id) => {
-  await pool.query(`DELETE FROM sections WHERE id = $1`, [id]);
-};
+const deleteSection = async (id) => pool.query(`DELETE FROM sections WHERE id = $1`, [id]);
 
 // ═════════════════════════════════════════════════════════════════════════════
 // SUBJECTS
@@ -270,12 +260,10 @@ const updateSubject = async (id, fields) => {
   return rows[0] || null;
 };
 
-const deleteSubject = async (id) => {
-  await pool.query(`DELETE FROM subjects WHERE id = $1`, [id]);
-};
+const deleteSubject = async (id) => pool.query(`DELETE FROM subjects WHERE id = $1`, [id]);
 
 // ═════════════════════════════════════════════════════════════════════════════
-// CURRICULUM SUBJECTS (assign subject to class for a year)
+// CURRICULUM SUBJECTS
 // ═════════════════════════════════════════════════════════════════════════════
 
 const getCurriculumForClass = async (academicYearId, classId) => {
@@ -311,12 +299,11 @@ const assignSubjectToClass = async ({
   return rows[0];
 };
 
-const removeSubjectFromClass = async (id) => {
-  await pool.query(`DELETE FROM curriculum_subjects WHERE id = $1`, [id]);
-};
+const removeSubjectFromClass = async (id) =>
+  pool.query(`DELETE FROM curriculum_subjects WHERE id = $1`, [id]);
 
 // ═════════════════════════════════════════════════════════════════════════════
-// SCHOOL OVERVIEW (for the stats page — enrollment by class)
+// SCHOOL OVERVIEW
 // ═════════════════════════════════════════════════════════════════════════════
 
 const getEnrollmentOverview = async () => {
@@ -359,13 +346,76 @@ const getAttendanceTrend = async (days = 14) => {
   }));
 };
 
+// ═════════════════════════════════════════════════════════════════════════════
+// ANNOUNCEMENTS  (from incoming branch)
+// ═════════════════════════════════════════════════════════════════════════════
+
+const getAnnouncements = async ({ limit = 50, offset = 0 } = {}) => {
+  const { rows } = await pool.query(
+    `SELECT
+       a.id, a.title, a.body, a.audience,
+       a.priority, a.is_published, a.publish_at, a.expires_at,
+       u.email AS created_by_email
+     FROM announcements a
+     LEFT JOIN users u ON u.id = a.created_by
+     ORDER BY a.created_at DESC
+     LIMIT $1 OFFSET $2`,
+    [limit, offset]
+  );
+  return rows;
+};
+
+const createAnnouncement = async (userId, data) => {
+  const { title, body, audience, class_id, priority, is_published, publish_at, expires_at } = data;
+  const { rows } = await pool.query(
+    `INSERT INTO announcements (
+       title, body, audience, class_id, priority,
+       is_published, publish_at, expires_at, created_by
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     RETURNING *`,
+    [
+      title, body, audience || 'ALL', class_id || null, priority || 'NORMAL',
+      is_published !== undefined ? is_published : true,
+      publish_at || new Date(),
+      expires_at || null,
+      userId,
+    ]
+  );
+  return rows[0];
+};
+
+const deleteAnnouncement = async (id) => {
+  const { rows } = await pool.query(
+    `DELETE FROM announcements WHERE id = $1 RETURNING id`, [id]
+  );
+  if (!rows.length) {
+    const err = new Error('Announcement not found.'); err.status = 404; throw err;
+  }
+  return true;
+};
+
 module.exports = {
+  // Dashboard
   getDashboardStats,
+  getDashboardAnalytics,   // alias
+
+  // Academic years
   getAcademicYears, getAcademicYearById, createAcademicYear, updateAcademicYear,
+
+  // Terms
   createTerm, updateTerm, deleteTerm,
+
+  // Classes & sections
   getClasses, getClassById, createClass, updateClass, deleteClass,
   createSection, updateSection, deleteSection,
+
+  // Subjects & curriculum
   getSubjects, createSubject, updateSubject, deleteSubject,
   getCurriculumForClass, assignSubjectToClass, removeSubjectFromClass,
+
+  // Overview
   getEnrollmentOverview, getAttendanceTrend,
+
+  // Announcements
+  getAnnouncements, createAnnouncement, deleteAnnouncement,
 };

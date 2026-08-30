@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Bell, Calendar, AlertTriangle, Info } from 'lucide-react';
+import { Calendar, AlertTriangle, Info } from 'lucide-react';
 import { studentApi } from '../../api';
 import { LoadingSpinner, ErrorBanner, EmptyState } from '../../components/shared/PageState';
-
-const TYPE_MAP = {
-  ALL:      { cls: 'info',   Icon: Info,          color: '#2563EB', badge: 'blue'  },
-  STUDENTS: { cls: 'info',   Icon: Info,          color: '#2563EB', badge: 'blue'  },
-  CLASS:    { cls: 'info',   Icon: Info,          color: '#2563EB', badge: 'blue'  },
-};
 const PRIORITY_MAP = {
   URGENT: { cls: 'urgent', Icon: AlertTriangle, color: 'var(--primary)', badge: 'red'   },
   HIGH:   { cls: 'urgent', Icon: AlertTriangle, color: '#D97706',        badge: 'yellow'},

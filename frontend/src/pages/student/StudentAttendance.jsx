@@ -6,7 +6,6 @@ import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const STATUS_COLOR = { Present: 'present', Absent: 'absent', Late: 'late', Excused: 'excused', Sick: 'excused', Permission: 'excused' };
-const BADGE_COLOR  = { Present: 'green',   Absent: 'red',    Late: 'yellow', Excused: 'blue', Sick: 'blue', Permission: 'blue' };
 const EMOJI        = { Present: '✅', Absent: '❌', Late: '⏰', Excused: '📝', Sick: '🤒', Permission: '📋' };
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
