@@ -262,6 +262,53 @@
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+/* ── Topbar page title (replaces breadcrumb) ── */
+.sl-page-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+/* ── Clickable avatar button in topbar ── */
+.sl-topbar-avatar-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary, #991B1B);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.72rem;
+  border: 1px solid rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.sl-topbar-avatar-btn:hover { opacity: 0.85; }
+
+/* ── Sidebar footer sign-out button (full-width) ── */
+.sl-logout-full {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.35rem;
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: var(--transition);
+  border: 1px solid transparent;
+}
+.sl-logout-full:hover {
+  background: #FEE2E2;
+  color: var(--primary, #991B1B);
+  border-color: #FECACA;
+}
+
 /* ── Content area ── */
 .sl-content {
   flex: 1;
