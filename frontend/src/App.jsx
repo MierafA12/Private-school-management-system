@@ -5,6 +5,9 @@ import { NotificationProvider } from './context/NotificationContext';
 import NotificationCenter from './components/shared/NotificationCenter';
 import { LoadingSpinner } from './components/shared/PageState';
 
+// ── Shared ────────────────────────────────────────────────────────────────────
+import MyProfile from './pages/shared/MyProfile';
+
 // ── Public ────────────────────────────────────────────────────────────────────
 import Landing from './pages/landing/Landing';
 import Login   from './pages/auth/Login';
@@ -31,10 +34,16 @@ import Enrollments        from './pages/registrar/Enrollments';
 // ── Principal portal ──────────────────────────────────────────────────────────
 import PrincipalLayout        from './pages/principal/PrincipalLayout';
 import PrincipalDashboard     from './pages/principal/PrincipalDashboard';
+import SchoolProfile          from './pages/principal/SchoolProfile';
 import AcademicYears          from './pages/principal/AcademicYears';
 import Classes                from './pages/principal/Classes';
 import Subjects               from './pages/principal/Subjects';
+import GradingScales          from './pages/principal/GradingScales';
+import PrincipalFeeStructures from './pages/principal/FeeStructures';
+import ClassAdvisors          from './pages/principal/ClassAdvisors';
+import Timetable              from './pages/principal/Timetable';
 import PrincipalAnnouncements from './pages/principal/PrincipalAnnouncements';
+import ReportCards            from './pages/principal/ReportCards';
 
 // ── Parent portal ─────────────────────────────────────────────────────────────
 import ParentLayout      from './pages/parent/ParentLayout';
@@ -46,7 +55,6 @@ import ParentReportCards from './pages/parent/ParentReportCards';
 import ParentFees        from './pages/parent/ParentFees';
 import ParentNotices     from './pages/parent/ParentNotices';
 import ParentMessages    from './pages/parent/ParentMessages';
-import ParentProfile     from './pages/parent/ParentProfile';
 
 // ── Teacher portal ────────────────────────────────────────────────────────────
 import TeacherLayout     from './pages/teacher/TeacherLayout';
@@ -68,14 +76,12 @@ import FinancialReports    from './pages/accountant/FinancialReports';
 
 import './styles/index.css';
 
-// ─── Route Guards ─────────────────────────────────────────────────────────────
 function PrivateRoute({ children, allowedRoles }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingSpinner />;
   if (!user)   return <Navigate to="/login" replace />;
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && !allowedRoles.includes(user.role))
     return <Navigate to={roleHomePath(user.role)} replace />;
-  }
   return children;
 }
 
@@ -101,15 +107,16 @@ export default function App() {
             element={<PrivateRoute allowedRoles={['Student']}><StudentLayout /></PrivateRoute>}
           >
             <Route index            element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard"  element={<StudentDashboard />} />
-            <Route path="attendance" element={<StudentAttendance />} />
-            <Route path="timetable"  element={<StudentTimetable />} />
-            <Route path="subjects"   element={<StudentSubjects />} />
-            <Route path="exams"      element={<StudentExams />} />
-            <Route path="reportcard" element={<StudentReportCard />} />
-            <Route path="fees"       element={<StudentFees />} />
-            <Route path="messages"   element={<StudentMessages />} />
-            <Route path="notices"    element={<StudentNotices />} />
+            <Route path="dashboard"     element={<StudentDashboard />} />
+            <Route path="attendance"    element={<StudentAttendance />} />
+            <Route path="timetable"     element={<StudentTimetable />} />
+            <Route path="subjects"      element={<StudentSubjects />} />
+            <Route path="exams"         element={<StudentExams />} />
+            <Route path="reportcard"    element={<StudentReportCard />} />
+            <Route path="fees"          element={<StudentFees />} />
+            <Route path="messages"      element={<StudentMessages />} />
+            <Route path="notices"       element={<StudentNotices />} />
+            <Route path="profile"       element={<MyProfile />} />
             <Route path="notifications" element={<NotificationCenter />} />
           </Route>
 
@@ -118,10 +125,11 @@ export default function App() {
             element={<PrivateRoute allowedRoles={['Registrar']}><RegistrarLayout /></PrivateRoute>}
           >
             <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard"   element={<RegistrarDashboard />} />
-            <Route path="register"    element={<RegisterPerson />} />
-            <Route path="users"       element={<UserList />} />
-            <Route path="enrollments" element={<Enrollments />} />
+            <Route path="dashboard"     element={<RegistrarDashboard />} />
+            <Route path="register"      element={<RegisterPerson />} />
+            <Route path="users"         element={<UserList />} />
+            <Route path="enrollments"   element={<Enrollments />} />
+            <Route path="profile"       element={<MyProfile />} />
             <Route path="notifications" element={<NotificationCenter />} />
           </Route>
 
@@ -131,10 +139,17 @@ export default function App() {
           >
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard"      element={<PrincipalDashboard />} />
+            <Route path="school-profile" element={<SchoolProfile />} />
             <Route path="academic-years" element={<AcademicYears />} />
             <Route path="classes"        element={<Classes />} />
             <Route path="subjects"       element={<Subjects />} />
+            <Route path="grading-scales" element={<GradingScales />} />
+            <Route path="fee-structures" element={<PrincipalFeeStructures />} />
+            <Route path="class-advisors" element={<ClassAdvisors />} />
+            <Route path="timetable"      element={<Timetable />} />
+            <Route path="report-cards"   element={<ReportCards />} />
             <Route path="announcements"  element={<PrincipalAnnouncements />} />
+            <Route path="profile"        element={<MyProfile />} />
             <Route path="notifications"  element={<NotificationCenter />} />
           </Route>
 
@@ -143,15 +158,15 @@ export default function App() {
             element={<PrivateRoute allowedRoles={['Parent']}><ParentLayout /></PrivateRoute>}
           >
             <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard"    element={<ParentDashboard />} />
-            <Route path="children"     element={<ParentChildren />} />
-            <Route path="attendance"   element={<ParentAttendance />} />
-            <Route path="grades"       element={<ParentGrades />} />
-            <Route path="report-cards" element={<ParentReportCards />} />
-            <Route path="fees"         element={<ParentFees />} />
-            <Route path="notices"      element={<ParentNotices />} />
-            <Route path="messages"     element={<ParentMessages />} />
-            <Route path="profile"      element={<ParentProfile />} />
+            <Route path="dashboard"     element={<ParentDashboard />} />
+            <Route path="children"      element={<ParentChildren />} />
+            <Route path="attendance"    element={<ParentAttendance />} />
+            <Route path="grades"        element={<ParentGrades />} />
+            <Route path="report-cards"  element={<ParentReportCards />} />
+            <Route path="fees"          element={<ParentFees />} />
+            <Route path="notices"       element={<ParentNotices />} />
+            <Route path="messages"      element={<ParentMessages />} />
+            <Route path="profile"       element={<MyProfile />} />
             <Route path="notifications" element={<NotificationCenter />} />
           </Route>
 
@@ -160,11 +175,12 @@ export default function App() {
             element={<PrivateRoute allowedRoles={['Teacher','Super Admin']}><TeacherLayout /></PrivateRoute>}
           >
             <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard"  element={<TeacherDashboard />} />
-            <Route path="classes"    element={<TeacherClasses />} />
-            <Route path="timetable"  element={<TeacherTimetable />} />
-            <Route path="attendance" element={<TeacherAttendance />} />
-            <Route path="grades"     element={<TeacherGrades />} />
+            <Route path="dashboard"     element={<TeacherDashboard />} />
+            <Route path="classes"       element={<TeacherClasses />} />
+            <Route path="timetable"     element={<TeacherTimetable />} />
+            <Route path="attendance"    element={<TeacherAttendance />} />
+            <Route path="grades"        element={<TeacherGrades />} />
+            <Route path="profile"       element={<MyProfile />} />
             <Route path="notifications" element={<NotificationCenter />} />
           </Route>
 
@@ -180,6 +196,7 @@ export default function App() {
             <Route path="invoices/:id"      element={<InvoiceDetail />} />
             <Route path="payments"          element={<PaymentList />} />
             <Route path="reports"           element={<FinancialReports />} />
+            <Route path="profile"           element={<MyProfile />} />
             <Route path="notifications"     element={<NotificationCenter />} />
           </Route>
 

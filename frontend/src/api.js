@@ -130,6 +130,10 @@ export const authApi = {
 
   changePassword: (current_password, new_password) =>
     request('/auth/change-password', { method: 'POST', body: JSON.stringify({ current_password, new_password }) }),
+
+  // Profile — works for any role
+  getMe:          ()       => request('/auth/me'),
+  updateProfile:  (data)   => request('/auth/profile', { method: 'PATCH', body: JSON.stringify(data) }),
 };
 
 // ─── Principal API ────────────────────────────────────────────────────────────
@@ -175,6 +179,37 @@ export const principalApi = {
   getAnnouncements:   (p = {}) => request(`/principal/announcements?${new URLSearchParams(p)}`),
   createAnnouncement: (data)   => request('/principal/announcements', { method: 'POST', body: JSON.stringify(data) }),
   deleteAnnouncement: (id)     => request(`/principal/announcements/${id}`, { method: 'DELETE' }),
+
+  // School profile
+  getSchoolProfile:    ()       => request('/principal/school-profile'),
+  updateSchoolProfile: (data)   => request('/principal/school-profile', { method: 'PATCH', body: JSON.stringify(data) }),
+
+  // Grading scales
+  getGradingScales:    ()           => request('/principal/grading-scales'),
+  createGradingScale:  (data)       => request('/principal/grading-scales', { method: 'POST', body: JSON.stringify(data) }),
+  updateGradingScale:  (id, data)   => request(`/principal/grading-scales/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteGradingScale:  (id)         => request(`/principal/grading-scales/${id}`, { method: 'DELETE' }),
+
+  // Class advisors
+  getClassAdvisors:    (academic_year_id) => request(`/principal/class-advisors?academic_year_id=${academic_year_id}`),
+  assignClassAdvisor:  (data)             => request('/principal/class-advisors', { method: 'POST', body: JSON.stringify(data) }),
+  removeClassAdvisor:  (id)               => request(`/principal/class-advisors/${id}`, { method: 'DELETE' }),
+
+  // Timetable
+  getTimetable:         (params = {}) => request(`/principal/timetable?${new URLSearchParams(params)}`),
+  createTimetableSlot:  (data)        => request('/principal/timetable', { method: 'POST', body: JSON.stringify(data) }),
+  updateTimetableSlot:  (id, data)    => request(`/principal/timetable/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteTimetableSlot:  (id)          => request(`/principal/timetable/${id}`, { method: 'DELETE' }),
+  clearTimetable:       (data)        => request('/principal/timetable/clear', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Teachers list
+  getTeacherList: () => request('/principal/teachers'),
+
+  // Fee structures (principal side)
+  getFeeStructures:    (academic_year_id) => request(`/principal/fee-structures${academic_year_id ? `?academic_year_id=${academic_year_id}` : ''}`),
+  createFeeStructure:  (data)             => request('/principal/fee-structures', { method: 'POST', body: JSON.stringify(data) }),
+  updateFeeStructure:  (id, data)         => request(`/principal/fee-structures/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteFeeStructure:  (id)               => request(`/principal/fee-structures/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Registrar API ────────────────────────────────────────────────────────────
@@ -284,4 +319,31 @@ export const notificationApi = {
   markAllRead:       ()       => request('/notifications/read-all',    { method: 'PATCH' }),
   getPreferences:    ()       => request('/notifications/preferences'),
   updatePreferences: (data)   => request('/notifications/preferences', { method: 'PATCH', body: JSON.stringify(data) }),
+};
+
+// ─── Exam API ─────────────────────────────────────────────────────────────────
+export const examApi = {
+  // Exam schedules
+  getSchedules:    (p = {}) => request(`/exams/schedules?${new URLSearchParams(p)}`),
+  createSchedule:  (data)   => request('/exams/schedules', { method: 'POST', body: JSON.stringify(data) }),
+  updateSchedule:  (id, d)  => request(`/exams/schedules/${id}`, { method: 'PATCH', body: JSON.stringify(d) }),
+  deleteSchedule:  (id)     => request(`/exams/schedules/${id}`, { method: 'DELETE' }),
+
+  // Mark components
+  getComponents:    (examId)       => request(`/exams/schedules/${examId}/components`),
+  saveComponents:   (examId, data) => request(`/exams/schedules/${examId}/components`, { method: 'PUT', body: JSON.stringify({ components: data }) }),
+
+  // Mark sheet
+  getMarkSheet:    (examId, section_id) => request(`/exams/schedules/${examId}/marksheet?section_id=${section_id}`),
+  saveMarks:       (examId, studentId, marks) =>
+    request(`/exams/schedules/${examId}/marks/${studentId}`, { method: 'POST', body: JSON.stringify({ marks }) }),
+
+  // Report cards
+  listReportCards:         (p = {})    => request(`/exams/report-cards?${new URLSearchParams(p)}`),
+  getReportCard:           (id)        => request(`/exams/report-cards/${id}`),
+  generateReportCard:      (data)      => request('/exams/report-cards/generate',         { method: 'POST', body: JSON.stringify(data) }),
+  generateSectionCards:    (data)      => request('/exams/report-cards/generate-section', { method: 'POST', body: JSON.stringify(data) }),
+  publishReportCard:       (id, pub)   => request(`/exams/report-cards/${id}/publish`,    { method: 'PATCH', body: JSON.stringify({ is_published: pub }) }),
+  addRemarks:              (id, subId, remarks) =>
+    request(`/exams/report-cards/${id}/remarks/${subId}`, { method: 'PATCH', body: JSON.stringify({ remarks }) }),
 };
