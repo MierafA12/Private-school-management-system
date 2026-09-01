@@ -1,318 +1,235 @@
 const pool = require('../db');
 
-// Helper to get teacher_id from user_id
-const getTeacherId = async (userId) => {
+// ─── Get teacher record by user_id ────────────────────────────────────────────
+const getTeacherByUserId = async (userId) => {
   const { rows } = await pool.query(
-    `SELECT id FROM teachers WHERE user_id = $1`,
+    `SELECT t.*, u.email FROM teachers t JOIN users u ON u.id = t.user_id WHERE t.user_id = $1`,
     [userId]
   );
-  if (!rows.length) {
-    const err = new Error('Teacher profile not found.');
-    err.status = 404;
-    throw err;
-  }
-  return rows[0].id;
+  return rows[0] || null;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DASHBOARD
-// ─────────────────────────────────────────────────────────────────────────────
-
-const getDashboardStats = async (userId) => {
-  const teacherId = await getTeacherId(userId);
-
-  // Today's classes for the teacher
-  const { rows: classesToday } = await pool.query(
-    `SELECT
-       t.id as timetable_id,
-       t.day_of_week,
-       t.period_number,
-       t.room_number as room_id,
-       c.name AS class_name,
-       sec.name AS section_name,
-       sub.name AS subject_name
+// ─── Classes / sections assigned to this teacher via timetable ────────────────
+const getAssignedClasses = async (teacherId) => {
+  const { rows } = await pool.query(
+    `SELECT DISTINCT
+       t.class_id, c.name AS class_name,
+       t.section_id, sec.name AS section_name,
+       cs.id AS curriculum_subject_id,
+       sub.id AS subject_id,
+       sub.name AS subject_name, sub.code AS subject_code,
+       t.academic_year_id, ay.name AS academic_year,
+       t.term_id, ter.name AS term_name
      FROM timetables t
      JOIN classes c ON c.id = t.class_id
      JOIN sections sec ON sec.id = t.section_id
      JOIN curriculum_subjects cs ON cs.id = t.curriculum_subject_id
      JOIN subjects sub ON sub.id = cs.subject_id
+     JOIN academic_years ay ON ay.id = t.academic_year_id
+     JOIN terms ter ON ter.id = t.term_id
      WHERE t.teacher_id = $1
-       AND t.day_of_week = TRIM(TO_CHAR(CURRENT_DATE, 'Day'))
-     ORDER BY t.period_number ASC`,
+       AND ay.is_current = TRUE
+     ORDER BY c.grade_level, sec.name, sub.name`,
     [teacherId]
   );
-
-  // Number of assigned classes (advisor + taught subjects)
-  const { rows: assignedCount } = await pool.query(
-    `SELECT COUNT(DISTINCT class_id) AS total
-     FROM timetables
-     WHERE teacher_id = $1`,
-    [teacherId]
-  );
-
-  return {
-    classesToday,
-    assignedClassCount: parseInt(assignedCount[0]?.total || 0, 10),
-  };
+  return rows;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TIMETABLE
-// ─────────────────────────────────────────────────────────────────────────────
-
-const getTimetable = async (userId) => {
-  const teacherId = await getTeacherId(userId);
-
+// ─── Today's timetable ────────────────────────────────────────────────────────
+const getTodayClasses = async (teacherId) => {
+  const dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()];
   const { rows } = await pool.query(
     `SELECT
-       t.id, t.day_of_week, t.period_number,
-       c.name AS class_name,
-       sec.name AS section_name,
-       sub.name AS subject_name,
-       t.room_number
+       t.id AS timetable_id,
+       t.period_number, t.start_time, t.end_time, t.room_number,
+       t.day_of_week,
+       c.name AS class_name, sec.name AS section_name,
+       sub.name AS subject_name, sub.code AS subject_code,
+       ter.name AS term_name
      FROM timetables t
      JOIN classes c ON c.id = t.class_id
      JOIN sections sec ON sec.id = t.section_id
      JOIN curriculum_subjects cs ON cs.id = t.curriculum_subject_id
      JOIN subjects sub ON sub.id = cs.subject_id
+     JOIN academic_years ay ON ay.id = t.academic_year_id
+     JOIN terms ter ON ter.id = t.term_id
      WHERE t.teacher_id = $1
+       AND t.day_of_week = $2
+       AND ay.is_current = TRUE
+     ORDER BY t.period_number`,
+    [teacherId, dayName]
+  );
+  return rows;
+};
+
+// ─── Full weekly timetable ────────────────────────────────────────────────────
+const getWeeklyTimetable = async (teacherId) => {
+  const { rows } = await pool.query(
+    `SELECT
+       t.id, t.period_number, t.start_time, t.end_time,
+       t.day_of_week, t.room_number,
+       c.name AS class_name, sec.name AS section_name,
+       sub.name AS subject_name,
+       ter.name AS term_name
+     FROM timetables t
+     JOIN classes c ON c.id = t.class_id
+     JOIN sections sec ON sec.id = t.section_id
+     JOIN curriculum_subjects cs ON cs.id = t.curriculum_subject_id
+     JOIN subjects sub ON sub.id = cs.subject_id
+     JOIN academic_years ay ON ay.id = t.academic_year_id
+     JOIN terms ter ON ter.id = t.term_id
+     WHERE t.teacher_id = $1 AND ay.is_current = TRUE
      ORDER BY
-       array_position(ARRAY['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'], t.day_of_week),
+       CASE t.day_of_week WHEN 'Monday' THEN 1 WHEN 'Tuesday' THEN 2
+         WHEN 'Wednesday' THEN 3 WHEN 'Thursday' THEN 4
+         WHEN 'Friday' THEN 5 WHEN 'Saturday' THEN 6 ELSE 7 END,
        t.period_number`,
     [teacherId]
   );
-
   return rows;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// CLASSES
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Dashboard stats ──────────────────────────────────────────────────────────
+const getDashboard = async (teacherId) => {
+  const [todayClasses, assignedClasses] = await Promise.all([
+    getTodayClasses(teacherId),
+    getAssignedClasses(teacherId),
+  ]);
 
-const getClasses = async (userId) => {
-  const teacherId = await getTeacherId(userId);
+  const uniqueSections = new Set(assignedClasses.map(c => c.section_id));
 
-  const { rows } = await pool.query(
-    `SELECT DISTINCT
-       c.id AS class_id, c.name AS class_name,
-       sec.id AS section_id, sec.name AS section_name,
-       sub.id AS subject_id, sub.name AS subject_name
-     FROM timetables t
-     JOIN classes c ON c.id = t.class_id
-     JOIN sections sec ON sec.id = t.section_id
-     JOIN curriculum_subjects cs ON cs.id = t.curriculum_subject_id
-     JOIN subjects sub ON sub.id = cs.subject_id
-     WHERE t.teacher_id = $1
-     ORDER BY c.name, sec.name, sub.name`,
-    [teacherId]
-  );
-  return rows;
+  return {
+    classesToday:       todayClasses,
+    assignedClassCount: uniqueSections.size,
+    totalSubjects:      assignedClasses.length,
+  };
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ATTENDANCE
-// ─────────────────────────────────────────────────────────────────────────────
-
-const getAttendance = async (userId, classId, sectionId, date) => {
-  const teacherId = await getTeacherId(userId);
-
-  // Check if session exists
-  let { rows: sessions } = await pool.query(
-    `SELECT id FROM attendance_sessions
-     WHERE class_id = $1 AND section_id = $2 AND attendance_date = $3 AND attendance_type = 'DAILY'`,
-    [classId, sectionId, date]
-  );
-
-  let sessionId = null;
-  let records = [];
-
-  if (sessions.length > 0) {
-    sessionId = sessions[0].id;
-    const { rows } = await pool.query(
-      `SELECT
-         r.id, r.student_id, r.attendance_status, r.remarks,
-         s.first_name, s.last_name, s.admission_number
-       FROM attendance_records r
-       JOIN students s ON s.id = r.student_id
-       WHERE r.attendance_session_id = $1
-       ORDER BY s.last_name, s.first_name`,
-      [sessionId]
-    );
-    records = rows;
-  } else {
-    // Return student list from active enrollments
-    const { rows } = await pool.query(
-      `SELECT
-         s.id AS student_id, s.first_name, s.last_name, s.admission_number
-       FROM enrollments e
-       JOIN students s ON s.id = e.student_id
-       WHERE e.class_id = $1 AND e.section_id = $2 AND e.enrollment_status = 'ACTIVE'
-       ORDER BY s.last_name, s.first_name`,
-      [classId, sectionId]
-    );
-    records = rows.map(r => ({ ...r, attendance_status: 'Present', remarks: '' }));
-  }
-
-  return { sessionId, date, records };
-};
-
-const submitAttendance = async (userId, classId, sectionId, date, records) => {
-  const teacherId = await getTeacherId(userId);
-  let sessionId;
-
-  // Check if session exists
-  const { rows: sessions } = await pool.query(
-    `SELECT id FROM attendance_sessions
-     WHERE class_id = $1 AND section_id = $2 AND attendance_date = $3 AND attendance_type = 'DAILY'`,
-    [classId, sectionId, date]
-  );
-
-  if (sessions.length > 0) {
-    sessionId = sessions[0].id;
-  } else {
-    // Get active term & academic year
-    const { rows: termRows } = await pool.query(
-      `SELECT t.id AS term_id, t.academic_year_id
-       FROM terms t
-       JOIN academic_years ay ON ay.id = t.academic_year_id
-       WHERE ay.is_current = TRUE AND t.status = 'ACTIVE'
-       LIMIT 1`
-    );
-
-    let academicYearId = null;
-    let termId = null;
-
-    if (termRows.length > 0) {
-      academicYearId = termRows[0].academic_year_id;
-      termId = termRows[0].term_id;
-    } else {
-      const { rows: anyTerm } = await pool.query(`SELECT id, academic_year_id FROM terms LIMIT 1`);
-      if (anyTerm.length > 0) {
-        academicYearId = anyTerm[0].academic_year_id;
-        termId = anyTerm[0].id;
-      }
-    }
-
-    const { rows: newSession } = await pool.query(
-      `INSERT INTO attendance_sessions
-         (academic_year_id, term_id, class_id, section_id, attendance_date, attendance_type, teacher_id, created_by)
-       VALUES ($1, $2, $3, $4, $5, 'DAILY', $6, $7)
-       RETURNING id`,
-      [academicYearId, termId, classId, sectionId, date, teacherId, userId]
-    );
-    sessionId = newSession[0].id;
-  }
-
-  // Delete existing records to replace
-  await pool.query(`DELETE FROM attendance_records WHERE attendance_session_id = $1`, [sessionId]);
-
-  const insertPromises = records.map(r => {
-    return pool.query(
-      `INSERT INTO attendance_records (attendance_session_id, student_id, attendance_status, remarks)
-       VALUES ($1, $2, $3, $4)`,
-      [sessionId, r.student_id, r.attendance_status || 'Present', r.remarks || null]
-    );
-  });
-
-  await Promise.all(insertPromises);
-  return { success: true, sessionId };
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// GRADES
-// ─────────────────────────────────────────────────────────────────────────────
-
-const getExamsAndGrades = async (userId, classId, sectionId, subjectId) => {
-  const teacherId = await getTeacherId(userId);
-
-  const { rows: schedules } = await pool.query(
-    `SELECT
-       e.id AS exam_schedule_id, e.exam_type, e.exam_date, e.max_marks,
-       tr.name AS term_name, ac.name AS year_name
-     FROM exam_schedules e
-     JOIN terms tr ON tr.id = e.term_id
-     JOIN academic_years ac ON ac.id = tr.academic_year_id
-     JOIN curriculum_subjects cs ON cs.id = e.curriculum_subject_id
-     WHERE e.class_id = $1 AND e.section_id = $2 AND cs.subject_id = $3
-     ORDER BY e.exam_date DESC`,
-    [classId, sectionId, subjectId]
-  );
-
-  return schedules;
-};
-
-const getExamResults = async (examScheduleId) => {
-  const { rows: schedules } = await pool.query(
-    `SELECT class_id, section_id FROM exam_schedules WHERE id = $1`,
-    [examScheduleId]
-  );
-  if (!schedules.length) throw new Error('Exam schedule not found.');
-
-  const classId = schedules[0].class_id;
-  const sectionId = schedules[0].section_id;
-
-  // Get enrolled students + any existing results
+// ─── Attendance for a section on a date ───────────────────────────────────────
+const getAttendanceSheet = async (classId, sectionId, date) => {
+  // Get enrolled students
   const { rows: students } = await pool.query(
-    `SELECT
-       s.id AS student_id, s.first_name, s.last_name, s.admission_number,
-       er.marks_obtained, er.remarks AS teacher_remarks
+    `SELECT s.id AS student_id, s.first_name, s.last_name,
+            s.admission_number, e.roll_number
      FROM enrollments e
      JOIN students s ON s.id = e.student_id
-     LEFT JOIN exam_results er ON er.student_id = s.id AND er.exam_schedule_id = $1
-     WHERE e.class_id = $2 AND e.section_id = $3 AND e.enrollment_status = 'ACTIVE'
-     ORDER BY s.last_name, s.first_name`,
-    [examScheduleId, classId, sectionId]
+     WHERE e.class_id = $1 AND e.section_id = $2
+       AND e.enrollment_status = 'ACTIVE'
+       AND e.academic_year_id = (SELECT id FROM academic_years WHERE is_current = TRUE LIMIT 1)
+     ORDER BY e.roll_number, s.last_name`,
+    [classId, sectionId]
   );
 
-  return students;
+  // Check existing session for this date
+  const { rows: sessions } = await pool.query(
+    `SELECT * FROM attendance_sessions
+     WHERE class_id = $1 AND section_id = $2 AND attendance_date = $3
+     LIMIT 1`,
+    [classId, sectionId, date]
+  );
+
+  let records = [];
+  if (sessions.length) {
+    const { rows } = await pool.query(
+      `SELECT * FROM attendance_records WHERE attendance_session_id = $1`,
+      [sessions[0].id]
+    );
+    records = rows;
+  }
+
+  // Merge existing records onto students
+  const recordMap = {};
+  records.forEach(r => { recordMap[r.student_id] = r; });
+
+  return students.map(stu => ({
+    ...stu,
+    attendance_status: recordMap[stu.student_id]?.attendance_status || 'Present',
+    remarks:           recordMap[stu.student_id]?.remarks || '',
+    session_id:        sessions[0]?.id || null,
+  }));
 };
 
-const submitGrades = async (userId, examScheduleId, results) => {
-  for (const r of results) {
-    if (r.marks_obtained !== null && r.marks_obtained !== undefined && r.marks_obtained !== '') {
-      await pool.query(
-        `INSERT INTO exam_results (exam_schedule_id, student_id, marks_obtained, remarks, entered_by)
-         VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT (exam_schedule_id, student_id)
-         DO UPDATE SET marks_obtained = EXCLUDED.marks_obtained,
-                       remarks = EXCLUDED.remarks,
-                       entered_by = EXCLUDED.entered_by,
-                       updated_at = NOW()`,
-        [examScheduleId, r.student_id, r.marks_obtained, r.teacher_remarks || null, userId]
+// ─── Submit attendance ────────────────────────────────────────────────────────
+const submitAttendance = async (teacherId, { classId, sectionId, date, records }) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Get or create the term for this date
+    const { rows: termRows } = await client.query(
+      `SELECT t.id, t.academic_year_id FROM terms t
+       JOIN academic_years ay ON ay.id = t.academic_year_id
+       WHERE ay.is_current = TRUE
+         AND $1 BETWEEN t.start_date AND t.end_date
+       LIMIT 1`,
+      [date]
+    );
+    if (!termRows.length) throw Object.assign(new Error('No active term found for this date.'), { status: 422 });
+    const { id: termId, academic_year_id } = termRows[0];
+
+    // Upsert session
+    const { rows: sessionRows } = await client.query(
+      `INSERT INTO attendance_sessions
+         (academic_year_id, term_id, class_id, section_id, teacher_id,
+          attendance_date, attendance_type, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,'DAILY',$7)
+       ON CONFLICT (section_id, attendance_date)
+       WHERE attendance_type = 'DAILY'
+       DO UPDATE SET teacher_id = EXCLUDED.teacher_id, updated_at = NOW()
+       RETURNING id`,
+      [academic_year_id, termId, classId, sectionId, teacherId, date, teacherId]
+    );
+    const sessionId = sessionRows[0].id;
+
+    // Upsert each student record
+    for (const rec of records) {
+      await client.query(
+        `INSERT INTO attendance_records
+           (attendance_session_id, student_id, attendance_status, remarks, marked_by)
+         VALUES ($1,$2,$3,$4,$5)
+         ON CONFLICT (attendance_session_id, student_id)
+         DO UPDATE SET
+           attendance_status = EXCLUDED.attendance_status,
+           remarks           = EXCLUDED.remarks,
+           marked_by         = EXCLUDED.marked_by,
+           updated_at        = NOW()`,
+        [sessionId, rec.student_id, rec.attendance_status || 'Present', rec.remarks || null, teacherId]
       );
     }
+
+    await client.query('COMMIT');
+    return { session_id: sessionId, count: records.length };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
   }
-  return { success: true };
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ANNOUNCEMENTS
-// ─────────────────────────────────────────────────────────────────────────────
-
-const getAnnouncements = async ({ limit = 50, offset = 0 } = {}) => {
+// ─── Students in a section ────────────────────────────────────────────────────
+const getSectionStudents = async (classId, sectionId) => {
   const { rows } = await pool.query(
-    `SELECT
-       a.id, a.title, a.body, a.audience, a.priority, a.created_at, u.email
-     FROM announcements a
-     LEFT JOIN users u ON u.id = a.created_by
-     WHERE a.is_published = TRUE
-       AND (a.expires_at IS NULL OR a.expires_at > CURRENT_TIMESTAMP)
-       AND a.audience IN ('ALL', 'TEACHERS')
-     ORDER BY a.created_at DESC
-     LIMIT $1 OFFSET $2`,
-    [limit, offset]
+    `SELECT s.id, s.first_name, s.last_name, s.student_number,
+            s.admission_number, e.roll_number
+     FROM enrollments e
+     JOIN students s ON s.id = e.student_id
+     WHERE e.class_id = $1 AND e.section_id = $2
+       AND e.enrollment_status = 'ACTIVE'
+       AND e.academic_year_id = (SELECT id FROM academic_years WHERE is_current = TRUE LIMIT 1)
+     ORDER BY e.roll_number, s.last_name`,
+    [classId, sectionId]
   );
   return rows;
 };
 
 module.exports = {
-  getDashboardStats,
-  getTimetable,
-  getClasses,
-  getAttendance,
+  getTeacherByUserId,
+  getAssignedClasses,
+  getTodayClasses,
+  getWeeklyTimetable,
+  getDashboard,
+  getAttendanceSheet,
   submitAttendance,
-  getExamsAndGrades,
-  getExamResults,
-  submitGrades,
-  getAnnouncements
+  getSectionStudents,
 };
