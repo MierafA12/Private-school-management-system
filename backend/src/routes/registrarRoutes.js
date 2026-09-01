@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { body, query } = require('express-validator');
 
 const ctrl     = require('../controllers/registrarController');
+const enrollCtrl = require('../controllers/enrollmentController');
 const { authenticate, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 
@@ -136,5 +137,63 @@ router.get('/classes', async (req, res) => {
   const { rows } = await pool.query(`SELECT id, name, grade_level FROM classes ORDER BY grade_level, name`);
   res.json({ success: true, data: rows });
 });
+
+module.exports = router;
+
+// ── Enrollment options (academic years + classes + sections) ──────────────────
+router.get('/enrollments/options', enrollCtrl.getOptions);
+
+// ── Unenrolled students ───────────────────────────────────────────────────────
+router.get(
+  '/enrollments/unenrolled',
+  [query('academic_year_id').isUUID().withMessage('academic_year_id is required.')],
+  validate,
+  enrollCtrl.getUnenrolled
+);
+
+// ── List enrollments ──────────────────────────────────────────────────────────
+router.get('/enrollments', enrollCtrl.listEnrollments);
+
+// ── Single enrollment ─────────────────────────────────────────────────────────
+router.get('/enrollments/:id', enrollCtrl.getEnrollment);
+
+// ── Create enrollment ─────────────────────────────────────────────────────────
+router.post(
+  '/enrollments',
+  [
+    body('student_id').isUUID().withMessage('student_id is required.'),
+    body('academic_year_id').isUUID().withMessage('academic_year_id is required.'),
+    body('class_id').isUUID().withMessage('class_id is required.'),
+    body('section_id').isUUID().withMessage('section_id is required.'),
+    body('enrollment_date').isDate().withMessage('enrollment_date must be a valid date.'),
+  ],
+  validate,
+  enrollCtrl.createEnrollment
+);
+
+// ── Update enrollment ─────────────────────────────────────────────────────────
+router.patch(
+  '/enrollments/:id',
+  [
+    body('enrollment_status')
+      .optional()
+      .isIn(['ACTIVE','INACTIVE','TRANSFERRED','GRADUATED','REPEATED','WITHDRAWN'])
+      .withMessage('Invalid enrollment_status.'),
+  ],
+  validate,
+  enrollCtrl.updateEnrollment
+);
+
+// ── Promote students ──────────────────────────────────────────────────────────
+router.post(
+  '/enrollments/promote',
+  [
+    body('academic_year_id').isUUID().withMessage('academic_year_id is required.'),
+    body('enrollment_date').isDate().withMessage('enrollment_date is required.'),
+    body('promotions').isArray({ min: 1 }).withMessage('promotions must be a non-empty array.'),
+  ],
+  validate,
+  enrollCtrl.promoteStudents
+);
 
 module.exports = router;

@@ -1,13 +1,11 @@
 /**
- * Maps a user role to their portal home route.
- * Kept in a separate file so AuthContext.jsx only exports
- * React components/hooks — required for Vite Fast Refresh.
+ * Maps a user role to the default home route for that portal.
  */
 export const roleHomePath = (role) => {
   if (role === 'Student')     return '/student/dashboard';
   if (role === 'Registrar')   return '/registrar/dashboard';
   if (role === 'Principal')   return '/principal/dashboard';
-  if (role === 'Super Admin') return '/registrar/dashboard';
+  if (role === 'Super Admin') return '/principal/dashboard';
   if (role === 'Teacher')     return '/teacher/dashboard';
   if (role === 'Parent')      return '/parent/dashboard';
   if (role === 'Accountant')  return '/accountant/dashboard';

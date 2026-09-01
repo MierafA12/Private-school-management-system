@@ -329,20 +329,24 @@ const getDashboardSummary = async (parentId) => {
     const attPct = attRow.total > 0
       ? Math.round((attRow.present / attRow.total) * 100) : null;
 
-    // fee balance
-    const { rows: fee } = await pool.query(
-      `SELECT COALESCE(SUM(fi.balance), 0) AS balance
-       FROM fee_invoices fi
-       JOIN terms t ON t.id = fi.term_id
-       JOIN academic_years ay ON ay.id = t.academic_year_id
-       WHERE fi.student_id = $1 AND ay.is_current = TRUE`,
-      [child.id]
-    );
+    // fee balance — wrapped in try/catch in case migrations haven't run yet
+    let feeBalance = 0;
+    try {
+      const { rows: fee } = await pool.query(
+        `SELECT COALESCE(SUM(fi.balance), 0) AS balance
+         FROM fee_invoices fi
+         JOIN terms t ON t.id = fi.term_id
+         JOIN academic_years ay ON ay.id = t.academic_year_id
+         WHERE fi.student_id = $1 AND ay.is_current = TRUE`,
+        [child.id]
+      );
+      feeBalance = parseFloat(fee[0]?.balance || 0);
+    } catch (_) { /* table may not exist yet */ }
 
     return {
       ...child,
       attendance_pct: attPct,
-      fee_balance: parseFloat(fee[0]?.balance || 0),
+      fee_balance: feeBalance,
     };
   }));
 
