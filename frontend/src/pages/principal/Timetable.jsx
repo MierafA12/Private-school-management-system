@@ -17,12 +17,29 @@ function Modal({ title, onClose, children }) {
   );
 }
 
-function SlotForm({ yearId, termId, classId, sectionId, curriculum, teachers, period, day, onSave, onClose, saving }) {
+function SlotForm({ yearId, termId, classId, sectionId, period, day, onSave, onClose, saving }) {
   const [currSubjectId, setCurrSubjectId] = useState('');
   const [teacherId,     setTeacherId]     = useState('');
   const [startTime,     setStartTime]     = useState('');
   const [endTime,       setEndTime]       = useState('');
   const [room,          setRoom]          = useState('');
+
+  // Load own data — never depend on stale parent props
+  const [curriculum, setCurriculum] = useState([]);
+  const [teachers,   setTeachers]   = useState([]);
+  const [loadingData, setLoadingData] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      yearId && classId
+        ? principalApi.getCurriculum(yearId, classId).catch(() => [])
+        : Promise.resolve([]),
+      principalApi.getTeacherList().catch(() => []),
+    ]).then(([cur, tch]) => {
+      setCurriculum(cur);
+      setTeachers(tch);
+    }).finally(() => setLoadingData(false));
+  }, [yearId, classId]);
 
   const submit = (e) => {
     e.preventDefault();
@@ -37,6 +54,8 @@ function SlotForm({ yearId, termId, classId, sectionId, curriculum, teachers, pe
     });
   };
 
+  if (loadingData) return <LoadingSpinner message="Loading subjects and teachers…" />;
+
   return (
     <form onSubmit={submit}>
       <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
@@ -44,19 +63,31 @@ function SlotForm({ yearId, termId, classId, sectionId, curriculum, teachers, pe
       </p>
       <div className="pf-field">
         <label className="pf-label">Subject <span>*</span></label>
-        <select className="pf-select" value={currSubjectId} onChange={e => setCurrSubjectId(e.target.value)} required>
-          <option value="">— Select Subject —</option>
-          {curriculum.map(cs => (
-            <option key={cs.id} value={cs.id}>{cs.subject_name} ({cs.subject_code})</option>
-          ))}
-        </select>
+        {curriculum.length === 0 ? (
+          <div style={{ padding: '0.6rem 0.875rem', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontSize: '0.82rem', color: '#991B1B' }}>
+            ⚠️ No subjects assigned to this class yet. Go to Subjects → Assign to Class first.
+          </div>
+        ) : (
+          <select className="pf-select" value={currSubjectId} onChange={e => setCurrSubjectId(e.target.value)} required>
+            <option value="">— Select Subject —</option>
+            {curriculum.map(cs => (
+              <option key={cs.id} value={cs.id}>{cs.subject_name} ({cs.subject_code})</option>
+            ))}
+          </select>
+        )}
       </div>
       <div className="pf-field">
         <label className="pf-label">Teacher <span>*</span></label>
-        <select className="pf-select" value={teacherId} onChange={e => setTeacherId(e.target.value)} required>
-          <option value="">— Select Teacher —</option>
-          {teachers.map(t => <option key={t.id} value={t.id}>{t.full_name}</option>)}
-        </select>
+        {teachers.length === 0 ? (
+          <div style={{ padding: '0.6rem 0.875rem', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, fontSize: '0.82rem', color: '#991B1B' }}>
+            ⚠️ No active teachers found. Register teachers via the Registrar portal first.
+          </div>
+        ) : (
+          <select className="pf-select" value={teacherId} onChange={e => setTeacherId(e.target.value)} required>
+            <option value="">— Select Teacher —</option>
+            {teachers.map(t => <option key={t.id} value={t.id}>{t.full_name} ({t.employee_number})</option>)}
+          </select>
+        )}
       </div>
       <div className="pf-grid-2">
         <div className="pf-field">
@@ -74,7 +105,9 @@ function SlotForm({ yearId, termId, classId, sectionId, curriculum, teachers, pe
       </div>
       <div className="modal-footer">
         <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
-        <button type="submit" className="btn-prim" disabled={saving}>{saving ? 'Saving…' : 'Add Slot'}</button>
+        <button type="submit" className="btn-prim" disabled={saving || curriculum.length === 0 || teachers.length === 0}>
+          {saving ? 'Saving…' : 'Add Slot'}
+        </button>
       </div>
     </form>
   );
@@ -282,7 +315,6 @@ export default function Timetable() {
           {mError && <p style={{ color: 'var(--primary)', fontSize: '0.82rem', marginBottom: '0.75rem' }}>{mError}</p>}
           <SlotForm
             yearId={yearId} termId={termId} classId={classId} sectionId={sectionId}
-            curriculum={curriculum} teachers={teachers}
             period={modal.period} day={modal.day}
             onSave={addSlot} onClose={() => setModal(null)} saving={saving}
           />

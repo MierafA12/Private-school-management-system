@@ -1,37 +1,40 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, CalendarDays, Layers, BookOpen,
-  Megaphone, GraduationCap, LogOut, Menu, X, ChevronRight,
+  LayoutDashboard, School, CalendarDays, Layers, BookOpen,
+  Star, DollarSign, UserCheck, Clock, Megaphone, FileText, User, LogOut,
+  Menu, X, GraduationCap,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../../components/shared/NotificationBell';
 import '../../styles/portals/student.css';
-import '../principal/principal.css';
+import './principal.css';
 
 const NAV = [
-  { to: '/principal/dashboard',      icon: LayoutDashboard, label: 'Dashboard'       },
-  { to: '/principal/academic-years', icon: CalendarDays,    label: 'Academic Years'  },
-  { to: '/principal/classes',        icon: Layers,          label: 'Classes'         },
-  { to: '/principal/subjects',       icon: BookOpen,        label: 'Subjects'        },
-  { to: '/principal/announcements',  icon: Megaphone,       label: 'Announcements'   },
+  { to: '/principal/dashboard',      icon: LayoutDashboard, label: 'Dashboard'      },
+  { to: '/principal/school-profile', icon: School,          label: 'School Profile' },
+  { to: '/principal/academic-years', icon: CalendarDays,    label: 'Academic Years' },
+  { to: '/principal/classes',        icon: Layers,          label: 'Classes'        },
+  { to: '/principal/subjects',       icon: BookOpen,        label: 'Subjects'       },
+  { to: '/principal/grading-scales', icon: Star,            label: 'Grading Scales' },
+  { to: '/principal/fee-structures', icon: DollarSign,      label: 'Fee Structures' },
+  { to: '/principal/class-advisors', icon: UserCheck,       label: 'Class Advisors' },
+  { to: '/principal/timetable',      icon: Clock,           label: 'Timetable'      },
+  { to: '/principal/report-cards',   icon: FileText,        label: 'Report Cards'   },
+  { to: '/principal/announcements',  icon: Megaphone,       label: 'Announcements'  },
 ];
 
-const initials = (name = '') =>
-  name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'PR';
+const initials = (n = '') => n.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'PR';
 
 export default function PrincipalLayout() {
   const [open, setOpen] = useState(false);
   const { user, logout } = useAuth();
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleLogout = async () => { await logout(); navigate('/login', { replace: true }); };
   const name   = user?.full_name || user?.email || 'Principal';
   const avatar = initials(name);
-
-  const currentNav  = NAV.find(n => location.pathname.startsWith(n.to));
-  const currentPage = currentNav?.label || 'Dashboard';
+  const page   = NAV.find(n => location.pathname.startsWith(n.to))?.label || 'Dashboard';
 
   return (
     <div className="sl-root">
@@ -39,20 +42,9 @@ export default function PrincipalLayout() {
 
       <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''}`}>
         <div className="sl-logo">
-          <div className="sl-logo-icon"><GraduationCap size={22} color="white" /></div>
-          <div>
-            <div className="sl-logo-name">EduFlow</div>
-            <div className="sl-logo-sub">Principal Portal</div>
-          </div>
-          <button className="sl-close-btn" onClick={() => setOpen(false)}><X size={20} /></button>
-        </div>
-
-        <div className="sl-student-card">
-          <div className="sl-avatar">{avatar}</div>
-          <div className="sl-student-info">
-            <div className="sl-student-name">{name}</div>
-            <div className="sl-student-meta">{user?.role || 'Principal'}</div>
-          </div>
+          <div className="sl-logo-icon"><GraduationCap size={18} color="white" /></div>
+          <div><div className="sl-logo-name">EduFlow</div><div className="sl-logo-sub">Principal Portal</div></div>
+          <button className="sl-close-btn" onClick={() => setOpen(false)}><X size={18} /></button>
         </div>
 
         <nav className="sl-nav">
@@ -61,28 +53,38 @@ export default function PrincipalLayout() {
               className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
               onClick={() => setOpen(false)}
             >
-              <Icon size={18} /><span>{label}</span>
-              <ChevronRight size={14} className="sl-nav-chevron" />
+              <Icon size={16} /><span>{label}</span>
             </NavLink>
           ))}
         </nav>
 
-        <button className="sl-logout" onClick={handleLogout}>
-          <LogOut size={18} /><span>Sign Out</span>
-        </button>
+        <div className="sl-sidebar-footer">
+          <NavLink to="/principal/profile" className="sl-user-row" onClick={() => setOpen(false)}
+            style={{ textDecoration: 'none', cursor: 'pointer' }}>
+            <div className="sl-avatar">{avatar}</div>
+            <div className="sl-user-details">
+              <span className="sl-user-name">{name}</span>
+              <span className="sl-user-role">{user?.role || 'Principal'}</span>
+            </div>
+            <User size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+          </NavLink>
+          <button className="sl-logout-full" onClick={() => { logout(); navigate('/login', { replace: true }); }}>
+            <LogOut size={14} /><span>Sign Out</span>
+          </button>
+        </div>
       </aside>
 
       <div className="sl-main">
         <header className="sl-topbar">
-          <div className="sl-topbar-left" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={22} /></button>
-            <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-              Principal / <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>{currentPage}</span>
-            </div>
+          <div className="sl-topbar-left">
+            <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={20} /></button>
+            <span className="sl-page-title">{page}</span>
           </div>
           <div className="sl-topbar-right">
             <NotificationBell portalRoot="/principal" />
-            <div className="sl-topbar-avatar" title={name}>{avatar}</div>
+            <button className="sl-topbar-avatar-btn" onClick={() => navigate('/principal/profile')} title="My Profile">
+              {avatar}
+            </button>
           </div>
         </header>
         <main className="sl-content"><Outlet /></main>
