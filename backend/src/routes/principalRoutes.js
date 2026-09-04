@@ -198,9 +198,14 @@ router.post('/timetable/clear',
 router.get('/fee-structures', ctrl.getFeeStructures);
 router.post('/fee-structures',
   [
-    body('academic_year_id').isUUID(),
-    body('fee_type').notEmpty().withMessage('fee_type is required.'),
+    body('academic_year_id').isUUID().withMessage('academic_year_id must be a valid UUID.'),
     body('amount').isFloat({ min: 0 }).withMessage('amount must be a positive number.'),
+    body().custom((val) => {
+      if (!val.fee_type && !val.category) {
+        throw new Error('fee_type or category is required.');
+      }
+      return true;
+    }),
   ],
   validate, ctrl.createFeeStructure
 );
@@ -217,10 +222,7 @@ router.get('/announcements',
     query('offset').optional().isInt({ min: 0 }).toInt(),
   ],
   validate,
-  async (req, res, next) => {
-    try { res.json({ success: true, data: await svc.getAnnouncements(req.query) }); }
-    catch (err) { next(err); }
-  }
+  ctrl.getAnnouncements
 );
 router.post('/announcements',
   [
@@ -230,16 +232,9 @@ router.post('/announcements',
     body('priority').optional().isIn(['LOW','NORMAL','HIGH','URGENT']),
   ],
   validate,
-  async (req, res, next) => {
-    try {
-      const data = await svc.createAnnouncement(req.user.id, req.body);
-      res.status(201).json({ success: true, data });
-    } catch (err) { next(err); }
-  }
+  ctrl.createAnnouncement
 );
-router.delete('/announcements/:id', async (req, res, next) => {
-  try { await svc.deleteAnnouncement(req.params.id); res.json({ success: true, message: 'Deleted.' }); }
-  catch (err) { next(err); }
-});
+router.delete('/announcements/:id', ctrl.deleteAnnouncement);
 
 module.exports = router;
+

@@ -238,6 +238,22 @@ const deleteFeeStructure = async (req, res, next) => {
   catch (err) { next(err); }
 };
 
+// ── Announcements ─────────────────────────────────────────────────────────────
+const getAnnouncements = async (req, res, next) => {
+  try { res.json({ success: true, data: await svc.getAnnouncements(req.query) }); }
+  catch (err) { next(err); }
+};
+const createAnnouncement = async (req, res, next) => {
+  try {
+    const data = await svc.createAnnouncement(req.user.id, req.body);
+    res.status(201).json({ success: true, data });
+  } catch (err) { next(err); }
+};
+const deleteAnnouncement = async (req, res, next) => {
+  try { await svc.deleteAnnouncement(req.params.id); res.json({ success: true, message: 'Deleted.' }); }
+  catch (err) { next(err); }
+};
+
 module.exports = {
   getDashboard,
   getSchoolProfile, updateSchoolProfile,
@@ -252,4 +268,6 @@ module.exports = {
   getTimetable, createTimetableSlot, updateTimetableSlot, deleteTimetableSlot, clearTimetable,
   getTeacherList,
   getFeeStructures, createFeeStructure, updateFeeStructure, deleteFeeStructure,
+  getAnnouncements, createAnnouncement, deleteAnnouncement,
 };
+

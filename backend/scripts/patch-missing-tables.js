@@ -239,6 +239,11 @@ CREATE INDEX IF NOT EXISTS idx_fee_payments_invoice ON fee_payments(fee_invoice_
 CREATE INDEX IF NOT EXISTS idx_fee_payments_student ON fee_payments(student_id);
 CREATE INDEX IF NOT EXISTS idx_fee_payments_date    ON fee_payments(payment_date);
 
+ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS fee_type VARCHAR(100);
+ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS due_date DATE;
+ALTER TABLE fee_structures ALTER COLUMN category DROP NOT NULL;
+
+
 -- ─── announcements ───────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS announcements (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),

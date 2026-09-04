@@ -394,32 +394,6 @@ const deleteAnnouncement = async (id) => {
   return true;
 };
 
-module.exports = {
-  // Dashboard
-  getDashboardStats,
-  getDashboardAnalytics,   // alias
-
-  // Academic years
-  getAcademicYears, getAcademicYearById, createAcademicYear, updateAcademicYear,
-
-  // Terms
-  createTerm, updateTerm, deleteTerm,
-
-  // Classes & sections
-  getClasses, getClassById, createClass, updateClass, deleteClass,
-  createSection, updateSection, deleteSection,
-
-  // Subjects & curriculum
-  getSubjects, createSubject, updateSubject, deleteSubject,
-  getCurriculumForClass, assignSubjectToClass, removeSubjectFromClass,
-
-  // Overview
-  getEnrollmentOverview, getAttendanceTrend,
-
-  // Announcements
-  getAnnouncements, createAnnouncement, deleteAnnouncement,
-};
-
 // ═════════════════════════════════════════════════════════════════════════════
 // GRADING SCALES
 // ═════════════════════════════════════════════════════════════════════════════
@@ -704,36 +678,45 @@ const getFeeStructures = async (academicYearId) => {
   const { rows } = await pool.query(
     `SELECT
        fs.*,
+       COALESCE(fs.fee_type, fs.category) AS fee_type,
+       COALESCE(fs.category, fs.fee_type) AS category,
        ay.name AS academic_year_name,
        c.name  AS class_name
      FROM fee_structures fs
      JOIN academic_years ay ON ay.id = fs.academic_year_id
      LEFT JOIN classes c ON c.id = fs.class_id
      ${conditions}
-     ORDER BY ay.start_date DESC, fs.fee_type`,
+     ORDER BY ay.start_date DESC, COALESCE(fs.fee_type, fs.category, '')`,
     params
   );
   return rows;
 };
 
 const createFeeStructure = async (fields) => {
+  const feeType = fields.fee_type || fields.category || 'Tuition';
   const { rows } = await pool.query(
     `INSERT INTO fee_structures
-       (academic_year_id, class_id, fee_type, amount, currency, due_date, description)
-     VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+       (academic_year_id, class_id, fee_type, category, amount, currency, due_date, description, status)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'ACTIVE') RETURNING *`,
     [
       fields.academic_year_id, fields.class_id || null,
-      fields.fee_type, fields.amount, fields.currency || 'ETB',
+      feeType, feeType, fields.amount, fields.currency || 'ETB',
       fields.due_date || null, fields.description || null,
     ]
   );
-  return rows[0];
+  return {
+    ...rows[0],
+    fee_type: rows[0].fee_type || rows[0].category,
+    category: rows[0].category || rows[0].fee_type,
+  };
 };
 
 const updateFeeStructure = async (id, fields) => {
+  const feeType = fields.fee_type || fields.category || null;
   const { rows } = await pool.query(
     `UPDATE fee_structures
      SET fee_type    = COALESCE($1, fee_type),
+         category    = COALESCE($1, category),
          amount      = COALESCE($2, amount),
          currency    = COALESCE($3, currency),
          due_date    = COALESCE($4, due_date),
@@ -741,10 +724,15 @@ const updateFeeStructure = async (id, fields) => {
          class_id    = COALESCE($6, class_id),
          updated_at  = NOW()
      WHERE id = $7 RETURNING *`,
-    [fields.fee_type, fields.amount, fields.currency,
+    [feeType, fields.amount, fields.currency,
      fields.due_date, fields.description, fields.class_id, id]
   );
-  return rows[0] || null;
+  if (!rows[0]) return null;
+  return {
+    ...rows[0],
+    fee_type: rows[0].fee_type || rows[0].category,
+    category: rows[0].category || rows[0].fee_type,
+  };
 };
 
 const deleteFeeStructure = async (id) => {
