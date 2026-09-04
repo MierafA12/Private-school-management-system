@@ -697,3 +697,134 @@
   color: #F8FAFC;
 }
 
+/* ── Filter Pills ── */
+.sp-pill-btn {
+  padding: 0.38rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid #CBD5E1;
+  background: #FFFFFF;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.sp-pill-btn:hover {
+  border-color: #94A3B8;
+  color: #0F172A;
+  background: #F8FAFC;
+}
+
+.sp-pill-btn--active {
+  border-color: var(--primary, #991B1B);
+  background: #FEF2F2;
+  color: var(--primary, #991B1B);
+  font-weight: 600;
+}
+
+.sp-pill-btn--active:hover {
+  background: #FEE2E2;
+  border-color: var(--primary, #991B1B);
+  color: var(--primary, #991B1B);
+}
+
+/* ── Filter Toolbar ── */
+.sp-filter-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.sp-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+/* ── Announcement Content Styles ── */
+.announcement-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 0.35rem 0;
+  line-height: 1.35;
+}
+
+.announcement-body {
+  margin: 0;
+  color: #475569;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.announcement-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Additional Dark Mode Overrides ── */
+[data-theme="dark"] .sp-pill-btn {
+  background: #111827;
+  border-color: #334155;
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .sp-pill-btn:hover {
+  background: #162032;
+  color: #F8FAFC;
+  border-color: #475569;
+}
+
+[data-theme="dark"] .sp-pill-btn--active {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: #EF4444;
+  color: #F87171;
+}
+
+[data-theme="dark"] .sp-pill-btn--active:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #EF4444;
+  color: #F87171;
+}
+
+[data-theme="dark"] .announcement-title {
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .announcement-body {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .btn-edit {
+  background: rgba(37, 99, 235, 0.15);
+  color: #60A5FA;
+  border-color: rgba(37, 99, 235, 0.35);
+}
+
+[data-theme="dark"] .btn-edit:hover {
+  background: rgba(37, 99, 235, 0.25);
+}
+
+[data-theme="dark"] .btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #F87171;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+[data-theme="dark"] .btn-danger:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+
