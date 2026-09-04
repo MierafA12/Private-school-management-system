@@ -26,7 +26,7 @@ const Input = ({ value, onChange, type = 'text', placeholder, readOnly }) => (
       borderRadius: 8,
       fontSize: '0.875rem',
       fontFamily: 'inherit',
-      background: readOnly ? 'var(--bg-color)' : 'white',
+      background: readOnly ? 'var(--bg-color)' : 'var(--card-bg)',
       color: 'var(--text-main)',
       outline: 'none',
       width: '100%',
@@ -136,7 +136,7 @@ function ProfileTab() {
                 gap: '0.35rem',
                 padding: '0 0.75rem',
                 height: 38,
-                background: '#F8FAFC',
+                background: 'var(--card-header-bg)',
                 border: '1px solid var(--border-color)',
                 borderRight: 'none',
                 borderTopLeftRadius: 8,
@@ -169,7 +169,7 @@ function ProfileTab() {
                 borderBottomRightRadius: 8,
                 fontSize: '0.875rem',
                 fontFamily: 'inherit',
-                background: 'white',
+                background: 'var(--card-bg)',
                 color: 'var(--text-main)',
                 outline: 'none',
                 width: '100%',
@@ -184,7 +184,7 @@ function ProfileTab() {
               alignItems: 'center',
               gap: '0.5rem',
               padding: '0 0.875rem',
-              background: '#F8FAFC',
+              background: 'var(--card-header-bg)',
               border: '1px solid var(--border-color)',
               borderRadius: 8,
               fontSize: '0.875rem',
@@ -202,7 +202,7 @@ function ProfileTab() {
           <select
             value={gender}
             onChange={e => setGender(e.target.value)}
-            style={{ padding: '0.6rem 0.875rem', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: '0.875rem', background: 'white', color: 'var(--text-main)', width: '100%', height: 38 }}
+            style={{ padding: '0.6rem 0.875rem', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: '0.875rem', background: 'var(--card-bg)', color: 'var(--text-main)', width: '100%', height: 38 }}
           >
             <option value="">— Select —</option>
             <option value="Male">Male</option>
@@ -217,7 +217,7 @@ function ProfileTab() {
           onChange={e => setAddress(e.target.value)}
           placeholder="Your address"
           rows={2}
-          style={{ padding: '0.6rem 0.875rem', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: '0.875rem', fontFamily: 'inherit', background: 'white', color: 'var(--text-main)', resize: 'vertical', width: '100%' }}
+          style={{ padding: '0.6rem 0.875rem', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: '0.875rem', fontFamily: 'inherit', background: 'var(--card-bg)', color: 'var(--text-main)', resize: 'vertical', width: '100%' }}
         />
       </Field>
 

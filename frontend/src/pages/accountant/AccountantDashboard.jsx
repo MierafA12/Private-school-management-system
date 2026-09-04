@@ -4,8 +4,8 @@ import { TrendingUp, AlertTriangle, CheckCircle, FileText } from 'lucide-react';
 import { accountantApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 
-const fmt = (n, cur = 'KES') =>
-  `${cur} ${parseFloat(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+const fmt = (n, cur = 'ETB') =>
+  `${cur === 'ETB' ? 'Birr' : cur} ${parseFloat(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
 const fmtDate = (iso) =>
   iso ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 
@@ -78,7 +78,7 @@ export default function AccountantDashboard() {
                         <div
                           className="ap-trend-bar"
                           style={{ height: `${pct}%`, width: '100%' }}
-                          title={`${m.month}: KES ${parseFloat(m.total).toLocaleString()}`}
+                          title={`${m.month}: Birr ${parseFloat(m.total).toLocaleString()}`}
                         />
                         <div className="ap-trend-label">{m.month.split(' ')[0]}</div>
                       </div>
@@ -137,7 +137,7 @@ export default function AccountantDashboard() {
                     <td style={{ fontWeight: 600, fontSize: '.8rem', color: 'var(--acc-green)' }}>{p.receipt_number}</td>
                     <td style={{ fontSize: '.82rem' }}>{p.student_name}</td>
                     <td style={{ fontSize: '.8rem', color: 'var(--text-muted)' }}>{p.invoice_number}</td>
-                    <td style={{ fontWeight: 700 }}>{p.currency} {parseFloat(p.amount).toLocaleString()}</td>
+                    <td style={{ fontWeight: 700 }}>{p.currency === 'ETB' ? 'Birr' : p.currency} {parseFloat(p.amount).toLocaleString()}</td>
                     <td><span className={`sp-badge sp-badge--${METHOD_COLOR[p.payment_method] || 'gray'}`}>{p.payment_method}</span></td>
                     <td style={{ fontSize: '.8rem' }}>{fmtDate(p.payment_date)}</td>
                   </tr>

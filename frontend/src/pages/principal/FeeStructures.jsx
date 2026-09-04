@@ -22,7 +22,7 @@ function FeeForm({ initial = {}, years, classes, onSave, onClose, saving }) {
   const [classId,  setClassId]  = useState(initial.class_id         || '');
   const [feeType,  setFeeType]  = useState(initial.fee_type         || '');
   const [amount,   setAmount]   = useState(initial.amount           || '');
-  const [currency, setCurrency] = useState(initial.currency         || 'KES');
+  const [currency, setCurrency] = useState(initial.currency         || 'ETB');
   const [dueDate,  setDueDate]  = useState(initial.due_date?.slice(0,10) || '');
   const [desc,     setDesc]     = useState(initial.description       || '');
 
@@ -66,7 +66,9 @@ function FeeForm({ initial = {}, years, classes, onSave, onClose, saving }) {
         <div className="pf-field">
           <label className="pf-label">Currency</label>
           <select className="pf-select" value={currency} onChange={e => setCurrency(e.target.value)}>
-            {['KES','USD','GBP','EUR','TZS','UGX'].map(c => <option key={c} value={c}>{c}</option>)}
+            {['ETB','USD','EUR','GBP','KES','TZS','UGX'].map(c => (
+              <option key={c} value={c}>{c === 'ETB' ? 'ETB — Ethiopian Birr (Br)' : c}</option>
+            ))}
           </select>
         </div>
         <div className="pf-field">
@@ -128,7 +130,7 @@ export default function FeeStructures() {
     catch (err) { alert(err.message); }
   };
 
-  const fmtAmount = (a, cur) => `${cur} ${parseFloat(a).toLocaleString()}`;
+  const fmtAmount = (a, cur = 'ETB') => `${cur === 'ETB' ? 'Birr' : cur} ${parseFloat(a || 0).toLocaleString()}`;
   const fmtDate   = (d) => d ? new Date(d).toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' }) : '—';
 
   if (loading) return <LoadingSpinner message="Loading fee structures…" />;

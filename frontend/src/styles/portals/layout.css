@@ -609,3 +609,130 @@
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ── Dark Mode Portal Layout Overrides ── */
+[data-theme="dark"] .sl-topbar {
+  background: #111827;
+  border-bottom-color: #1E293B;
+}
+
+[data-theme="dark"] .sl-sidebar {
+  background: var(--sidebar-bg);
+  border-right-color: #1E293B;
+}
+
+[data-theme="dark"] .sl-logo {
+  background: var(--sidebar-bg);
+  border-bottom-color: #1E293B;
+}
+
+[data-theme="dark"] .sl-logo-name {
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .sl-logo-sub {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .sl-nav-group-title {
+  color: #64748B;
+}
+
+[data-theme="dark"] .sl-nav-item {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .sl-nav-item:hover {
+  background: #162032;
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .sl-nav-item svg {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .sl-nav-item:hover svg {
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .sl-nav-item--active {
+  background: #1E293B;
+  color: #F87171;
+  border-color: #334155;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .sl-nav-item--active svg {
+  color: #F87171;
+}
+
+[data-theme="dark"] .sl-sidebar-footer {
+  background: var(--sidebar-bg);
+  border-top-color: #1E293B;
+}
+
+[data-theme="dark"] .sl-user-row:hover {
+  background: #162032;
+}
+
+[data-theme="dark"] .sl-user-name {
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .sl-user-role {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .sl-logout-btn {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .sl-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #EF4444;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+[data-theme="dark"] .sl-icon-btn:hover {
+  background: #1E293B;
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .sp-card {
+  background: #111827;
+  border-color: #1E293B;
+}
+
+[data-theme="dark"] .sp-card-header {
+  background: #162032;
+  border-bottom-color: #1E293B;
+}
+
+[data-theme="dark"] .sp-card-title {
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .sp-card-sub {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .sp-table-wrap {
+  background: #111827;
+  border-color: #1E293B;
+}
+
+[data-theme="dark"] .sp-table th {
+  background: #162032;
+  color: #94A3B8;
+  border-bottom-color: #1E293B;
+}
+
+[data-theme="dark"] .sp-table td {
+  border-bottom-color: #1E293B;
+  color: #F1F5F9;
+}
+
+[data-theme="dark"] .sp-table tr:hover td {
+  background: #162032;
+}
+

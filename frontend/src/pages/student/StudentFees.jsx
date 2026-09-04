@@ -7,7 +7,7 @@ const STATUS_COLOR = { PAID: 'green', PARTIAL: 'yellow', UNPAID: 'red', OVERDUE:
 const METHOD_LABEL = { CASH: 'Cash', MPESA: 'M-Pesa', BANK_TRANSFER: 'Bank Transfer', CHEQUE: 'Cheque', CARD: 'Card', OTHER: 'Other' };
 
 const fmtDate  = (iso) => iso ? new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
-const fmtMoney = (n, cur = 'KES') => `${cur} ${parseFloat(n || 0).toLocaleString()}`;
+const fmtMoney = (n, cur = 'ETB') => `${cur === 'ETB' ? 'Birr' : cur} ${parseFloat(n || 0).toLocaleString()}`;
 
 export default function StudentFees() {
   const [data,       setData]       = useState(null);

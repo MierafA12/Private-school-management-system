@@ -40,7 +40,7 @@ export default function StudentDashboard() {
     { icon: CalendarDays, label: 'Attendance',   value: summary.attendance_percentage != null ? `${summary.attendance_percentage}%` : '—', color: 'green',  sub: 'This term'   },
     { icon: BookOpen,     label: 'Subjects',      value: summary.subject_count,                                                              color: 'blue',   sub: 'Enrolled'    },
     { icon: TrendingUp,   label: 'Term',          value: term?.name || '—',                                                                  color: 'yellow', sub: 'Active term' },
-    { icon: CreditCard,   label: 'Fees Due',      value: summary.fee_outstanding > 0 ? `KES ${summary.fee_outstanding.toLocaleString()}` : 'Cleared', color: summary.fee_outstanding > 0 ? 'red' : 'green', sub: 'Balance' },
+    { icon: CreditCard,   label: 'Fees Due',      value: summary.fee_outstanding > 0 ? `Birr ${summary.fee_outstanding.toLocaleString()}` : 'Cleared', color: summary.fee_outstanding > 0 ? 'red' : 'green', sub: 'Balance' },
   ];
 
   return (

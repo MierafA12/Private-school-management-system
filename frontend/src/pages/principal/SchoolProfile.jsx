@@ -454,7 +454,7 @@ export default function SchoolProfile() {
             )}
             <div className="school-summary-row">
               <span className="school-summary-row-label">Default Currency</span>
-              <span className="school-summary-row-val">{profile.currency || 'ETB'}</span>
+              <span className="school-summary-row-val">{profile.currency === 'ETB' ? 'ETB (Birr)' : (profile.currency || 'ETB')}</span>
             </div>
             <div className="school-summary-row">
               <span className="school-summary-row-label">Academic Cycle</span>

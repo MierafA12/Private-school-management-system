@@ -78,7 +78,7 @@ export default function GenerateInvoices() {
                   <option value="">Select fee structure…</option>
                   {structs.map(s => (
                     <option key={s.id} value={s.id}>
-                      {s.category} — {s.currency} {parseFloat(s.amount).toLocaleString()}{s.class_name ? ` (${s.class_name})` : ''}
+                      {s.category} — {s.currency === 'ETB' ? 'Birr' : s.currency} {parseFloat(s.amount).toLocaleString()}{s.class_name ? ` (${s.class_name})` : ''}
                     </option>
                   ))}
                 </select>

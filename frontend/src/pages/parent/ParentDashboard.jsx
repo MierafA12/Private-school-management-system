@@ -6,7 +6,7 @@ import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 import { useAuth } from '../../context/AuthContext';
 
 const fmtCurrency = (n) =>
-  n > 0 ? `KES ${parseFloat(n).toLocaleString()}` : 'Cleared';
+  n > 0 ? `Birr ${parseFloat(n).toLocaleString()}` : 'Cleared';
 
 const priorityClass = { URGENT: 'urgent', HIGH: 'high', NORMAL: 'normal', LOW: 'low' };
 

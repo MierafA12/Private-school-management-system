@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { accountantApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 
-const fmt     = (n, cur='KES') => `${cur} ${parseFloat(n||0).toLocaleString(undefined,{minimumFractionDigits:2})}`;
+const fmt     = (n, cur='ETB') => `${cur === 'ETB' ? 'Birr' : cur} ${parseFloat(n||0).toLocaleString(undefined,{minimumFractionDigits:2})}`;
 const fmtDate = iso => iso ? new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
 const STATUS_CLR  = { PAID:'green', PARTIAL:'yellow', UNPAID:'red', OVERDUE:'red', WAIVED:'blue', CANCELLED:'gray' };
 const METHOD_CLR  = { CASH:'green', BANK_TRANSFER:'blue', MOBILE_MONEY:'yellow', GATEWAY:'blue', CHEQUE:'gray', WAIVER:'gray' };
@@ -145,7 +145,7 @@ export default function InvoiceDetail() {
                 {invoice.payments.map(p => (
                   <tr key={p.id}>
                     <td style={{ fontWeight:600, color:'var(--acc-green)', fontSize:'.8rem' }}>{p.receipt_number}</td>
-                    <td style={{ fontWeight:700 }}>{invoice.currency} {parseFloat(p.amount).toLocaleString()}</td>
+                    <td style={{ fontWeight:700 }}>{invoice.currency === 'ETB' ? 'Birr' : invoice.currency} {parseFloat(p.amount).toLocaleString()}</td>
                     <td><span className={`sp-badge sp-badge--${METHOD_CLR[p.payment_method]||'gray'}`}>{p.payment_method}</span></td>
                     <td style={{ fontSize:'.8rem' }}>{fmtDate(p.payment_date)}</td>
                     <td style={{ fontSize:'.78rem', color:'var(--text-muted)' }}>{p.transaction_reference||'—'}</td>

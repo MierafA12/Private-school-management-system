@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { accountantApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 
-const fmt = (n, cur='KES') => `${cur} ${parseFloat(n||0).toLocaleString(undefined,{minimumFractionDigits:2})}`;
+const fmt = (n, cur='ETB') => `${cur === 'ETB' ? 'Birr' : cur} ${parseFloat(n||0).toLocaleString(undefined,{minimumFractionDigits:2})}`;
 
 const TABS = [
   { id:'collections', label:'📥 Collections' },

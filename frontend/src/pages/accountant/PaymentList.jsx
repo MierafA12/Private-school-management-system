@@ -82,7 +82,7 @@ export default function PaymentList() {
                         <td style={{ fontWeight:600, fontSize:'.8rem', color:'var(--acc-green)' }}>{p.receipt_number}</td>
                         <td style={{ fontSize:'.82rem' }}>{p.student_name}</td>
                         <td><Link to={`/accountant/invoices/${p.fee_invoice_id}`} style={{ fontSize:'.78rem', color:'var(--acc-green)', textDecoration:'none', fontWeight:600 }}>{p.invoice_number}</Link></td>
-                        <td style={{ fontWeight:700 }}>{p.currency} {parseFloat(p.amount).toLocaleString()}</td>
+                        <td style={{ fontWeight:700 }}>{p.currency === 'ETB' ? 'Birr' : p.currency} {parseFloat(p.amount).toLocaleString()}</td>
                         <td><span className={`sp-badge sp-badge--${METHOD_CLR[p.payment_method]||'gray'}`}>{p.payment_method}</span></td>
                         <td style={{ fontSize:'.8rem' }}>{fmtDate(p.payment_date)}</td>
                         <td style={{ fontSize:'.75rem', color:'var(--text-muted)' }}>{p.transaction_reference||'—'}</td>

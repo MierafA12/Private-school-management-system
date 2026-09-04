@@ -82,7 +82,7 @@ const createFeeStructure = async (fields, createdBy) => {
       fields.academic_year_id, fields.term_id || null,
       fields.class_id || null, fields.category,
       fields.description || null, fields.amount,
-      fields.currency || 'KES', fields.is_mandatory !== false,
+      fields.currency || 'ETB', fields.is_mandatory !== false,
       createdBy,
     ]
   );

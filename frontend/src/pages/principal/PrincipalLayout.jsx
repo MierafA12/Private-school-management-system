@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../../components/shared/NotificationBell';
+import ThemeToggle from '../../components/shared/ThemeToggle';
 import '../../styles/portals/layout.css';
 import './principal.css';
 
@@ -146,6 +147,7 @@ export default function PrincipalLayout() {
             </div>
           </div>
           <div className="sl-topbar-right">
+            <ThemeToggle />
             <NotificationBell portalRoot="/principal" />
             <button
               className="sl-topbar-avatar-btn"

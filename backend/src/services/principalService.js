@@ -723,7 +723,7 @@ const createFeeStructure = async (fields) => {
      VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
     [
       fields.academic_year_id, fields.class_id || null,
-      fields.fee_type, fields.amount, fields.currency || 'KES',
+      fields.fee_type, fields.amount, fields.currency || 'ETB',
       fields.due_date || null, fields.description || null,
     ]
   );

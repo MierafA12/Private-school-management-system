@@ -4,7 +4,7 @@ import { accountantApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 
 const STATUS_CLR = { PAID:'green', PARTIAL:'yellow', UNPAID:'red', OVERDUE:'red', WAIVED:'blue', CANCELLED:'gray' };
-const fmt    = (n, cur='KES') => `${cur} ${parseFloat(n||0).toLocaleString(undefined,{minimumFractionDigits:2})}`;
+const fmt    = (n, cur='ETB') => `${cur === 'ETB' ? 'Birr' : cur} ${parseFloat(n||0).toLocaleString(undefined,{minimumFractionDigits:2})}`;
 const fmtDate = iso => iso ? new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
 
 export default function InvoiceList() {

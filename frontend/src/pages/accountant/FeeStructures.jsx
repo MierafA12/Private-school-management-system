@@ -3,7 +3,7 @@ import { Plus, Pencil, Archive } from 'lucide-react';
 import { accountantApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 
-const EMPTY_FORM = { academic_year_id:'', term_id:'', class_id:'', category:'', description:'', amount:'', currency:'KES', is_mandatory:true };
+const EMPTY_FORM = { academic_year_id:'', term_id:'', class_id:'', category:'', description:'', amount:'', currency:'ETB', is_mandatory:true };
 
 export default function FeeStructures() {
   const [items,   setItems]   = useState([]);
@@ -88,7 +88,7 @@ export default function FeeStructures() {
                     <td style={{ fontWeight:600 }}>{fs.category}</td>
                     <td style={{ fontSize:'.82rem' }}>{fs.class_name || '—'}</td>
                     <td style={{ fontSize:'.82rem', color:'var(--text-muted)' }}>{fs.term_name || 'All terms'}</td>
-                    <td style={{ fontWeight:700 }}>{fs.currency} {parseFloat(fs.amount).toLocaleString()}</td>
+                    <td style={{ fontWeight:700 }}>{fs.currency === 'ETB' ? 'Birr' : fs.currency} {parseFloat(fs.amount).toLocaleString()}</td>
                     <td><span className={`sp-badge sp-badge--${fs.is_mandatory?'green':'gray'}`}>{fs.is_mandatory?'Yes':'No'}</span></td>
                     <td><span className={`sp-badge sp-badge--${fs.status==='ACTIVE'?'green':fs.status==='INACTIVE'?'yellow':'gray'}`}>{fs.status}</span></td>
                     <td style={{ display:'flex', gap:'.4rem' }}>
@@ -143,7 +143,9 @@ export default function FeeStructures() {
                 <div className="ap-form-group">
                   <label>Currency</label>
                   <select value={form.currency} onChange={e => setForm(f=>({...f, currency:e.target.value}))}>
-                    {['KES','USD','EUR','GBP','UGX','TZS'].map(c => <option key={c} value={c}>{c}</option>)}
+                    {['ETB','USD','EUR','GBP','KES','UGX','TZS'].map(c => (
+                      <option key={c} value={c}>{c === 'ETB' ? 'ETB — Ethiopian Birr (Br)' : c}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="ap-form-group ap-form-full">
