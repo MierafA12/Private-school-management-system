@@ -492,10 +492,10 @@ const updateSchoolProfile = async (fields) => {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
       [
         fields.name, fields.motto || null, fields.logo_url || null,
-        fields.address || null, fields.city || null, fields.country || 'Kenya',
+        fields.address || null, fields.city || null, fields.country || 'Ethiopia',
         fields.phone || null, fields.email || null, fields.website || null,
         fields.registration_number || null, fields.principal_name || null,
-        fields.currency || 'KES',
+        fields.currency || 'ETB',
         fields.academic_year_start_month || 1, fields.terms_per_year || 3,
       ]
     );
@@ -509,7 +509,7 @@ const updateSchoolProfile = async (fields) => {
          logo_url                   = COALESCE($3,  logo_url),
          address                    = COALESCE($4,  address),
          city                       = COALESCE($5,  city),
-         country                    = COALESCE($6,  country),
+         country                    = COALESCE($6,  'Ethiopia'),
          phone                      = COALESCE($7,  phone),
          email                      = COALESCE($8,  email),
          website                    = COALESCE($9,  website),
@@ -522,10 +522,10 @@ const updateSchoolProfile = async (fields) => {
      WHERE id = $15 RETURNING *`,
     [
       fields.name, fields.motto, fields.logo_url,
-      fields.address, fields.city, fields.country,
+      fields.address, fields.city, fields.country || 'Ethiopia',
       fields.phone, fields.email, fields.website,
       fields.registration_number, fields.principal_name,
-      fields.currency, fields.academic_year_start_month, fields.terms_per_year,
+      fields.currency || 'ETB', fields.academic_year_start_month, fields.terms_per_year,
       profile.id,
     ]
   );

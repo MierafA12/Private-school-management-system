@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   School, Building, Phone, Mail, Save, CheckCircle2, Award,
 } from 'lucide-react';
+import EthiopiaFlag from '../../components/shared/EthiopiaFlag';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 import './principal.css';
@@ -65,9 +66,12 @@ export default function SchoolProfile() {
       setSaving(true);
       setError(null);
       setSuccess(false);
-      const updated = await principalApi.updateSchoolProfile(profile);
+      const updated = await principalApi.updateSchoolProfile({
+        ...profile,
+        country: 'Ethiopia',
+      });
       if (updated) {
-        setProfile((prev) => ({ ...prev, ...updated }));
+        setProfile((prev) => ({ ...prev, ...updated, country: 'Ethiopia' }));
       }
       setSuccess(true);
       setTimeout(() => setSuccess(false), 4500);
@@ -260,7 +264,7 @@ export default function SchoolProfile() {
                     }}
                     title="Ethiopia (+251)"
                   >
-                    <span role="img" aria-label="Ethiopia Flag" style={{ fontSize: '1.1rem', lineHeight: 1 }}>🇪🇹</span>
+                    <EthiopiaFlag width={20} height={14} />
                     <span>+251</span>
                   </div>
                   <input
@@ -290,14 +294,42 @@ export default function SchoolProfile() {
               </div>
               <div className="pf-field">
                 <label className="pf-label">Country</label>
-                <input
-                  type="text"
-                  name="country"
-                  className="pf-input"
-                  value={profile.country || 'Ethiopia'}
-                  onChange={handleChange}
-                  placeholder="e.g. Ethiopia"
-                />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 0.75rem',
+                      height: 36,
+                      background: '#F8FAFC',
+                      border: '1px solid #CBD5E1',
+                      borderRight: 'none',
+                      borderTopLeftRadius: 6,
+                      borderBottomLeftRadius: 6,
+                      flexShrink: 0,
+                    }}
+                    title="Ethiopia"
+                  >
+                    <EthiopiaFlag width={20} height={14} />
+                  </div>
+                  <input
+                    type="text"
+                    name="country"
+                    className="pf-input"
+                    style={{
+                      borderTopLeftRadius: 0,
+                      borderBottomLeftRadius: 0,
+                      background: '#F8FAFC',
+                      color: '#0F172A',
+                      fontWeight: 500,
+                      cursor: 'default',
+                    }}
+                    value="Ethiopia"
+                    readOnly
+                    title="Country is permanently configured to Ethiopia"
+                  />
+                </div>
               </div>
             </div>
 
@@ -414,8 +446,8 @@ export default function SchoolProfile() {
             {profile.phone && (
               <div className="school-summary-row">
                 <span className="school-summary-row-label">Phone</span>
-                <span className="school-summary-row-val" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <span>🇪🇹</span>
+                <span className="school-summary-row-val" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <EthiopiaFlag width={18} height={12} />
                   <span>{profile.phone.startsWith('+251') ? profile.phone : `+251 ${profile.phone}`}</span>
                 </span>
               </div>

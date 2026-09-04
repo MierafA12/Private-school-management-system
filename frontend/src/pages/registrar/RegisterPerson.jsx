@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { GraduationCap, UserCheck, BookOpen, Briefcase, RotateCcw } from 'lucide-react';
+import EthiopiaFlag from '../../components/shared/EthiopiaFlag';
 import { registrarApi } from '../../api';
 import { ErrorBanner } from '../../components/shared/PageState';
 import "../../styles/portals/registrar.css";
@@ -36,6 +37,49 @@ function Input({ value, onChange, placeholder, type = 'text', ...rest }) {
       placeholder={placeholder}
       {...rest}
     />
+  );
+}
+
+function PhoneInput({ value, onChange, placeholder = '911 234 567', required, ...rest }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          padding: '0 0.75rem',
+          height: 38,
+          background: '#F8FAFC',
+          border: '1px solid #CBD5E1',
+          borderRight: 'none',
+          borderTopLeftRadius: 6,
+          borderBottomLeftRadius: 6,
+          fontSize: '0.8125rem',
+          color: '#334155',
+          fontWeight: 600,
+          userSelect: 'none',
+          flexShrink: 0,
+        }}
+        title="Ethiopia (+251)"
+      >
+        <EthiopiaFlag width={20} height={14} />
+        <span>+251</span>
+      </div>
+      <input
+        className="rg-input"
+        type="tel"
+        style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+        value={value ? value.replace(/^\+251\s*/, '') : ''}
+        onChange={e => {
+          const val = e.target.value.trim();
+          onChange(val ? (val.startsWith('+251') ? val : `+251 ${val}`) : '');
+        }}
+        placeholder={placeholder}
+        required={required}
+        {...rest}
+      />
+    </div>
   );
 }
 
@@ -307,7 +351,7 @@ export default function RegisterPerson() {
                 <Input type="email" value={email} onChange={setEmail} placeholder="user@school.com" />
               </Field>
               <Field label="Phone Number" hint="Alternative login">
-                <Input type="tel" value={phone} onChange={setPhone} placeholder="+251 911 234 567" />
+                <PhoneInput value={phone} onChange={setPhone} placeholder="911 234 567" />
               </Field>
               <Field label="Password" required hint="Min 6 characters — user can change after login">
                 <Input type="password" value={password} onChange={setPassword} placeholder="••••••••" required minLength={6} />
@@ -340,7 +384,7 @@ export default function RegisterPerson() {
                   <Input value={emergencyName} onChange={setEmergencyName} placeholder="e.g. Jane Doe" required />
                 </Field>
                 <Field label="Contact Phone" required>
-                  <Input type="tel" value={emergencyPhone} onChange={setEmergencyPhone} placeholder="+251 911 234 567" required />
+                  <PhoneInput value={emergencyPhone} onChange={setEmergencyPhone} placeholder="911 234 567" required />
                 </Field>
               </div>
             </>}

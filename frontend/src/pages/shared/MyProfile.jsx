@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { User, Lock, Save, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import EthiopiaFlag from '../../components/shared/EthiopiaFlag';
 import { authApi } from '../../api';
 
 // ─── tiny reusable field ─────────────────────────────────────────────────────
@@ -127,13 +128,81 @@ function ProfileTab() {
           <Input value={lastName} onChange={setLastName} placeholder="Last name" />
         </Field>
         <Field label="Phone">
-          <Input value={phone} onChange={setPhone} placeholder="+251 911 234 567" type="tel" />
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                padding: '0 0.75rem',
+                height: 38,
+                background: '#F8FAFC',
+                border: '1px solid var(--border-color)',
+                borderRight: 'none',
+                borderTopLeftRadius: 8,
+                borderBottomLeftRadius: 8,
+                fontSize: '0.8125rem',
+                color: 'var(--text-main)',
+                fontWeight: 600,
+                userSelect: 'none',
+                flexShrink: 0,
+              }}
+              title="Ethiopia (+251)"
+            >
+              <EthiopiaFlag width={20} height={14} />
+              <span>+251</span>
+            </div>
+            <input
+              type="tel"
+              value={phone ? phone.replace(/^\+251\s*/, '') : ''}
+              onChange={(e) => {
+                const val = e.target.value.trim();
+                setPhone(val ? (val.startsWith('+251') ? val : `+251 ${val}`) : '');
+              }}
+              placeholder="911 234 567"
+              style={{
+                padding: '0.6rem 0.875rem',
+                border: '1px solid var(--border-color)',
+                borderTopLeftRadius: 0,
+                borderBottomLeftRadius: 0,
+                borderTopRightRadius: 8,
+                borderBottomRightRadius: 8,
+                fontSize: '0.875rem',
+                fontFamily: 'inherit',
+                background: 'white',
+                color: 'var(--text-main)',
+                outline: 'none',
+                width: '100%',
+              }}
+            />
+          </div>
+        </Field>
+        <Field label="Country">
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0 0.875rem',
+              background: '#F8FAFC',
+              border: '1px solid var(--border-color)',
+              borderRadius: 8,
+              fontSize: '0.875rem',
+              color: 'var(--text-main)',
+              height: 38,
+              boxSizing: 'border-box',
+            }}
+            title="Country is permanently configured to Ethiopia"
+          >
+            <EthiopiaFlag width={20} height={14} />
+            <span style={{ fontWeight: 500 }}>Ethiopia</span>
+          </div>
         </Field>
         <Field label="Gender">
           <select
             value={gender}
             onChange={e => setGender(e.target.value)}
-            style={{ padding: '0.6rem 0.875rem', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: '0.875rem', background: 'white', color: 'var(--text-main)', width: '100%' }}
+            style={{ padding: '0.6rem 0.875rem', border: '1px solid var(--border-color)', borderRadius: 8, fontSize: '0.875rem', background: 'white', color: 'var(--text-main)', width: '100%', height: 38 }}
           >
             <option value="">— Select —</option>
             <option value="Male">Male</option>
