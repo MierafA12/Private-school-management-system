@@ -10,7 +10,7 @@ import "../../styles/pages/Landing.css";
 const Landing = () => {
   return (
     <div className="saas-wrapper">
-      <Navbar />
+      <Navbar transparent />
       <Hero />
       <Features />
       <Showcase />

@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import ThemeToggle from '../shared/ThemeToggle';
 
-const Navbar = () => {
+const Navbar = ({ transparent = false }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const closeMenu = () => setMobileOpen(false);
 
+  useEffect(() => {
+    if (!transparent) return;
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [transparent]);
+
   return (
-    <nav className="saas-navbar">
+    <nav className={`saas-navbar${transparent ? ' saas-navbar--transparent' : ''}${scrolled ? ' saas-navbar--scrolled' : ''}`}>
       <div className="container nav-container">
         <div className="nav-brand">
-          <ShieldCheck size={24} className="brand-icon" />
+          <img src="/logo.svg" alt="Haile-Manas Academy" className="brand-logo" />
           <span className="brand-text">Haile-Manas Academy</span>
         </div>
 
@@ -27,7 +35,6 @@ const Navbar = () => {
         {/* Desktop Actions */}
         <div className="nav-actions">
           <ThemeToggle />
-          <Link to="/login" className="btn btn-primary">Sign In</Link>
         </div>
 
         {/* Mobile Hamburger Toggle */}

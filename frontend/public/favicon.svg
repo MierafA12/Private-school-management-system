@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Outer blue diamond -->
+  <path d="M50 5 L95 50 L50 95 L5 50 Z" fill="#1E3A5F" />
+  <!-- Inner white diamond cutout -->
+  <path d="M50 18 L82 50 L50 82 L18 50 Z" fill="#FFFFFF" />
+  <!-- Middle orange diamond -->
+  <path d="M50 25 L75 50 L50 75 L25 50 Z" fill="#C85A24" />
+  <!-- Inner white diamond cutout -->
+  <path d="M50 36 L64 50 L50 64 L36 50 Z" fill="#FFFFFF" />
+  <!-- Center blue diamond -->
+  <path d="M50 42 L58 50 L50 58 L42 50 Z" fill="#1E3A5F" />
+</svg>

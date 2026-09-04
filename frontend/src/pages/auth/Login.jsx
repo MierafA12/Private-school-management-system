@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, AlertCircle, ArrowLeft, Eye, EyeOff, Waves } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useAuth, roleHomePath } from '../../context/AuthContext';
 import ThemeToggle from '../../components/shared/ThemeToggle';
 import "../../styles/pages/Auth.css";
@@ -42,7 +42,7 @@ export default function Login() {
 
         <div className="auth-card">
           <div className="auth-brand">
-            <div className="brand-icon-wrapper"><Waves size={24} /></div>
+            <div className="brand-icon-wrapper"><img src="/logo.svg" alt="Haile-Manas Academy" className="auth-brand-logo" /></div>
           </div>
 
           <div className="auth-header">

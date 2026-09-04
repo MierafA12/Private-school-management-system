@@ -1,12 +1,12 @@
 import React from 'react';
-import { ShieldCheck } from 'lucide-react';
+
 
 const Footer = () => {
   return (
     <footer className="footer-section bg-white">
       <div className="container footer-grid">
         <div className="footer-brand">
-          <ShieldCheck size={24} className="brand-icon" />
+          <img src="/logo.svg" alt="Haile-Manas Academy" className="brand-logo" />
           <span className="brand-text">Haile-Manas Academy</span>
         </div>
         <div className="footer-links">
