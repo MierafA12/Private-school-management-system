@@ -10,8 +10,9 @@
     "migrate:down": "node-pg-migrate down",
     "migrate:create": "node-pg-migrate create",
     "migrate:supabase": "node scripts/run-migration.js",
-    "seed:admin":  "node scripts/seed-admin.js",
-    "patch:db":    "node scripts/patch-missing-tables.js",
+    "seed:admin":     "node scripts/seed-admin.js",
+    "seed:passwords": "node scripts/reset-passwords.js",
+    "patch:db":       "node scripts/patch-missing-tables.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
