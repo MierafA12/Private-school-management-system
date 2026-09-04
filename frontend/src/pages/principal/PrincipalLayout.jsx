@@ -3,9 +3,10 @@ import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, School, CalendarDays, Layers, BookOpen,
   Star, DollarSign, UserCheck, Clock, Megaphone, FileText, LogOut,
-  Menu, X, GraduationCap, ChevronRight,
+  Menu, X, GraduationCap, ChevronRight, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useSidebar } from '../../context/SidebarContext';
 import NotificationBell from '../../components/shared/NotificationBell';
 import ThemeToggle from '../../components/shared/ThemeToggle';
 import '../../styles/portals/layout.css';
@@ -52,6 +53,7 @@ const initials = (n = '') =>
 
 export default function PrincipalLayout() {
   const [open, setOpen] = useState(false);
+  const { collapsed, toggleSidebar } = useSidebar();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -68,15 +70,24 @@ export default function PrincipalLayout() {
     <div className="sl-root">
       {open && <div className="sl-overlay" onClick={() => setOpen(false)} />}
 
-      <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''}`}>
+      <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''} ${collapsed ? 'sl-sidebar--collapsed' : ''}`}>
         <div className="sl-logo">
           <div className="sl-logo-icon">
             <GraduationCap size={16} color="white" />
           </div>
-          <div style={{ minWidth: 0, flex: 1 }}>
+          <div className="sl-logo-text">
             <div className="sl-logo-name">EduFlow</div>
             <div className="sl-logo-sub">Principal Portal</div>
           </div>
+          <button
+            type="button"
+            className="sl-collapse-btn"
+            onClick={toggleSidebar}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={16} />}
+          </button>
           <button className="sl-close-btn" onClick={() => setOpen(false)} aria-label="Close Sidebar">
             <X size={16} />
           </button>
@@ -93,6 +104,7 @@ export default function PrincipalLayout() {
                   end={to === '/principal/dashboard'}
                   className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
                   onClick={() => setOpen(false)}
+                  title={label}
                 >
                   <Icon size={15} />
                   <span>{label}</span>
@@ -108,7 +120,7 @@ export default function PrincipalLayout() {
               to="/principal/profile"
               className="sl-user-link"
               onClick={() => setOpen(false)}
-              title="View Profile"
+              title={`${name} (${user?.role || 'Principal'})`}
             >
               <div className="sl-avatar">{avatar}</div>
               <div className="sl-user-details">
@@ -128,11 +140,20 @@ export default function PrincipalLayout() {
         </div>
       </aside>
 
-      <div className="sl-main">
+      <div className={`sl-main ${collapsed ? 'sl-main--collapsed' : ''}`}>
         <header className="sl-topbar">
           <div className="sl-topbar-left">
             <button className="sl-menu-btn" onClick={() => setOpen(true)} aria-label="Open Menu">
               <Menu size={20} />
+            </button>
+            <button
+              type="button"
+              className="sl-desktop-toggle-btn"
+              onClick={toggleSidebar}
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               {activeGroup && activeGroup.title !== 'Overview' && (
@@ -165,3 +186,4 @@ export default function PrincipalLayout() {
     </div>
   );
 }
+

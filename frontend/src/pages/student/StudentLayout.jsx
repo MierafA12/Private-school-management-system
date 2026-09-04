@@ -3,9 +3,10 @@ import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, CalendarDays, BookOpen, ClipboardList,
   FileText, CreditCard, Bell, MessageSquare, User, LogOut,
-  Menu, X, GraduationCap,
+  Menu, X, GraduationCap, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useSidebar } from '../../context/SidebarContext';
 import NotificationBell from '../../components/shared/NotificationBell';
 import ThemeToggle from '../../components/shared/ThemeToggle';
 import '../../styles/portals/layout.css';
@@ -27,6 +28,7 @@ const initials = (n = '') => n.split(' ').map(w => w[0]).slice(0, 2).join('').to
 
 export default function StudentLayout() {
   const [open, setOpen] = useState(false);
+  const { collapsed, toggleSidebar } = useSidebar();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,11 +41,20 @@ export default function StudentLayout() {
     <div className="sl-root">
       {open && <div className="sl-overlay" onClick={() => setOpen(false)} />}
 
-      <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''}`}>
+      <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''} ${collapsed ? 'sl-sidebar--collapsed' : ''}`}>
         <div className="sl-logo">
           <div className="sl-logo-icon"><GraduationCap size={18} color="white" /></div>
-          <div><div className="sl-logo-name">EduFlow</div><div className="sl-logo-sub">Student Portal</div></div>
-          <button className="sl-close-btn" onClick={() => setOpen(false)}><X size={18} /></button>
+          <div className="sl-logo-text"><div className="sl-logo-name">EduFlow</div><div className="sl-logo-sub">Student Portal</div></div>
+          <button
+            type="button"
+            className="sl-collapse-btn"
+            onClick={toggleSidebar}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={16} />}
+          </button>
+          <button className="sl-close-btn" onClick={() => setOpen(false)} aria-label="Close Sidebar"><X size={18} /></button>
         </div>
 
         <nav className="sl-nav">
@@ -51,6 +62,7 @@ export default function StudentLayout() {
             <NavLink key={to} to={to}
               className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
               onClick={() => setOpen(false)}
+              title={label}
             >
               <Icon size={16} /><span>{label}</span>
             </NavLink>
@@ -59,7 +71,9 @@ export default function StudentLayout() {
 
         <div className="sl-sidebar-footer">
           <NavLink to="/student/profile" className="sl-user-row" onClick={() => setOpen(false)}
-            style={{ textDecoration: 'none', cursor: 'pointer' }}>
+            style={{ textDecoration: 'none', cursor: 'pointer' }}
+            title={`${name} (${user?.role || 'Student'})`}
+          >
             <div className="sl-avatar">{avatar}</div>
             <div className="sl-user-details">
               <span className="sl-user-name">{name}</span>
@@ -67,16 +81,25 @@ export default function StudentLayout() {
             </div>
             <User size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
           </NavLink>
-          <button className="sl-logout-full" onClick={() => { logout(); navigate('/login', { replace: true }); }}>
+          <button className="sl-logout-full" onClick={() => { logout(); navigate('/login', { replace: true }); }} title="Sign Out">
             <LogOut size={14} /><span>Sign Out</span>
           </button>
         </div>
       </aside>
 
-      <div className="sl-main">
+      <div className={`sl-main ${collapsed ? 'sl-main--collapsed' : ''}`}>
         <header className="sl-topbar">
           <div className="sl-topbar-left">
-            <button className="sl-menu-btn" onClick={() => setOpen(true)}><Menu size={20} /></button>
+            <button className="sl-menu-btn" onClick={() => setOpen(true)} aria-label="Open Menu"><Menu size={20} /></button>
+            <button
+              type="button"
+              className="sl-desktop-toggle-btn"
+              onClick={toggleSidebar}
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+            </button>
             <span className="sl-page-title">{page}</span>
           </div>
           <div className="sl-topbar-right">
@@ -92,3 +115,4 @@ export default function StudentLayout() {
     </div>
   );
 }
+
