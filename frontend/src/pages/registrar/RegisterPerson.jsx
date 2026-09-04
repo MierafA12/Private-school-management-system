@@ -8,6 +8,7 @@ import {
 import EthiopiaFlag from '../../components/shared/EthiopiaFlag';
 import { registrarApi } from '../../api';
 import { ErrorBanner } from '../../components/shared/PageState';
+import { useAuth } from '../../context/AuthContext';
 import '../../styles/portals/registrar.css';
 
 const ROLES = [
@@ -174,6 +175,12 @@ function SuccessCard({ result, role, onAgain }) {
 // Main Component: RegisterPerson
 // ─────────────────────────────────────────────────────────────────────────────
 export default function RegisterPerson() {
+  const { user: currentUser } = useAuth();
+  const isRegistrar = currentUser?.role === 'Registrar';
+  const staffRoleOptions = isRegistrar
+    ? ['Registrar', 'Accountant']
+    : STAFF_ROLES;
+
   const [role,         setRole]         = useState('student');
   const [loading,      setLoading]      = useState(false);
   const [error,        setError]        = useState(null);
@@ -750,7 +757,7 @@ export default function RegisterPerson() {
                     <Select
                       value={staffRole}
                       onChange={setStaffRole}
-                      options={STAFF_ROLES.map((v) => ({ value: v, label: v }))}
+                      options={staffRoleOptions.map((v) => ({ value: v, label: v }))}
                       required
                     />
                   </Field>
