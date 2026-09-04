@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  School, Building, Phone, Mail, Globe, Save, CheckCircle2,
-  ShieldCheck, MapPin, Award, Calendar, DollarSign,
+  School, Building, Phone, Mail, Save, CheckCircle2, Award,
 } from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
@@ -96,12 +95,12 @@ export default function SchoolProfile() {
       <div className="sp-page-header" style={{ marginBottom: '1.75rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h1 className="sp-page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <School size={26} style={{ color: 'var(--primary, #991B1B)' }} />
-              School Profile & Branding
+            <h1 className="sp-page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <School size={20} style={{ color: 'var(--primary, #991B1B)' }} />
+              School Profile
             </h1>
             <p className="sp-page-sub">
-              Manage official institutional identity, legal accreditation, and system-wide regional defaults.
+              Manage official school details, accreditation, contact info, and operational settings.
             </p>
           </div>
           <button
@@ -109,10 +108,9 @@ export default function SchoolProfile() {
             className="btn-prim"
             onClick={handleSubmit}
             disabled={saving}
-            style={{ padding: '0.7rem 1.5rem', fontSize: '0.9rem' }}
           >
-            <Save size={16} />
-            <span>{saving ? 'Saving Changes…' : 'Save Profile'}</span>
+            <Save size={14} />
+            <span>{saving ? 'Saving…' : 'Save Changes'}</span>
           </button>
         </div>
       </div>
@@ -122,41 +120,40 @@ export default function SchoolProfile() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.6rem',
-            padding: '1rem 1.25rem',
-            borderRadius: 12,
-            background: '#ECFDF5',
-            border: '1px solid #A7F3D0',
-            color: '#065F46',
-            marginBottom: '1.5rem',
-            fontSize: '0.9rem',
-            fontWeight: 700,
-            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.1)',
+            gap: '0.5rem',
+            padding: '0.75rem 1rem',
+            borderRadius: 6,
+            background: '#F0FDF4',
+            border: '1px solid #BBF7D0',
+            color: '#166534',
+            marginBottom: '1rem',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
           }}
         >
-          <CheckCircle2 size={20} color="#059669" />
-          School profile and system branding have been updated successfully!
+          <CheckCircle2 size={16} color="#16A34A" />
+          School profile updated successfully.
         </div>
       )}
 
       {error && <ErrorBanner message={error} onRetry={loadProfile} />}
 
-      {/* ── Two-Column Layout: Form on Left, Live Identity Card on Right ── */}
+      {/* ── Two-Column Layout: Form on Left, Identity Summary on Right ── */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-          gap: '2rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          gap: '1.25rem',
           alignItems: 'start',
         }}
       >
         {/* Left Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Card 1: Identity */}
-          <div className="sp-card" style={{ padding: '1.75rem' }}>
+          <div className="sp-card" style={{ padding: '1.25rem' }}>
             <div className="pc-section-title">
-              <School size={16} />
-              General Institutional Identity
+              <School size={15} />
+              Institutional Identity
             </div>
             <div className="pf-grid-2">
               <div className="pf-field">
@@ -223,10 +220,10 @@ export default function SchoolProfile() {
           </div>
 
           {/* Card 2: Contact & Location */}
-          <div className="sp-card" style={{ padding: '1.75rem' }}>
+          <div className="sp-card" style={{ padding: '1.25rem' }}>
             <div className="pc-section-title">
-              <Building size={16} />
-              Campus Location & Contacts
+              <Building size={15} />
+              Location & Contact
             </div>
             <div className="pf-grid-2">
               <div className="pf-field">
@@ -304,10 +301,10 @@ export default function SchoolProfile() {
           </div>
 
           {/* Card 3: Academic System & Regional Defaults */}
-          <div className="sp-card" style={{ padding: '1.75rem' }}>
+          <div className="sp-card" style={{ padding: '1.25rem' }}>
             <div className="pc-section-title">
-              <Award size={16} />
-              Academic Calendar & Currency Settings
+              <Award size={15} />
+              System Defaults & Regional Settings
             </div>
             <div className="pf-grid-2">
               <div className="pf-field">
@@ -344,69 +341,63 @@ export default function SchoolProfile() {
           </div>
         </form>
 
-        {/* Right Column: Live Identity Preview Card */}
+        {/* Right Column: School Identity Summary */}
         <div>
-          <div className="school-preview-card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-              <div className="school-preview-emblem">
+          <div className="school-summary-card">
+            <div className="school-summary-header">
+              <div className="school-summary-emblem">
                 {profile.logo_url ? (
                   <img
                     src={profile.logo_url}
                     alt="School Logo"
-                    style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 16 }}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 4 }}
                     onError={(e) => { e.target.style.display = 'none'; }}
                   />
                 ) : (
                   initials
                 )}
               </div>
-              <span className="sp-badge sp-badge--green" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <ShieldCheck size={12} />
-                Accredited
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <h3 className="school-summary-title">{profile.name || 'School Name'}</h3>
+                {profile.motto && (
+                  <p className="school-summary-motto">{profile.motto}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="school-summary-row">
+              <span className="school-summary-row-label">Registration</span>
+              <span className="school-summary-row-val">{profile.registration_number || '—'}</span>
+            </div>
+            <div className="school-summary-row">
+              <span className="school-summary-row-label">Principal</span>
+              <span className="school-summary-row-val">{profile.principal_name || '—'}</span>
+            </div>
+            <div className="school-summary-row">
+              <span className="school-summary-row-label">Location</span>
+              <span className="school-summary-row-val">
+                {[profile.city, profile.country].filter(Boolean).join(', ') || '—'}
               </span>
             </div>
-
-            <h2 className="school-preview-title">{profile.name || 'EduFlow Private Academy'}</h2>
-            <p className="school-preview-motto">
-              &ldquo;{profile.motto || 'Striving for Academic Excellence & Character'}&rdquo;
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1.5rem', fontSize: '0.85rem', color: '#475569' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Award size={15} color="var(--primary, #991B1B)" />
-                <span>Registration: <strong>{profile.registration_number || 'MOE/PRI/2026/001'}</strong></span>
+            {profile.email && (
+              <div className="school-summary-row">
+                <span className="school-summary-row-label">Email</span>
+                <span className="school-summary-row-val">{profile.email}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <School size={15} color="var(--primary, #991B1B)" />
-                <span>Head: <strong>{profile.principal_name || 'School Principal'}</strong></span>
+            )}
+            {profile.phone && (
+              <div className="school-summary-row">
+                <span className="school-summary-row-label">Phone</span>
+                <span className="school-summary-row-val">{profile.phone}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <MapPin size={15} color="var(--primary, #991B1B)" />
-                <span>{profile.city || 'Nairobi'}, {profile.country || 'Kenya'}</span>
-              </div>
-              {profile.email && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Mail size={15} color="var(--primary, #991B1B)" />
-                  <span>{profile.email}</span>
-                </div>
-              )}
-              {profile.phone && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Phone size={15} color="var(--primary, #991B1B)" />
-                  <span>{profile.phone}</span>
-                </div>
-              )}
+            )}
+            <div className="school-summary-row">
+              <span className="school-summary-row-label">Default Currency</span>
+              <span className="school-summary-row-val">{profile.currency || 'KES'}</span>
             </div>
-
-            <div className="school-preview-grid">
-              <div className="school-preview-item">
-                <div className="school-preview-item-label">Default Currency</div>
-                <div className="school-preview-item-val">{profile.currency || 'KES'}</div>
-              </div>
-              <div className="school-preview-item">
-                <div className="school-preview-item-label">Academic Cycle</div>
-                <div className="school-preview-item-val">{profile.terms_per_year || 3} Terms / Year</div>
-              </div>
+            <div className="school-summary-row">
+              <span className="school-summary-row-label">Academic Cycle</span>
+              <span className="school-summary-row-val">{profile.terms_per_year || 3} Terms / Year</span>
             </div>
           </div>
         </div>

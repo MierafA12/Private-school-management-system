@@ -6,9 +6,21 @@ import './principal.css';
 
 function Modal({ title, onClose, children, wide }) {
   return (
-    <div className="modal-backdrop">
-      <div className="modal-box" style={{ maxWidth: wide ? 580 : 480 }}>
-        <h3>{title}</h3>
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-box" style={{ maxWidth: wide ? 580 : 480 }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h3 style={{ margin: 0 }}>{title}</h3>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex', padding: 4 }}
+              title="Close"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
         {children}
       </div>
     </div>

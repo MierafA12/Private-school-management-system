@@ -1,5 +1,5 @@
 import { useEffect, useState, Fragment } from 'react';
-import { Plus, Trash2, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, X } from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner, EmptyState } from '../../components/shared/PageState';
 import './principal.css';
@@ -11,8 +11,23 @@ const DAY_COLORS = { Monday: 'red', Tuesday: 'blue', Wednesday: 'green', Thursda
 
 function Modal({ title, onClose, children }) {
   return (
-    <div className="modal-backdrop">
-      <div className="modal-box" style={{ maxWidth: 560 }}><h3>{title}</h3>{children}</div>
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-box" style={{ maxWidth: 520 }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h3 style={{ margin: 0 }}>{title}</h3>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748B', display: 'flex', padding: 4 }}
+              title="Close"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+        {children}
+      </div>
     </div>
   );
 }
@@ -212,34 +227,34 @@ export default function Timetable() {
 
   return (
     <div>
-      <div className="sp-page-header" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-start' }}>
+      <div className="sp-page-header">
         <div>
           <h1 className="sp-page-title">Timetable Builder</h1>
-          <p className="sp-page-sub">Build and manage the weekly class schedule</p>
+          <p className="sp-page-sub">Weekly schedule and classroom assignments by section</p>
         </div>
         {canEdit && slots.length > 0 && (
-          <button className="btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--primary)', borderColor: '#FECACA' }}
-            onClick={clearAll}>
-            <RefreshCw size={15} /> Clear Timetable
+          <button className="btn-ghost" onClick={clearAll}>
+            <RefreshCw size={13} />
+            <span>Clear Timetable</span>
           </button>
         )}
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-        <select className="pf-select" style={{ minWidth: 160 }} value={yearId} onChange={e => setYearId(e.target.value)}>
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+        <select className="pf-select" style={{ minWidth: 150, width: 'auto' }} value={yearId} onChange={e => setYearId(e.target.value)}>
           <option value="">Academic Year</option>
           {years.map(y => <option key={y.id} value={y.id}>{y.name}{y.is_current ? ' ✓' : ''}</option>)}
         </select>
-        <select className="pf-select" style={{ minWidth: 120 }} value={termId} onChange={e => setTermId(e.target.value)} disabled={!yearId}>
+        <select className="pf-select" style={{ minWidth: 120, width: 'auto' }} value={termId} onChange={e => setTermId(e.target.value)} disabled={!yearId}>
           <option value="">Term</option>
           {terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
-        <select className="pf-select" style={{ minWidth: 140 }} value={classId} onChange={e => setClassId(e.target.value)}>
+        <select className="pf-select" style={{ minWidth: 140, width: 'auto' }} value={classId} onChange={e => setClassId(e.target.value)}>
           <option value="">Class</option>
           {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <select className="pf-select" style={{ minWidth: 120 }} value={sectionId} onChange={e => setSectionId(e.target.value)} disabled={!classId}>
+        <select className="pf-select" style={{ minWidth: 120, width: 'auto' }} value={sectionId} onChange={e => setSectionId(e.target.value)} disabled={!classId}>
           <option value="">Section</option>
           {sections.map(s => <option key={s.id} value={s.id}>Section {s.name}</option>)}
         </select>
@@ -255,22 +270,22 @@ export default function Timetable() {
         <ErrorBanner message={error} onRetry={loadSlots} />
       ) : (
         <div className="sp-card">
-          <div className="sp-card-body" style={{ overflowX: 'auto' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(5, 1fr)', gap: 4, minWidth: 700 }}>
+          <div className="sp-card-body" style={{ overflowX: 'auto', padding: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '50px repeat(5, 1fr)', gap: 4, minWidth: 700 }}>
               {/* Header */}
-              <div style={{ background: 'var(--bg-color)', borderRadius: 8, padding: '0.5rem', textAlign: 'center', fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+              <div style={{ background: '#F8FAFC', borderRadius: 4, padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 600, color: '#64748B', border: '1px solid #E2E8F0' }}>
                 Period
               </div>
               {DAYS.map(d => (
-                <div key={d} style={{ background: 'var(--bg-color)', borderRadius: 8, padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  {d.slice(0, 3)}
+                <div key={d} style={{ background: '#F8FAFC', borderRadius: 4, padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 600, color: '#0F172A', border: '1px solid #E2E8F0' }}>
+                  {d}
                 </div>
               ))}
 
               {/* Rows */}
               {PERIODS.map(p => (
                 <Fragment key={`p-row-${p}`}>
-                  <div style={{ background: 'var(--bg-color, #F8FAFC)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted, #64748B)', padding: '0.5rem' }}>
+                  <div style={{ background: '#F8FAFC', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 600, color: '#64748B', border: '1px solid #E2E8F0' }}>
                     P{p}
                   </div>
                   {DAYS.map(d => {

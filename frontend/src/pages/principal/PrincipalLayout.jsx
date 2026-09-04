@@ -74,7 +74,7 @@ export default function PrincipalLayout() {
           </div>
           <div>
             <div className="sl-logo-name">EduFlow</div>
-            <div className="sl-logo-sub">Principal Executive Portal</div>
+            <div className="sl-logo-sub">Principal Portal</div>
           </div>
           <button className="sl-close-btn" onClick={() => setOpen(false)} aria-label="Close Sidebar">
             <X size={18} />

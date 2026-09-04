@@ -90,10 +90,9 @@ export default function PrincipalAnnouncements() {
             type="button"
             className="btn-prim"
             onClick={() => setShowCompose((prev) => !prev)}
-            style={{ padding: '0.7rem 1.4rem' }}
           >
-            {showCompose ? <X size={16} /> : <Plus size={16} />}
-            <span>{showCompose ? 'Close Composer' : 'New Announcement'}</span>
+            {showCompose ? <X size={14} /> : <Plus size={14} />}
+            <span>{showCompose ? 'Close' : 'New Announcement'}</span>
           </button>
         </div>
       </div>
@@ -103,28 +102,28 @@ export default function PrincipalAnnouncements() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.6rem',
-            padding: '0.9rem 1.25rem',
-            borderRadius: 12,
-            background: '#ECFDF5',
-            border: '1px solid #A7F3D0',
-            color: '#065F46',
-            marginBottom: '1.5rem',
-            fontWeight: 700,
-            fontSize: '0.9rem',
+            gap: '0.5rem',
+            padding: '0.75rem 1rem',
+            borderRadius: 6,
+            background: '#F0FDF4',
+            border: '1px solid #BBF7D0',
+            color: '#166534',
+            marginBottom: '1rem',
+            fontWeight: 500,
+            fontSize: '0.8125rem',
           }}
         >
-          <CheckCircle2 size={18} color="#059669" />
+          <CheckCircle2 size={16} color="#16A34A" />
           {successMsg}
         </div>
       )}
 
       {/* ── Collapsible Composer Card ── */}
       {showCompose && (
-        <div className="sp-card" style={{ marginBottom: '2rem', padding: '1.75rem', animation: 'modalPop 0.2s ease' }}>
-          <div className="pc-section-title" style={{ marginBottom: '1.25rem' }}>
-            <Megaphone size={16} />
-            Compose School Announcement
+        <div className="sp-card" style={{ marginBottom: '1.25rem', padding: '1.25rem' }}>
+          <div className="pc-section-title">
+            <Megaphone size={15} />
+            Compose Announcement
           </div>
           <form onSubmit={handleSubmit}>
             <div className="pf-field">
@@ -233,16 +232,15 @@ export default function PrincipalAnnouncements() {
                 type="button"
                 onClick={() => setFilterAudience(val)}
                 style={{
-                  padding: '0.45rem 0.95rem',
-                  borderRadius: 8,
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
-                  border: '1.5px solid',
-                  borderColor: active ? 'var(--primary, #991B1B)' : '#E2E8F0',
-                  background: active ? '#FEF2F2' : 'white',
-                  color: active ? 'var(--primary, #991B1B)' : '#64748B',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: 6,
+                  fontSize: '0.8125rem',
+                  fontWeight: 500,
+                  border: '1px solid',
+                  borderColor: active ? 'var(--primary, #991B1B)' : '#CBD5E1',
+                  background: active ? '#FEF2F2' : '#FFFFFF',
+                  color: active ? 'var(--primary, #991B1B)' : '#475569',
                   cursor: 'pointer',
-                  transition: 'all 0.15s ease',
                 }}
               >
                 {label}
@@ -251,26 +249,26 @@ export default function PrincipalAnnouncements() {
           })}
         </div>
 
-        <span style={{ fontSize: '0.82rem', color: '#94A3B8', fontWeight: 600 }}>
+        <span style={{ fontSize: '0.8125rem', color: '#64748B' }}>
           Showing {filteredAnnouncements.length} of {announcements.length} announcements
         </span>
       </div>
 
       {/* ── Announcement Feed ── */}
       {filteredAnnouncements.length === 0 ? (
-        <div className="sp-card" style={{ padding: '3.5rem 1.5rem', textAlign: 'center' }}>
-          <Megaphone size={40} style={{ color: '#CBD5E1', margin: '0 auto 1rem' }} />
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#1E293B', margin: '0 0 0.4rem 0' }}>
+        <div className="sp-card" style={{ padding: '2.5rem 1.5rem', textAlign: 'center' }}>
+          <Megaphone size={32} style={{ color: '#CBD5E1', margin: '0 auto 0.75rem' }} />
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#0F172A', margin: '0 0 0.25rem 0' }}>
             No Announcements Found
           </h3>
-          <p style={{ fontSize: '0.85rem', color: '#64748B', margin: 0 }}>
+          <p style={{ fontSize: '0.8125rem', color: '#64748B', margin: 0 }}>
             {filterAudience === 'ALL'
               ? 'Click "New Announcement" above to broadcast your first message.'
               : `There are currently no announcements targeted to ${filterAudience.toLowerCase()}.`}
           </p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {filteredAnnouncements.map((a) => {
             const pubDate = a.publish_at
               ? new Date(a.publish_at).toLocaleDateString('en-US', {
@@ -291,32 +289,32 @@ export default function PrincipalAnnouncements() {
                 className={`announcement-card announcement-card--${a.priority || 'NORMAL'}`}
               >
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
                     <span
                       className={`sp-badge sp-badge--${badgeColor}`}
-                      style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+                      style={{ fontWeight: 500, fontSize: '0.72rem' }}
                     >
                       {a.priority || 'NORMAL'}
                     </span>
                     <span
                       className="sp-badge sp-badge--gray"
-                      style={{ fontWeight: 600 }}
+                      style={{ fontWeight: 500, fontSize: '0.72rem' }}
                     >
                       To: {a.audience}
                     </span>
-                    <span style={{ fontSize: '0.75rem', color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                      <Clock size={12} />
+                    <span style={{ fontSize: '0.75rem', color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <Clock size={11} />
                       {pubDate}
                     </span>
                   </div>
 
                   <h3
                     style={{
-                      fontSize: '1.05rem',
-                      fontWeight: 800,
+                      fontSize: '0.95rem',
+                      fontWeight: 600,
                       color: '#0F172A',
-                      margin: '0 0 0.5rem 0',
-                      lineHeight: 1.35,
+                      margin: '0 0 0.35rem 0',
+                      lineHeight: 1.3,
                     }}
                   >
                     {a.title}
@@ -326,8 +324,8 @@ export default function PrincipalAnnouncements() {
                     style={{
                       margin: 0,
                       color: '#475569',
-                      fontSize: '0.9rem',
-                      lineHeight: 1.6,
+                      fontSize: '0.8125rem',
+                      lineHeight: 1.5,
                       whiteSpace: 'pre-wrap',
                     }}
                   >
@@ -340,9 +338,8 @@ export default function PrincipalAnnouncements() {
                   onClick={() => handleDelete(a.id)}
                   className="btn-danger"
                   title="Delete Announcement"
-                  style={{ padding: '0.4rem 0.65rem' }}
                 >
-                  <Trash2 size={15} />
+                  <Trash2 size={13} />
                 </button>
               </div>
             );
