@@ -18,7 +18,11 @@ if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
 }
 
 // ── Read SQL file ─────────────────────────────────────────────
-const sqlFile = path.join(__dirname, '..', 'supabase_migration.sql');
+const candidateFile = path.join(__dirname, '..', 'migrations', 'sql', 'supabase_migration.sql');
+const sqlFile = fs.existsSync(candidateFile)
+  ? candidateFile
+  : path.join(__dirname, '..', 'supabase_migration.sql');
+
 if (!fs.existsSync(sqlFile)) {
   console.error('\n❌  supabase_migration.sql not found\n');
   process.exit(1);
@@ -73,7 +77,7 @@ async function main() {
     console.log('\n  1. Open this URL in your browser:');
     console.log(`     https://supabase.com/dashboard/project/${SUPABASE_URL.replace('https://','').split('.')[0]}/sql/new`);
     console.log('\n  2. Open this file in VS Code:');
-    console.log('     backend/supabase_migration.sql');
+    console.log('     backend/migrations/sql/supabase_migration.sql');
     console.log('\n  3. Press Ctrl+A to select all, Ctrl+C to copy');
     console.log('\n  4. Paste into the SQL Editor and click Run');
     console.log('\n─────────────────────────────────────────────────────────\n');
