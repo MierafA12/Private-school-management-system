@@ -1,5 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Users, BookOpen, CreditCard, Bell, BarChart3, Calendar, Monitor, Smartphone, FileText, ClipboardList, Activity } from 'lucide-react';
+
+function Counter({ target, suffix = '', prefix = '', decimals = 0, duration = 1800 }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const startAnimation = () => {
+      if (hasAnimated.current) return;
+      hasAnimated.current = true;
+      const startTime = performance.now();
+
+      const update = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const currentVal = ease * target;
+        setCount(currentVal);
+
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        } else {
+          setCount(target);
+        }
+      };
+
+      requestAnimationFrame(update);
+    };
+
+    if (typeof IntersectionObserver !== 'undefined') {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0] && entries[0].isIntersecting) {
+            startAnimation();
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.2 }
+      );
+      observer.observe(el);
+      return () => observer.disconnect();
+    } else {
+      startAnimation();
+    }
+  }, [target, duration]);
+
+  const formattedNumber = decimals > 0
+    ? count.toFixed(decimals)
+    : Math.floor(count).toLocaleString();
+
+  return (
+    <span ref={ref} className="stat-counter">
+      {prefix}{formattedNumber}{suffix}
+    </span>
+  );
+}
 
 const Features = () => {
   return (
@@ -12,10 +71,22 @@ const Features = () => {
 
       <section className="stats-section container">
         <div className="stats-grid">
-          <div className="stat-card"><h3>50+</h3><p>Private Schools</p></div>
-          <div className="stat-card"><h3>25,000+</h3><p>Students</p></div>
-          <div className="stat-card"><h3>1,500+</h3><p>Teachers</p></div>
-          <div className="stat-card"><h3>99.9%</h3><p>System Uptime</p></div>
+          <div className="stat-card">
+            <h3><Counter target={50} suffix="+" duration={1600} /></h3>
+            <p>Private Schools</p>
+          </div>
+          <div className="stat-card">
+            <h3><Counter target={25000} suffix="+" duration={2000} /></h3>
+            <p>Students</p>
+          </div>
+          <div className="stat-card">
+            <h3><Counter target={1500} suffix="+" duration={1800} /></h3>
+            <p>Teachers</p>
+          </div>
+          <div className="stat-card">
+            <h3><Counter target={99.9} decimals={1} suffix="%" duration={1600} /></h3>
+            <p>System Uptime</p>
+          </div>
         </div>
       </section>
 

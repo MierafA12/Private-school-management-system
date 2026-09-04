@@ -192,6 +192,13 @@
   font-size: 3rem;
   color: var(--primary);
   margin-bottom: 0.5rem;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.02em;
+}
+.stat-counter {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
 }
 .stat-card p {
   color: var(--text-muted);
