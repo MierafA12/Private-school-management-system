@@ -168,3 +168,103 @@ cd backend
 npm install
 npm start
 ```
+
+---
+
+## 🏗️ Architecture & Code Structure
+
+The project adheres to a clean, modular multi-tier architecture with separation of concerns between presentation, routing, request orchestration, and data access.
+
+```
+Private-school-management-system/
+├── backend/
+│   ├── index.js                     # Central Express server entrypoint & route registration
+│   ├── migrations/                  # Database migration scripts (node-pg-migrate)
+│   │   └── sql/                     # Raw SQL migration scripts (Supabase, Chapa, portals)
+│   ├── scripts/                     # Seeders and maintenance scripts
+│   └── src/
+│       ├── controllers/             # Request & response controllers
+│       │   ├── accountantController.js
+│       │   ├── authController.js
+│       │   ├── enrollmentController.js
+│       │   ├── examController.js
+│       │   ├── notificationController.js
+│       │   ├── parentController.js
+│       │   ├── principalController.js
+│       │   ├── registrarController.js
+│       │   ├── studentController.js
+│       │   └── teacherController.js
+│       ├── db.js                    # PostgreSQL connection pool (pg)
+│       ├── jobs/                    # Scheduled background jobs (e.g. overdue invoices)
+│       ├── middleware/              # Auth JWT, RBAC authorize, validation, error handler
+│       ├── routes/                  # HTTP route definitions & validation middleware
+│       │   ├── accountantRoutes.js
+│       │   ├── authRoutes.js
+│       │   ├── examRoutes.js
+│       │   ├── notificationRoutes.js
+│       │   ├── parentRoutes.js
+│       │   ├── principalRoutes.js
+│       │   ├── registrarRoutes.js
+│       │   ├── studentRoutes.js
+│       │   └── teacherRoutes.js
+│       └── services/                # Business logic & database operations
+│           ├── accountantService.js
+│           ├── authService.js
+│           ├── enrollmentService.js
+│           ├── examService.js
+│           ├── feeService.js
+│           ├── notificationService.js
+│           ├── parentService.js
+│           ├── paymentGatewayService.js
+│           ├── principalService.js
+│           ├── registrarService.js
+│           ├── studentService.js
+│           └── teacherService.js
+│
+└── frontend/
+    ├── index.html
+    ├── vite.config.js
+    └── src/
+        ├── App.jsx                  # Main application router and role-based route guards
+        ├── api.js                   # Unified API bridge (backward compatible)
+        ├── api/                     # Modular domain-driven API client layer
+        │   ├── client.js            # Core fetch wrapper, token handling, auto-refresh queue
+        │   ├── auth.api.js
+        │   ├── principal.api.js
+        │   ├── registrar.api.js
+        │   ├── enrollment.api.js
+        │   ├── student.api.js
+        │   ├── parent.api.js
+        │   ├── accountant.api.js
+        │   ├── teacher.api.js
+        │   ├── notification.api.js
+        │   ├── exam.api.js
+        │   └── index.js             # Consolidated API exports
+        ├── components/              # Reusable UI components & layouts
+        ├── context/                 # React Contexts (AuthContext, NotificationContext)
+        ├── pages/                   # Portal views grouped by user role
+        │   ├── accountant/
+        │   ├── auth/
+        │   ├── landing/
+        │   ├── parent/
+        │   ├── principal/
+        │   │   ├── ...
+        │   │   └── SchoolProfile.jsx
+        │   ├── registrar/
+        │   ├── shared/
+        │   ├── student/
+        ├── styles/                  # Modular CSS Architecture
+        │   ├── index.css            # Global design tokens, reset, buttons, badges, variables
+        │   ├── components/          # Component stylesheets (e.g. notifications.css)
+        │   ├── pages/               # Public page styles (Auth.css, Landing.css)
+        │   └── portals/             # Portal-specific stylesheets
+        │       ├── layout.css       # Core shared portal shell (.sl-*), cards (.sp-*), tables
+        │       ├── accountant.css   # Accountant portal KPIs & invoice styles
+        │       ├── parent.css       # Parent portal child cards & payment styles
+        │       ├── principal.css    # Principal forms, modals, tables, trend charts
+        │       ├── registrar.css    # Registrar enrollment & registration forms
+        │       ├── student.css      # Student portal specific overrides
+        │       └── teacher.css      # Teacher grade sheets & attendance styles
+        └── utils/                   # Shared client utility functions
+```
+

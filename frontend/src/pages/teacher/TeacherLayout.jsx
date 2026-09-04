@@ -6,7 +6,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../../components/shared/NotificationBell';
-import '../../styles/portals/student.css';
+import '../../styles/portals/layout.css';
+import '../../styles/portals/teacher.css';
 
 const NAV = [
   { to: '/teacher/dashboard',  icon: LayoutDashboard, label: 'Dashboard'  },

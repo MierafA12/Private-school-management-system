@@ -2,7 +2,6 @@ const router = require('express').Router();
 const { body, query } = require('express-validator');
 
 const ctrl = require('../controllers/principalController');
-const svc  = require('../services/principalService');
 const { authenticate, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 

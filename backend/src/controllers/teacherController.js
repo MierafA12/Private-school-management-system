@@ -1,9 +1,23 @@
 const teacherService = require('../services/teacherService');
+const examService = require('../services/examService');
+const pool = require('../db');
+
+// Helper to resolve teacher record from authenticated JWT user
+const resolveTeacher = async (userId) => {
+  const teacher = await teacherService.getTeacherByUserId(userId);
+  if (!teacher) {
+    const err = new Error('Teacher profile not found for this user.');
+    err.status = 404;
+    throw err;
+  }
+  return teacher;
+};
 
 exports.getDashboard = async (req, res, next) => {
   try {
-    const stats = await teacherService.getDashboardStats(req.user.id);
-    res.json({ success: true, data: stats });
+    const teacher = await resolveTeacher(req.user.id);
+    const data = await teacherService.getDashboard(teacher.id);
+    res.json({ success: true, data });
   } catch (err) {
     next(err);
   }
@@ -11,8 +25,9 @@ exports.getDashboard = async (req, res, next) => {
 
 exports.getClasses = async (req, res, next) => {
   try {
-    const classes = await teacherService.getClasses(req.user.id);
-    res.json({ success: true, data: classes });
+    const teacher = await resolveTeacher(req.user.id);
+    const data = await teacherService.getAssignedClasses(teacher.id);
+    res.json({ success: true, data });
   } catch (err) {
     next(err);
   }
@@ -20,8 +35,9 @@ exports.getClasses = async (req, res, next) => {
 
 exports.getTimetable = async (req, res, next) => {
   try {
-    const timetable = await teacherService.getTimetable(req.user.id);
-    res.json({ success: true, data: timetable });
+    const teacher = await resolveTeacher(req.user.id);
+    const data = await teacherService.getWeeklyTimetable(teacher.id);
+    res.json({ success: true, data });
   } catch (err) {
     next(err);
   }
@@ -31,10 +47,13 @@ exports.getAttendance = async (req, res, next) => {
   try {
     const { classId, sectionId, date } = req.query;
     if (!classId || !sectionId || !date) {
-      return res.status(400).json({ success: false, message: 'Missing required query parameters: classId, sectionId, date' });
+      return res.status(422).json({
+        success: false,
+        message: 'classId, sectionId, and date are required query parameters.',
+      });
     }
-    const attendance = await teacherService.getAttendance(req.user.id, classId, sectionId, date);
-    res.json({ success: true, data: attendance });
+    const records = await teacherService.getAttendanceSheet(classId, sectionId, date);
+    res.json({ success: true, data: { records } });
   } catch (err) {
     next(err);
   }
@@ -42,49 +61,41 @@ exports.getAttendance = async (req, res, next) => {
 
 exports.submitAttendance = async (req, res, next) => {
   try {
-    const { classId, sectionId, date, records } = req.body;
-    if (!classId || !sectionId || !date || !records || !Array.isArray(records)) {
-      return res.status(400).json({ success: false, message: 'Invalid payload.' });
-    }
-    const result = await teacherService.submitAttendance(req.user.id, classId, sectionId, date, records);
-    res.json(result);
+    const teacher = await resolveTeacher(req.user.id);
+    const result = await teacherService.submitAttendance(teacher.id, req.body);
+    res.json({ success: true, data: result });
   } catch (err) {
     next(err);
   }
 };
 
-exports.getExamsAndGrades = async (req, res, next) => {
+exports.getSectionStudents = async (req, res, next) => {
   try {
+    const { classId, sectionId } = req.query;
+    if (!classId || !sectionId) {
+      return res.status(422).json({
+        success: false,
+        message: 'classId and sectionId are required query parameters.',
+      });
+    }
+    const students = await teacherService.getSectionStudents(classId, sectionId);
+    res.json({ success: true, data: students });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getExams = async (req, res, next) => {
+  try {
+    const teacher = await resolveTeacher(req.user.id);
     const { classId, sectionId, subjectId } = req.query;
-    if (!classId || !sectionId || !subjectId) {
-      return res.status(400).json({ success: false, message: 'Missing required query parameters: classId, sectionId, subjectId' });
-    }
-    const data = await teacherService.getExamsAndGrades(req.user.id, classId, sectionId, subjectId);
+    const data = await examService.getExamSchedules({
+      class_id: classId || null,
+      section_id: sectionId || null,
+      curriculum_subject_id: subjectId || null,
+      teacher_id: teacher.id,
+    });
     res.json({ success: true, data });
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.getExamResults = async (req, res, next) => {
-  try {
-    const { examScheduleId } = req.params;
-    const data = await teacherService.getExamResults(examScheduleId);
-    res.json({ success: true, data });
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.submitGrades = async (req, res, next) => {
-  try {
-    const { examScheduleId } = req.params;
-    const { results } = req.body;
-    if (!results || !Array.isArray(results)) {
-      return res.status(400).json({ success: false, message: 'Invalid payload.' });
-    }
-    const result = await teacherService.submitGrades(req.user.id, examScheduleId, results);
-    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -93,9 +104,18 @@ exports.submitGrades = async (req, res, next) => {
 exports.getAnnouncements = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 50;
-    const offset = parseInt(req.query.offset, 10) || 0;
-    const announcements = await teacherService.getAnnouncements({ limit, offset });
-    res.json({ success: true, data: announcements });
+    const { rows } = await pool.query(
+      `SELECT a.id, a.title, a.body, a.audience, a.priority, a.publish_at
+       FROM announcements a
+       WHERE a.is_published = TRUE
+         AND a.publish_at <= NOW()
+         AND (a.expires_at IS NULL OR a.expires_at > NOW())
+         AND a.audience IN ('ALL','TEACHERS')
+       ORDER BY a.publish_at DESC
+       LIMIT $1`,
+      [limit]
+    );
+    res.json({ success: true, data: rows });
   } catch (err) {
     next(err);
   }
