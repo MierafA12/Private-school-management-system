@@ -146,15 +146,6 @@ export default function PrincipalLayout() {
             <button className="sl-menu-btn" onClick={() => setOpen(true)} aria-label="Open Menu">
               <Menu size={20} />
             </button>
-            <button
-              type="button"
-              className="sl-desktop-toggle-btn"
-              onClick={toggleSidebar}
-              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
-            </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               {activeGroup && activeGroup.title !== 'Overview' && (
                 <>

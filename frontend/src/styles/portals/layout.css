@@ -390,29 +390,6 @@
   margin-left: 60px;
 }
 
-/* Desktop topbar sidebar toggle button */
-.sl-desktop-toggle-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  color: #64748B;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.sl-desktop-toggle-btn:hover {
-  background: #F1F5F9;
-  color: #0F172A;
-  border-color: #CBD5E1;
-}
-
 
 /* ── Topbar ── */
 .sl-topbar {
@@ -722,7 +699,6 @@
   .sp-two-col {
     grid-template-columns: 1fr;
   }
-  .sl-desktop-toggle-btn,
   .sl-collapse-btn {
     display: none !important;
   }
@@ -901,15 +877,6 @@
   border-color: #334155;
 }
 
-[data-theme="dark"] .sl-desktop-toggle-btn {
-  border-color: #1E293B;
-  color: #94A3B8;
-}
-[data-theme="dark"] .sl-desktop-toggle-btn:hover {
-  background: #1E293B;
-  color: #F8FAFC;
-  border-color: #334155;
-}
 
 [data-theme="dark"] .sp-card {
   background: #111827;

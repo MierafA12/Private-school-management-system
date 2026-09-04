@@ -90,15 +90,6 @@ export default function AccountantLayout() {
         <header className="sl-topbar">
           <div className="sl-topbar-left">
             <button className="sl-menu-btn" onClick={() => setOpen(true)} aria-label="Open Menu"><Menu size={20} /></button>
-            <button
-              type="button"
-              className="sl-desktop-toggle-btn"
-              onClick={toggleSidebar}
-              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            >
-              {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
-            </button>
             <span className="sl-page-title">{page}</span>
           </div>
           <div className="sl-topbar-right">
