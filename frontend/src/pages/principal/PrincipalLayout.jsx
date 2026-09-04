@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, School, CalendarDays, Layers, BookOpen,
-  Star, DollarSign, UserCheck, Clock, Megaphone, FileText, User, LogOut,
+  Star, DollarSign, UserCheck, Clock, Megaphone, FileText, LogOut,
   Menu, X, GraduationCap, ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -70,29 +70,30 @@ export default function PrincipalLayout() {
       <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''}`}>
         <div className="sl-logo">
           <div className="sl-logo-icon">
-            <GraduationCap size={18} color="white" />
+            <GraduationCap size={16} color="white" />
           </div>
-          <div>
+          <div style={{ minWidth: 0, flex: 1 }}>
             <div className="sl-logo-name">EduFlow</div>
             <div className="sl-logo-sub">Principal Portal</div>
           </div>
           <button className="sl-close-btn" onClick={() => setOpen(false)} aria-label="Close Sidebar">
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
         <nav className="sl-nav">
           {NAV_GROUPS.map((group) => (
-            <div key={group.title} style={{ marginBottom: '0.5rem' }}>
+            <div key={group.title} className="sl-nav-group">
               <div className="sl-nav-group-title">{group.title}</div>
               {group.items.map(({ to, icon: Icon, label }) => (
                 <NavLink
                   key={to}
                   to={to}
+                  end={to === '/principal/dashboard'}
                   className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
                   onClick={() => setOpen(false)}
                 >
-                  <Icon size={16} />
+                  <Icon size={15} />
                   <span>{label}</span>
                 </NavLink>
               ))}
@@ -101,26 +102,28 @@ export default function PrincipalLayout() {
         </nav>
 
         <div className="sl-sidebar-footer">
-          <NavLink
-            to="/principal/profile"
-            className="sl-user-row"
-            onClick={() => setOpen(false)}
-            style={{ textDecoration: 'none', cursor: 'pointer' }}
-          >
-            <div className="sl-avatar">{avatar}</div>
-            <div className="sl-user-details">
-              <span className="sl-user-name">{name}</span>
-              <span className="sl-user-role">{user?.role || 'Principal'}</span>
-            </div>
-            <User size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-          </NavLink>
-          <button
-            className="sl-logout-full"
-            onClick={() => { logout(); navigate('/login', { replace: true }); }}
-          >
-            <LogOut size={14} />
-            <span>Sign Out</span>
-          </button>
+          <div className="sl-user-row">
+            <NavLink
+              to="/principal/profile"
+              className="sl-user-link"
+              onClick={() => setOpen(false)}
+              title="View Profile"
+            >
+              <div className="sl-avatar">{avatar}</div>
+              <div className="sl-user-details">
+                <span className="sl-user-name">{name}</span>
+                <span className="sl-user-role">{user?.role || 'Principal'}</span>
+              </div>
+            </NavLink>
+            <button
+              className="sl-logout-btn"
+              onClick={() => { logout(); navigate('/login', { replace: true }); }}
+              title="Sign Out"
+              aria-label="Sign Out"
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
         </div>
       </aside>
 
