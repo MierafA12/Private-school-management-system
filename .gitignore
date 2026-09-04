@@ -41,3 +41,6 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# References and local temp tools
+uncodixfy_ref/

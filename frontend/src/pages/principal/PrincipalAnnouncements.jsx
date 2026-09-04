@@ -1,26 +1,33 @@
 import { useEffect, useState } from 'react';
-import { Send, Trash2, Megaphone } from 'lucide-react';
+import {
+  Send, Trash2, Megaphone, Plus, X,
+  Clock, CheckCircle2,
+} from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
+import './principal.css';
 
 export default function PrincipalAnnouncements() {
   const [announcements, setAnnouncements] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState(null);
+  const [submitting,    setSubmitting]    = useState(false);
+  const [showCompose,   setShowCompose]   = useState(false);
+  const [filterAudience, setFilterAudience] = useState('ALL');
+  const [successMsg,    setSuccessMsg]    = useState('');
 
   const [formData, setFormData] = useState({
     title: '',
     body: '',
     audience: 'ALL',
-    priority: 'NORMAL'
+    priority: 'NORMAL',
   });
 
   const load = async () => {
     try {
       setLoading(true);
       const res = await principalApi.getAnnouncements();
-      setAnnouncements(res);
+      setAnnouncements(Array.isArray(res) ? res : []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -36,7 +43,10 @@ export default function PrincipalAnnouncements() {
       setSubmitting(true);
       await principalApi.createAnnouncement(formData);
       setFormData({ title: '', body: '', audience: 'ALL', priority: 'NORMAL' });
-      await load(); // refresh list
+      setShowCompose(false);
+      setSuccessMsg('Announcement published successfully.');
+      setTimeout(() => setSuccessMsg(''), 4000);
+      await load();
     } catch (err) {
       alert(err.message);
     } finally {
@@ -45,115 +55,300 @@ export default function PrincipalAnnouncements() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this announcement?')) return;
+    if (!window.confirm('Are you sure you want to delete this announcement? This action cannot be undone.')) return;
     try {
       await principalApi.deleteAnnouncement(id);
-      setAnnouncements(prev => prev.filter(a => a.id !== id));
+      setAnnouncements((prev) => prev.filter((a) => a.id !== id));
     } catch (err) {
       alert(err.message);
     }
   };
 
-  if (loading) return <LoadingSpinner message="Loading announcements…" />;
-  if (error) return <ErrorBanner message={error} onRetry={load} />;
+  if (loading) return <LoadingSpinner message="Loading school announcements…" />;
+  if (error)   return <ErrorBanner message={error} onRetry={load} />;
+
+  const filteredAnnouncements = announcements.filter((a) => {
+    if (filterAudience === 'ALL') return true;
+    return a.audience === filterAudience;
+  });
 
   return (
-    <div className="principal-announcements">
-      <div className="sp-page-header">
-        <h1 className="sp-page-title">Announcements</h1>
-        <p className="sp-page-sub">Broadcast messages to the entire school or specific groups</p>
-      </div>
-
-      <div className="sp-card" style={{ marginBottom: '2rem' }}>
-        <div className="sp-card-header">
-          <span className="sp-card-title"><Megaphone size={18} style={{ marginRight: 8, verticalAlign: 'middle' }} /> Create Announcement</span>
-        </div>
-        <form onSubmit={handleSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+      {/* ── Page Header ── */}
+      <div className="sp-page-header" style={{ marginBottom: '1.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <label className="auth-label">Title</label>
-            <input 
-              type="text" 
-              required 
-              className="auth-input" 
-              placeholder="E.g. School closed for public holiday"
-              value={formData.title}
-              onChange={e => setFormData({ ...formData, title: e.target.value })}
-            />
+            <h1 className="sp-page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <Megaphone size={26} style={{ color: 'var(--primary, #991B1B)' }} />
+              School Broadcasts & Announcements
+            </h1>
+            <p className="sp-page-sub">
+              Publish official notices to students, parents, faculty, or the entire school body.
+            </p>
           </div>
-          <div>
-            <label className="auth-label">Message</label>
-            <textarea 
-              required 
-              className="auth-input" 
-              rows={4}
-              placeholder="Write your announcement here..."
-              value={formData.body}
-              onChange={e => setFormData({ ...formData, body: e.target.value })}
-            />
-          </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ flex: 1 }}>
-              <label className="auth-label">Audience</label>
-              <select className="auth-input" value={formData.audience} onChange={e => setFormData({ ...formData, audience: e.target.value })}>
-                <option value="ALL">All School (Staff, Teachers, Parents, Students)</option>
-                <option value="PARENTS">Parents Only</option>
-                <option value="TEACHERS">Teachers Only</option>
-                <option value="STUDENTS">Students Only</option>
-              </select>
-            </div>
-            <div style={{ flex: 1 }}>
-              <label className="auth-label">Priority</label>
-              <select className="auth-input" value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })}>
-                <option value="NORMAL">Normal</option>
-                <option value="HIGH">High</option>
-                <option value="URGENT">Urgent</option>
-              </select>
-            </div>
-          </div>
-          <button type="submit" disabled={submitting} className="auth-btn" style={{ alignSelf: 'flex-start', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Send size={16} />
-            {submitting ? 'Publishing...' : 'Publish Announcement'}
+          <button
+            type="button"
+            className="btn-prim"
+            onClick={() => setShowCompose((prev) => !prev)}
+            style={{ padding: '0.7rem 1.4rem' }}
+          >
+            {showCompose ? <X size={16} /> : <Plus size={16} />}
+            <span>{showCompose ? 'Close Composer' : 'New Announcement'}</span>
           </button>
-        </form>
+        </div>
       </div>
 
-      <div className="sp-card">
-        <div className="sp-card-header">
-          <span className="sp-card-title">Recent Announcements</span>
+      {successMsg && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            padding: '0.9rem 1.25rem',
+            borderRadius: 12,
+            background: '#ECFDF5',
+            border: '1px solid #A7F3D0',
+            color: '#065F46',
+            marginBottom: '1.5rem',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+          }}
+        >
+          <CheckCircle2 size={18} color="#059669" />
+          {successMsg}
         </div>
-        {announcements.length === 0 ? (
-          <div className="sp-empty">No announcements published yet.</div>
-        ) : (
-          <div style={{ padding: '1rem' }}>
-            {announcements.map(a => (
-              <div key={a.id} style={{ padding: '1rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
-                <div>
-                  <h4 style={{ margin: '0 0 0.25rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    {a.title}
-                    <span className={`sp-badge sp-badge--${a.priority === 'URGENT' ? 'red' : a.priority === 'HIGH' ? 'yellow' : 'blue'}`}>
-                      {a.priority}
+      )}
+
+      {/* ── Collapsible Composer Card ── */}
+      {showCompose && (
+        <div className="sp-card" style={{ marginBottom: '2rem', padding: '1.75rem', animation: 'modalPop 0.2s ease' }}>
+          <div className="pc-section-title" style={{ marginBottom: '1.25rem' }}>
+            <Megaphone size={16} />
+            Compose School Announcement
+          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="pf-field">
+              <label className="pf-label">Title / Headline <span>*</span></label>
+              <input
+                type="text"
+                required
+                className="pf-input"
+                placeholder="e.g. End of Term Examination Schedule & Early Dismissal"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              />
+            </div>
+
+            <div className="pf-grid-2">
+              <div className="pf-field">
+                <label className="pf-label">Target Audience <span>*</span></label>
+                <select
+                  className="pf-select"
+                  value={formData.audience}
+                  onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
+                >
+                  <option value="ALL">Entire School (Students, Parents, Teachers & Staff)</option>
+                  <option value="PARENTS">Parents / Guardians Only</option>
+                  <option value="TEACHERS">Faculty / Teachers Only</option>
+                  <option value="STUDENTS">Students Only</option>
+                </select>
+              </div>
+
+              <div className="pf-field">
+                <label className="pf-label">Priority Level <span>*</span></label>
+                <select
+                  className="pf-select"
+                  value={formData.priority}
+                  onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                >
+                  <option value="NORMAL">Normal Notice</option>
+                  <option value="HIGH">High Priority</option>
+                  <option value="URGENT">Urgent Alert (Highlighted)</option>
+                  <option value="LOW">Low / Informational</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="pf-field">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label className="pf-label">Announcement Content <span>*</span></label>
+                <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
+                  {formData.body.length} characters
+                </span>
+              </div>
+              <textarea
+                required
+                className="pf-input"
+                rows={5}
+                placeholder="Detail the announcement, effective dates, requirements, or next steps..."
+                value={formData.body}
+                onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+                style={{ resize: 'vertical', minHeight: 110 }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
+              <button
+                type="button"
+                className="btn-ghost"
+                onClick={() => setShowCompose(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="btn-prim"
+              >
+                <Send size={16} />
+                <span>{submitting ? 'Publishing Broadcast…' : 'Publish Announcement'}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ── Audience Filter Pills & Counter ── */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          marginBottom: '1.25rem',
+        }}
+      >
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          {[
+            ['ALL', 'All Broadcasts'],
+            ['PARENTS', 'Parents'],
+            ['TEACHERS', 'Teachers'],
+            ['STUDENTS', 'Students'],
+          ].map(([val, label]) => {
+            const active = filterAudience === val;
+            return (
+              <button
+                key={val}
+                type="button"
+                onClick={() => setFilterAudience(val)}
+                style={{
+                  padding: '0.45rem 0.95rem',
+                  borderRadius: 8,
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  border: '1.5px solid',
+                  borderColor: active ? 'var(--primary, #991B1B)' : '#E2E8F0',
+                  background: active ? '#FEF2F2' : 'white',
+                  color: active ? 'var(--primary, #991B1B)' : '#64748B',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        <span style={{ fontSize: '0.82rem', color: '#94A3B8', fontWeight: 600 }}>
+          Showing {filteredAnnouncements.length} of {announcements.length} announcements
+        </span>
+      </div>
+
+      {/* ── Announcement Feed ── */}
+      {filteredAnnouncements.length === 0 ? (
+        <div className="sp-card" style={{ padding: '3.5rem 1.5rem', textAlign: 'center' }}>
+          <Megaphone size={40} style={{ color: '#CBD5E1', margin: '0 auto 1rem' }} />
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#1E293B', margin: '0 0 0.4rem 0' }}>
+            No Announcements Found
+          </h3>
+          <p style={{ fontSize: '0.85rem', color: '#64748B', margin: 0 }}>
+            {filterAudience === 'ALL'
+              ? 'Click "New Announcement" above to broadcast your first message.'
+              : `There are currently no announcements targeted to ${filterAudience.toLowerCase()}.`}
+          </p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+          {filteredAnnouncements.map((a) => {
+            const pubDate = a.publish_at
+              ? new Date(a.publish_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })
+              : 'Recently';
+
+            const badgeColor =
+              a.priority === 'URGENT' ? 'red' :
+              a.priority === 'HIGH'   ? 'yellow' :
+              a.priority === 'LOW'    ? 'gray' : 'blue';
+
+            return (
+              <div
+                key={a.id}
+                className={`announcement-card announcement-card--${a.priority || 'NORMAL'}`}
+              >
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
+                    <span
+                      className={`sp-badge sp-badge--${badgeColor}`}
+                      style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}
+                    >
+                      {a.priority || 'NORMAL'}
                     </span>
-                    <span className="sp-badge" style={{ backgroundColor: '#e2e8f0', color: '#475569' }}>
+                    <span
+                      className="sp-badge sp-badge--gray"
+                      style={{ fontWeight: 600 }}
+                    >
                       To: {a.audience}
                     </span>
-                  </h4>
-                  <p style={{ margin: 0, color: 'var(--text-light)', fontSize: '0.9rem' }}>{a.body}</p>
-                  <small style={{ color: '#94a3b8', display: 'block', marginTop: '0.5rem' }}>
-                    Published on {new Date(a.publish_at).toLocaleDateString()}
-                  </small>
+                    <span style={{ fontSize: '0.75rem', color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <Clock size={12} />
+                      {pubDate}
+                    </span>
+                  </div>
+
+                  <h3
+                    style={{
+                      fontSize: '1.05rem',
+                      fontWeight: 800,
+                      color: '#0F172A',
+                      margin: '0 0 0.5rem 0',
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    {a.title}
+                  </h3>
+
+                  <p
+                    style={{
+                      margin: 0,
+                      color: '#475569',
+                      fontSize: '0.9rem',
+                      lineHeight: 1.6,
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    {a.body}
+                  </p>
                 </div>
-                <button 
+
+                <button
+                  type="button"
                   onClick={() => handleDelete(a.id)}
-                  style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: '0.5rem' }}
+                  className="btn-danger"
                   title="Delete Announcement"
+                  style={{ padding: '0.4rem 0.65rem' }}
                 >
-                  <Trash2 size={18} />
+                  <Trash2 size={15} />
                 </button>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

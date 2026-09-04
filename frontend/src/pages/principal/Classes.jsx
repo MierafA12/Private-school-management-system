@@ -47,7 +47,7 @@ function CreateClassForm({ onSave, onClose, saving }) {
   return (
     <form onSubmit={submit}>
       {/* Class info */}
-      <div className="rg-section-title" style={{ marginTop: 0 }}>Class Details</div>
+      <div className="pc-section-title" style={{ marginTop: 0 }}>Class Details</div>
       <div className="pf-grid-2">
         <div className="pf-field">
           <label className="pf-label">Class Name <span>*</span></label>
@@ -66,7 +66,7 @@ function CreateClassForm({ onSave, onClose, saving }) {
       </div>
 
       {/* Sections */}
-      <div className="rg-section-title" style={{ marginTop: '1.25rem' }}>
+      <div className="pc-section-title" style={{ marginTop: '1.25rem' }}>
         Sections <span style={{ color: 'var(--text-muted)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>
           — at least one required
         </span>

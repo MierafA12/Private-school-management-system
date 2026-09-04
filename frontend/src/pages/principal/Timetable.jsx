@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { Plus, Trash2, RefreshCw } from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner, EmptyState } from '../../components/shared/PageState';
@@ -269,8 +269,8 @@ export default function Timetable() {
 
               {/* Rows */}
               {PERIODS.map(p => (
-                <>
-                  <div key={`p${p}`} style={{ background: 'var(--bg-color)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', padding: '0.5rem' }}>
+                <Fragment key={`p-row-${p}`}>
+                  <div style={{ background: 'var(--bg-color, #F8FAFC)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted, #64748B)', padding: '0.5rem' }}>
                     P{p}
                   </div>
                   {DAYS.map(d => {
@@ -278,10 +278,10 @@ export default function Timetable() {
                     const color = DAY_COLORS[d] || 'blue';
                     if (!slot) {
                       return (
-                        <div key={d} style={{ background: '#F9FAFB', borderRadius: 8, minHeight: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px dashed var(--border-color)' }}
+                        <div key={d} className="tt-cell--empty" style={{ minHeight: 68, cursor: 'pointer' }}
                           onClick={() => { setModal({ day: d, period: p }); setMError(null); }}
                           title={`Add slot — ${d} Period ${p}`}>
-                          <Plus size={14} color="var(--text-muted)" />
+                          <Plus size={16} />
                         </div>
                       );
                     }
@@ -295,15 +295,15 @@ export default function Timetable() {
                         </div>
                         <button
                           onClick={() => delSlot(slot.id)}
-                          style={{ position: 'absolute', top: 4, right: 4, background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5 }}
+                          style={{ position: 'absolute', top: 5, right: 5, background: 'none', border: 'none', cursor: 'pointer', opacity: 0.5, padding: 2, borderRadius: 4 }}
                           title="Remove slot"
                         >
-                          <Trash2 size={11} />
+                          <Trash2 size={12} />
                         </button>
                       </div>
                     );
                   })}
-                </>
+                </Fragment>
               ))}
             </div>
           </div>
