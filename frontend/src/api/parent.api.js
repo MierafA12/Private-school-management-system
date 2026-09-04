@@ -12,6 +12,8 @@ export const parentApi = {
   getFeeById:              (invoiceId)                     => request(`/parent/fees/${invoiceId}`),
   initiatePayment:         (invoiceId, amount, method)     => request(`/parent/fees/${invoiceId}/pay`, { method: 'POST', body: JSON.stringify({ amount, method }) }),
   getAnnouncements:        (params = {})                   => { const qs = new URLSearchParams(params).toString(); return request(`/parent/announcements${qs ? `?${qs}` : ''}`); },
+  getEvents:               (params = {})                   => { const qs = new URLSearchParams(params).toString(); return request(`/parent/events${qs ? `?${qs}` : ''}`); },
+  rsvpEvent:               (eventId, response)             => request(`/parent/events/${eventId}/rsvp`, { method: 'POST', body: JSON.stringify({ response }) }),
   getMessages:             ()                              => request('/parent/messages'),
   getConversation:         (id)                            => request(`/parent/messages/${id}`),
   startConversation:       (data)                          => request('/parent/messages', { method: 'POST', body: JSON.stringify(data) }),

@@ -29,7 +29,10 @@ export default function InvoiceList() {
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
     Promise.all([accountantApi.getTerms(), accountantApi.getClasses()])
-      .then(([t, c]) => { setTerms(t); setClasses(c); }).catch(() => {});
+      .then(([t, c]) => {
+        setTerms(Array.isArray(t) ? t : []);
+        setClasses(Array.isArray(c) ? c : []);
+      }).catch(() => {});
   }, []);
 
   const set = (k, v) => { setFilter(f => ({ ...f, [k]: v })); setPage(0); };

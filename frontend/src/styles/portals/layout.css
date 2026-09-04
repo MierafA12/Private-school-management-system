@@ -15,8 +15,8 @@
 .sl-sidebar {
   width: 240px;
   height: 100vh;
-  background: var(--sidebar-bg, #F8FAFC);
-  border-right: 1px solid var(--border-color);
+  background: var(--sidebar-bg, #0F172A);
+  border-right: 1px solid var(--sidebar-border, #1E293B);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -39,9 +39,9 @@
   align-items: center;
   gap: 0.65rem;
   padding: 0 0.85rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--sidebar-border, #1E293B);
   flex-shrink: 0;
-  background: var(--sidebar-bg, #F8FAFC);
+  background: var(--sidebar-bg, #0F172A);
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -61,7 +61,7 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: 6px;
-  color: #64748B;
+  color: #94A3B8;
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
@@ -69,9 +69,9 @@
   padding: 0;
 }
 .sl-collapse-btn:hover {
-  background: #E2E8F0;
-  color: #0F172A;
-  border-color: #CBD5E1;
+  background: #1E293B;
+  color: #F8FAFC;
+  border-color: #334155;
 }
 
 /* Collapsed Header */
@@ -178,12 +178,12 @@
 .sl-logo-name {
   font-weight: 600;
   font-size: 0.875rem;
-  color: #0F172A;
+  color: #F8FAFC;
   line-height: 1.2;
 }
 .sl-logo-sub {
   font-size: 0.6875rem;
-  color: #64748B;
+  color: #94A3B8;
   font-weight: 500;
   line-height: 1.1;
 }
@@ -240,7 +240,7 @@
   gap: 0.65rem;
   padding: 0.42rem 0.65rem;
   border-radius: 6px;
-  color: #475569;
+  color: #94A3B8;
   font-size: 0.8125rem;
   font-weight: 500;
   transition: all 0.15s ease;
@@ -248,34 +248,34 @@
   border: 1px solid transparent;
 }
 .sl-nav-item:hover {
-  background: #F1F5F9;
-  color: #0F172A;
+  background: #1E293B;
+  color: #F8FAFC;
 }
 .sl-nav-item--active {
-  background: #FFFFFF;
-  color: var(--primary, #991B1B);
+  background: #1E293B;
+  color: #F87171;
   font-weight: 600;
-  border-color: #E2E8F0;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  border-color: rgba(239, 68, 68, 0.35);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 .sl-nav-item svg {
-  color: #64748B;
+  color: #94A3B8;
   flex-shrink: 0;
   transition: color 0.15s ease;
 }
 .sl-nav-item:hover svg {
-  color: #0F172A;
+  color: #F8FAFC;
 }
 .sl-nav-item--active svg {
-  color: var(--primary, #991B1B);
+  color: #F87171;
 }
 
 /* ── Sidebar User Footer (Bottom Profile) ── */
 .sl-sidebar-footer {
   padding: 0.65rem 0.5rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--sidebar-border, #1E293B);
   flex-shrink: 0;
-  background: var(--sidebar-bg, #F8FAFC);
+  background: var(--sidebar-bg, #0F172A);
 }
 .sl-user-row {
   display: flex;
@@ -287,7 +287,7 @@
   transition: background 0.15s ease;
 }
 .sl-user-row:hover {
-  background: #F1F5F9;
+  background: #1E293B;
 }
 .sl-user-link {
   display: flex;
@@ -320,7 +320,7 @@
 .sl-user-name {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #0F172A;
+  color: #F8FAFC;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -328,13 +328,13 @@
 }
 .sl-user-role {
   font-size: 0.6875rem;
-  color: #64748B;
+  color: #94A3B8;
   font-weight: 500;
 }
 .sl-logout-btn {
   width: 28px;
   height: 28px;
-  color: #64748B;
+  color: #94A3B8;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -346,9 +346,9 @@
   flex-shrink: 0;
 }
 .sl-logout-btn:hover {
-  background: #FEE2E2;
-  color: #DC2626;
-  border-color: #FECACA;
+  background: rgba(239, 68, 68, 0.15);
+  color: #F87171;
+  border-color: rgba(239, 68, 68, 0.35);
 }
 
 /* Fallback full-width button if used */

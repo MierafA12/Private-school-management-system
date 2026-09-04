@@ -26,7 +26,10 @@ export default function FeeStructures() {
         accountantApi.getTerms(),
         accountantApi.getClasses(),
       ]);
-      setItems(fs); setYears(yr); setTerms(tr); setClasses(cl);
+      setItems(Array.isArray(fs) ? fs : []);
+      setYears(Array.isArray(yr) ? yr : []);
+      setTerms(Array.isArray(tr) ? tr : []);
+      setClasses(Array.isArray(cl) ? cl : []);
     } catch (e) { setError(e.message); }
     finally { setLoading(false); }
   };

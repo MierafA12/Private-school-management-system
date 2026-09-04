@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Send } from 'lucide-react';
 
-const THREADS = [
+const INITIAL_THREADS = [
   {
     id: 1,
     teacher: 'Mr. Samuel',
@@ -44,13 +44,41 @@ const THREADS = [
 ];
 
 export default function StudentMessages() {
-  const [activeThread, setActiveThread] = useState(THREADS[0]);
+  const [threads, setThreads] = useState(INITIAL_THREADS);
+  const [activeId, setActiveId] = useState(1);
   const [input, setInput] = useState('');
+  const messagesEndRef = useRef(null);
+
+  const activeThread = threads.find(t => t.id === activeId) || threads[0];
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [activeThread?.messages]);
 
   const handleSend = () => {
-    if (!input.trim()) return;
+    const trimmed = input.trim();
+    if (!trimmed) return;
+
+    const newMsg = {
+      from: 'You',
+      text: trimmed,
+      time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+      isTeacher: false,
+    };
+
+    setThreads(prev => prev.map(t => {
+      if (t.id === activeId) {
+        return {
+          ...t,
+          preview: trimmed,
+          time: 'Just now',
+          messages: [...t.messages, newMsg],
+        };
+      }
+      return t;
+    }));
+
     setInput('');
-    // In real app: send via API
   };
 
   return (
@@ -60,7 +88,7 @@ export default function StudentMessages() {
         <p className="sp-page-sub">Direct communication with your teachers</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1rem', minHeight: '500px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 320px) 1fr', gap: '1rem', minHeight: '520px' }}>
 
         {/* Thread list */}
         <div className="sp-card" style={{ overflow: 'hidden' }}>
@@ -68,18 +96,20 @@ export default function StudentMessages() {
             <span className="sp-card-title">Conversations</span>
           </div>
           <div>
-            {THREADS.map(t => (
+            {threads.map(t => (
               <button
                 key={t.id}
-                onClick={() => setActiveThread(t)}
+                onClick={() => setActiveId(t.id)}
                 style={{
                   display: 'flex',
                   gap: '0.75rem',
                   width: '100%',
                   padding: '0.9rem 1rem',
-                  borderBottom: '1px solid #F3F4F6',
+                  border: 'none',
+                  borderBottom: '1px solid var(--border-color)',
                   textAlign: 'left',
-                  background: activeThread.id === t.id ? '#FEF2F2' : 'white',
+                  cursor: 'pointer',
+                  background: activeThread.id === t.id ? 'rgba(30, 58, 95, 0.08)' : 'transparent',
                   transition: 'background 0.15s',
                 }}
               >
@@ -93,10 +123,10 @@ export default function StudentMessages() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{t.teacher}</span>
+                    <span style={{ fontWeight: 600, fontSize: '0.85rem', color: 'var(--text-main)' }}>{t.teacher}</span>
                     <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{t.time}</span>
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--primary)', marginBottom: '0.2rem' }}>{t.subject}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--primary)', marginBottom: '0.2rem', fontWeight: 600 }}>{t.subject}</div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {t.preview}
                   </div>
@@ -117,12 +147,12 @@ export default function StudentMessages() {
           <div className="sp-card-header">
             <div>
               <div className="sp-card-title">{activeThread.teacher}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 500 }}>{activeThread.subject}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 600 }}>{activeThread.subject}</div>
             </div>
           </div>
 
           {/* Messages */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ flex: 1, overflowY: 'auto', maxHeight: '420px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {activeThread.messages.map((m, i) => (
               <div
                 key={i}
@@ -139,17 +169,17 @@ export default function StudentMessages() {
                   color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '0.7rem', fontWeight: 700, flexShrink: 0,
                 }}>
-                  {m.isTeacher ? activeThread.initials : 'JS'}
+                  {m.isTeacher ? activeThread.initials : 'ST'}
                 </div>
-                <div style={{ maxWidth: '65%' }}>
+                <div style={{ maxWidth: '70%' }}>
                   <div style={{
-                    background: m.isTeacher ? 'var(--bg-color)' : '#EFF6FF',
-                    border: `1px solid ${m.isTeacher ? 'var(--border-color)' : '#BFDBFE'}`,
+                    background: m.isTeacher ? 'var(--bg-muted, #F1F5F9)' : 'rgba(37, 99, 235, 0.12)',
+                    border: `1px solid ${m.isTeacher ? 'var(--border-color)' : 'rgba(37, 99, 235, 0.25)'}`,
                     borderRadius: '12px',
                     padding: '0.75rem 1rem',
                   }}>
-                    <div style={{ fontSize: '0.82rem', fontWeight: 600, marginBottom: '0.3rem' }}>{m.from}</div>
-                    <div style={{ fontSize: '0.875rem', lineHeight: 1.5 }}>{m.text}</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.3rem' }}>{m.from}</div>
+                    <div style={{ fontSize: '0.875rem', lineHeight: 1.5, color: 'var(--text-main)' }}>{m.text}</div>
                   </div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.3rem', textAlign: m.isTeacher ? 'left' : 'right' }}>
                     {m.time}
@@ -157,6 +187,7 @@ export default function StudentMessages() {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Compose */}
@@ -177,3 +208,4 @@ export default function StudentMessages() {
     </div>
   );
 }
+

@@ -18,10 +18,11 @@ function Modal({ title, onClose, children, wide }) {
       zIndex: 600, padding: '1rem',
     }}>
       <div style={{
-        background: 'white', borderRadius: 16, padding: '1.75rem',
+        background: 'var(--bg-card, #FFFFFF)', borderRadius: 16, padding: '1.75rem',
         width: '100%', maxWidth: wide ? 720 : 480,
         maxHeight: '90vh', overflowY: 'auto',
-        boxShadow: '0 24px 64px rgba(0,0,0,0.18)',
+        boxShadow: '0 24px 64px rgba(0,0,0,0.25)',
+        border: '1px solid var(--border-color)',
       }}>
         <h3 style={{ fontWeight: 700, marginBottom: '1.25rem', color: 'var(--text-main)' }}>{title}</h3>
         {children}
@@ -40,7 +41,7 @@ const Btn = ({ children, onClick, variant = 'primary', disabled, style = {} }) =
   };
   const variants = {
     primary: { background: 'var(--primary)', color: 'white' },
-    ghost:   { background: 'white', color: 'var(--text-main)', border: '1px solid var(--border-color)' },
+    ghost:   { background: 'var(--bg-card, #FFFFFF)', color: 'var(--text-main)', border: '1px solid var(--border-color)' },
     success: { background: '#16A34A', color: 'white' },
   };
   return <button style={{ ...base, ...variants[variant] }} onClick={onClick} disabled={disabled}>{children}</button>;
@@ -133,7 +134,7 @@ function ExamForm({ initial = {}, classes, subjects, terms, yearId, onSave, onCl
 const inputSt = {
   padding: '0.6rem 0.875rem', border: '1px solid var(--border-color)',
   borderRadius: 8, fontSize: '0.875rem', fontFamily: 'inherit',
-  color: 'var(--text-main)', background: 'white', width: '100%', outline: 'none',
+  color: 'var(--text-main)', background: 'var(--bg-card, #FFFFFF)', width: '100%', outline: 'none',
 };
 
 // ─── Mark Components Setup ────────────────────────────────────────────────────
@@ -174,12 +175,12 @@ function ComponentsForm({ examId, existing, onDone }) {
             onChange={e => updateRow(i, 'name', e.target.value)} />
           <input type="number" style={{ ...inputSt }} placeholder="Max" value={r.max_marks}
             onChange={e => updateRow(i, 'max_marks', e.target.value)} min={1} />
-          <button onClick={() => removeRow(i)} style={{ padding: '0.5rem', borderRadius: 6, border: '1px solid #FECACA', color: 'var(--primary)', background: 'white', cursor: 'pointer' }}>
+          <button onClick={() => removeRow(i)} style={{ padding: '0.5rem', borderRadius: 6, border: '1px solid #FECACA', color: 'var(--primary)', background: 'transparent', cursor: 'pointer' }}>
             <Trash2 size={13} />
           </button>
         </div>
       ))}
-      <button onClick={addRow} style={{ fontSize: '0.82rem', color: 'var(--primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '1rem' }}>
+      <button onClick={addRow} style={{ fontSize: '0.82rem', color: 'var(--primary)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '1rem', background: 'none', border: 'none', cursor: 'pointer' }}>
         <Plus size={13} /> Add component
       </button>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

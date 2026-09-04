@@ -276,19 +276,21 @@ const getAnnouncements = async (classIds, { limit = 20, offset = 0 } = {}) => {
   return rows;
 };
 
-const getEvents = async ({ limit = 20, offset = 0 } = {}) => {
+const getEvents = async ({ limit = 20, offset = 0, userId = null } = {}) => {
   const { rows } = await pool.query(
     `SELECT
        e.id, e.title, e.description, e.event_date,
        e.start_time, e.end_time, e.location,
-       e.rsvp_required, e.rsvp_deadline, e.capacity
+       e.rsvp_required, e.rsvp_deadline, e.capacity,
+       er.response AS my_rsvp
      FROM events e
+     LEFT JOIN event_rsvps er ON er.event_id = e.id AND er.user_id = $3
      WHERE e.is_published = TRUE
        AND e.event_date >= CURRENT_DATE
        AND e.audience IN ('ALL','PARENTS')
      ORDER BY e.event_date
      LIMIT $1 OFFSET $2`,
-    [limit, offset]
+    [limit, offset, userId]
   );
   return rows;
 };

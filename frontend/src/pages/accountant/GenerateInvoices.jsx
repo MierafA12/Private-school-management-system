@@ -15,11 +15,27 @@ export default function GenerateInvoices() {
   const [result,  setResult]  = useState(null);
   const [runErr,  setRunErr]  = useState(null);
 
+  const load = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [t, c, s] = await Promise.all([
+        accountantApi.getTerms(),
+        accountantApi.getClasses(),
+        accountantApi.getFeeStructures(),
+      ]);
+      setTerms(Array.isArray(t) ? t : []);
+      setClasses(Array.isArray(c) ? c : []);
+      setStructs(Array.isArray(s) ? s : []);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    Promise.all([accountantApi.getTerms(), accountantApi.getClasses(), accountantApi.getFeeStructures()])
-      .then(([t, c, s]) => { setTerms(t); setClasses(c); setStructs(s); })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+    load();
   }, []);
 
   const handleGenerate = async (e) => {
@@ -36,7 +52,7 @@ export default function GenerateInvoices() {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   if (loading) return <LoadingSpinner message="Loading…" />;
-  if (error)   return <ErrorBanner message={error} onRetry={() => {}} />;
+  if (error)   return <ErrorBanner message={error} onRetry={load} />;
 
   return (
     <div>

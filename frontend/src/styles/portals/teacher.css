@@ -42,7 +42,7 @@
   margin-bottom: 1.5rem;
 }
 .tp-kpi {
-  background: white;
+  background: var(--bg-card, #FFFFFF);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   padding: 1.25rem 1.5rem;
@@ -68,7 +68,7 @@
 
 /* ── Attendance/Grades Tables ── */
 .tp-table-wrapper {
-  background: white;
+  background: var(--bg-card, #FFFFFF);
   border-radius: var(--radius);
   border: 1px solid var(--border-color);
   overflow-x: auto;
@@ -112,7 +112,8 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   font-size: .875rem; font-family: inherit;
-  outline: none; transition: border-color .2s; background: white;
+  outline: none; transition: border-color .2s; background: var(--bg-card, #FFFFFF);
+  color: var(--text-main);
 }
 .tp-form-group input:focus,
 .tp-form-group select:focus,
@@ -162,3 +163,73 @@
 @media (max-width: 480px) {
   .tp-kpi-grid    { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Dark Mode Overrides — Teacher Portal
+   ═══════════════════════════════════════════════════════════ */
+[data-theme="dark"] .tp-kpi {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tp-table-wrapper {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tp-table th {
+  background: #0F172A;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tp-table td {
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tp-form-group input,
+[data-theme="dark"] .tp-form-group select,
+[data-theme="dark"] .tp-form-group textarea {
+  background: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .tp-btn-secondary {
+  background: #0F172A;
+  border-color: #334155;
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .tp-btn-secondary:hover {
+  border-color: var(--tp-primary);
+  color: #FCA5A5;
+}
+
+[data-theme="dark"] .tp-user-card {
+  background: rgba(153, 27, 27, 0.15) !important;
+  border-color: rgba(153, 27, 27, 0.35) !important;
+}
+
+[data-theme="dark"] .tp-nav-active {
+  background: rgba(153, 27, 27, 0.18) !important;
+  color: #FCA5A5 !important;
+}
+
+[data-theme="dark"] .tp-status-present {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.35);
+  color: #86EFAC;
+}
+
+[data-theme="dark"] .tp-status-absent {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #FCA5A5;
+}
+
+[data-theme="dark"] .tp-status-late {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #FCD34D;
+}
+

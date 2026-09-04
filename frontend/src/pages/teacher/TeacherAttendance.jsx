@@ -16,6 +16,7 @@ export default function TeacherAttendance() {
   const [loadingRecords, setLoadingRecords] = useState(false);
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [actionError, setActionError] = useState('');
 
   const fetchClasses = async () => {
     try {
@@ -38,11 +39,12 @@ export default function TeacherAttendance() {
     if (!selectedClass || !selectedSection || !date) return;
     setLoadingRecords(true);
     setSuccessMsg('');
+    setActionError('');
     try {
       const data = await teacherApi.getAttendance(selectedClass, selectedSection, date);
       setRecords(data.records || data || []);
     } catch (err) {
-      alert(err.message || 'Failed to load attendance');
+      setActionError(err.message || 'Failed to load attendance');
     } finally {
       setLoadingRecords(false);
     }
@@ -59,6 +61,7 @@ export default function TeacherAttendance() {
   const submitAttendance = async () => {
     setSaving(true);
     setSuccessMsg('');
+    setActionError('');
     try {
       await teacherApi.submitAttendance({
         classId: selectedClass,
@@ -68,7 +71,7 @@ export default function TeacherAttendance() {
       });
       setSuccessMsg('Attendance saved successfully!');
     } catch (err) {
-      alert(err.message || 'Failed to save attendance');
+      setActionError(err.message || 'Failed to save attendance');
     } finally {
       setSaving(false);
     }
@@ -142,6 +145,16 @@ export default function TeacherAttendance() {
           </div>
         </div>
       </section>
+
+      {actionError && (
+        <div style={{
+          marginBottom: '1.25rem', padding: '0.85rem 1.25rem', borderRadius: 8,
+          background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.35)',
+          color: '#DC2626', fontSize: '0.875rem', fontWeight: 600,
+        }}>
+          ⚠️ {actionError}
+        </div>
+      )}
 
       {/* Attendance Roster Table */}
       {records.length > 0 && (

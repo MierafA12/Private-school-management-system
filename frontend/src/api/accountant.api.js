@@ -15,4 +15,7 @@ export const accountantApi = {
   getCollectionsReport:(p = {})  => request(`/accountant/reports/collections?${new URLSearchParams(p)}`),
   getArrearsReport:    (p = {})  => request(`/accountant/reports/arrears?${new URLSearchParams(p)}`),
   getRevenueReport:    (p = {})  => request(`/accountant/reports/revenue?${new URLSearchParams(p)}`),
+  getAcademicYears:    ()        => request('/accountant/academic-years'),
+  getTerms:            ()        => request('/accountant/terms'),
+  getClasses:          ()        => request('/accountant/classes'),
 };

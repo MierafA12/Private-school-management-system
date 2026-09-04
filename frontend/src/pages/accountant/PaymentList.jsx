@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { accountantApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
 
@@ -9,17 +9,24 @@ const METHODS = ['CASH','BANK_TRANSFER','MOBILE_MONEY','CARD','CHEQUE','GATEWAY'
 const EMPTY_FORM = { invoice_id:'', amount:'', method:'CASH', payment_date:'', transaction_ref:'', notes:'' };
 
 export default function PaymentList() {
+  const [searchParams] = useSearchParams();
   const [data,    setData]    = useState({ payments:[], total:0 });
   const [filter,  setFilter]  = useState({ method:'', date_from:'', date_to:'', search:'' });
   const [page,    setPage]    = useState(0);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null);
-  const [modal,   setModal]   = useState(false);
+  const [modal,   setModal]   = useState(searchParams.get('action') === 'record');
   const [form,    setForm]    = useState(EMPTY_FORM);
   const [saving,  setSaving]  = useState(false);
   const [saveErr, setSaveErr] = useState(null);
   const [saveOk,  setSaveOk]  = useState(null);
   const LIMIT = 30;
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'record') {
+      setModal(true);
+    }
+  }, [searchParams]);
 
   const load = useCallback(async () => {
     try {

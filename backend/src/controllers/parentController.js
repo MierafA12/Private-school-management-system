@@ -254,7 +254,7 @@ const getEvents = async (req, res, next) => {
   try {
     const limit  = Math.min(parseInt(req.query.limit) || 20, 50);
     const offset = parseInt(req.query.offset) || 0;
-    const events = await parentService.getEvents({ limit, offset });
+    const events = await parentService.getEvents({ limit, offset, userId: req.user?.id });
     res.json({ success: true, data: events });
   } catch (err) { next(err); }
 };

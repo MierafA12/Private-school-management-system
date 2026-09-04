@@ -24,7 +24,11 @@ export default function FinancialReports() {
 
   useEffect(() => {
     Promise.all([accountantApi.getTerms(), accountantApi.getClasses(), accountantApi.getAcademicYears()])
-      .then(([t,c,y]) => { setTerms(t); setClasses(c); setYears(y); }).catch(() => {});
+      .then(([t, c, y]) => {
+        setTerms(Array.isArray(t) ? t : []);
+        setClasses(Array.isArray(c) ? c : []);
+        setYears(Array.isArray(y) ? y : []);
+      }).catch(() => {});
   }, []);
 
   const load = useCallback(async () => {
@@ -54,7 +58,7 @@ export default function FinancialReports() {
         {TABS.map(t => (
           <button key={t.id}
             className={`pp-switcher-tab${tab===t.id?' pp-switcher-tab--active':''}`}
-            style={{ borderColor: tab===t.id ? 'var(--acc-green)':undefined, color: tab===t.id?'var(--acc-green)':undefined, background: tab===t.id?'#ECFDF5':undefined }}
+            style={{ borderColor: tab===t.id ? 'var(--primary)':undefined, color: tab===t.id?'var(--primary)':undefined, background: tab===t.id?'var(--primary-light, #FEF2F2)':undefined }}
             onClick={() => changeTab(t.id)}
           >{t.label}</button>
         ))}

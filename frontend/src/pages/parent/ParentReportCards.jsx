@@ -77,9 +77,9 @@ export default function ParentReportCards() {
                     onClick={() => openCard(card)}
                     style={{
                       padding: '1rem 1.25rem',
-                      borderBottom: '1px solid #F3F4F6',
+                      borderBottom: '1px solid var(--border-color)',
                       cursor: 'pointer',
-                      background: activeCard === card.id ? '#FFFBEB' : 'white',
+                      background: activeCard === card.id ? 'rgba(217, 119, 6, 0.12)' : 'transparent',
                       borderLeft: activeCard === card.id ? '3px solid var(--accent)' : '3px solid transparent',
                       transition: 'all 0.15s',
                     }}
@@ -117,7 +117,7 @@ export default function ParentReportCards() {
             ) : (
               <div>
                 {cardDetail.advisor_remarks && (
-                  <div style={{ padding: '1rem 1.25rem', background: '#FFFBEB', borderBottom: '1px solid #FDE68A' }}>
+                  <div style={{ padding: '1rem 1.25rem', background: 'rgba(217, 119, 6, 0.12)', borderBottom: '1px solid rgba(217, 119, 6, 0.3)' }}>
                     <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.3rem' }}>Advisor Remarks</div>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-main)', lineHeight: 1.6 }}>{cardDetail.advisor_remarks}</div>
                   </div>

@@ -1,5 +1,6 @@
-const feeSvc    = require('../services/feeService');
-const reportSvc = require('../services/reportService');
+const pool       = require('../db');
+const feeSvc     = require('../services/feeService');
+const reportSvc  = require('../services/reportService');
 const gatewaySvc = require('../services/paymentGatewayService');
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -196,6 +197,38 @@ const chapaWebhook = async (req, res, next) => {
   } catch (e) { next(e); }
 };
 
+// ═════════════════════════════════════════════════════════════════════════════
+// LOOKUPS (Academic Years, Terms, Classes)
+// ═════════════════════════════════════════════════════════════════════════════
+const getAcademicYears = async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, name, is_current, status FROM academic_years ORDER BY start_date DESC`
+    );
+    ok(res, rows);
+  } catch (e) { next(e); }
+};
+
+const getTerms = async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT t.id, t.name, t.academic_year_id, ay.name AS academic_year_name, t.status
+       FROM terms t JOIN academic_years ay ON ay.id = t.academic_year_id
+       ORDER BY ay.start_date DESC, t.start_date`
+    );
+    ok(res, rows);
+  } catch (e) { next(e); }
+};
+
+const getClasses = async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT id, name, grade_level FROM classes ORDER BY grade_level, name`
+    );
+    ok(res, rows);
+  } catch (e) { next(e); }
+};
+
 module.exports = {
   getDashboard, getFeeStructures, createFeeStructure,
   updateFeeStructure, archiveFeeStructure,
@@ -203,4 +236,6 @@ module.exports = {
   recordPayment, getPayments, getReceipt,
   collectionsReport, arrearsReport, revenueReport,
   chapaWebhook,
+  getAcademicYears, getTerms, getClasses,
 };
+

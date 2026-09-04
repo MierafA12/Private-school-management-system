@@ -5,19 +5,19 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  --acc-green:       #059669;
-  --acc-green-dark:  #047857;
-  --acc-green-light: #D1FAE5;
+  --acc-green:       var(--primary, #991B1B);
+  --acc-green-dark:  var(--primary-hover, #7F1D1D);
+  --acc-green-light: var(--primary-light, #FEF2F2);
   --acc-gold:        var(--accent);
 }
 
 /* ── Brand overrides ── */
-.ap-logo-icon  { background: var(--acc-green) !important; }
-.ap-avatar     { background: var(--acc-green) !important; }
-.ap-user-card  { background: #ECFDF5 !important; border-color: #A7F3D0 !important; }
-.ap-role-badge { color: var(--acc-green) !important; }
-.ap-nav-active { background: #ECFDF5 !important; color: var(--acc-green) !important; }
-.ap-nav-active svg:first-child { color: var(--acc-green) !important; }
+.ap-logo-icon  { background: var(--primary, #991B1B) !important; }
+.ap-avatar     { background: var(--primary, #991B1B) !important; }
+.ap-user-card  { background: var(--primary-light, #FEF2F2) !important; border-color: var(--primary-border, #FECACA) !important; }
+.ap-role-badge { color: var(--primary, #991B1B) !important; }
+.ap-nav-active { background: var(--primary-light, #FEF2F2) !important; color: var(--primary, #991B1B) !important; }
+.ap-nav-active svg:first-child { color: var(--primary, #991B1B) !important; }
 
 /* ── KPI stat cards ── */
 .ap-kpi-grid {
@@ -27,7 +27,7 @@
   margin-bottom: 1.5rem;
 }
 .ap-kpi {
-  background: white;
+  background: var(--bg-card, #FFFFFF);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   padding: 1.25rem 1.5rem;
@@ -72,11 +72,12 @@
   padding: 1rem;
 }
 .ap-modal {
-  background: white;
+  background: var(--bg-card, #FFFFFF);
   border-radius: var(--radius);
   padding: 2rem;
   width: 100%; max-width: 480px;
   box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
   animation: apFadeIn .15s ease;
 }
 .ap-modal-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: .25rem; }
@@ -98,7 +99,8 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   font-size: .875rem; font-family: inherit;
-  outline: none; transition: border-color .2s; background: white;
+  outline: none; transition: border-color .2s; background: var(--bg-card, #FFFFFF);
+  color: var(--text-main);
 }
 .ap-form-group input:focus,
 .ap-form-group select:focus,
@@ -147,7 +149,9 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   font-size: .875rem; outline: none;
-  background: white; min-width: 140px;
+  background: var(--bg-card, #FFFFFF);
+  color: var(--text-main);
+  min-width: 140px;
 }
 .ap-filter-bar select:focus,
 .ap-filter-bar input:focus  { border-color: var(--acc-green); }
@@ -159,14 +163,14 @@
 /* ── receipt card ── */
 .ap-receipt {
   max-width: 480px; margin: 2rem auto;
-  background: white; border: 1px solid var(--border-color);
+  background: var(--bg-card, #FFFFFF); border: 1px solid var(--border-color);
   border-radius: var(--radius); padding: 2rem;
   box-shadow: var(--shadow-md);
 }
 .ap-receipt-header { text-align: center; margin-bottom: 1.5rem; }
 .ap-receipt-logo   { font-size: 1.5rem; font-weight: 800; color: var(--acc-green); }
 .ap-receipt-title  { font-size: .85rem; color: var(--text-muted); margin-top: .25rem; }
-.ap-receipt-row    { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid #F3F4F6; font-size: .875rem; }
+.ap-receipt-row    { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid var(--border-color); font-size: .875rem; }
 .ap-receipt-row:last-child { border-bottom: none; font-weight: 700; font-size: 1rem; }
 .ap-receipt-amount { color: var(--acc-green); font-weight: 800; font-size: 1.75rem; text-align: center; margin: 1rem 0; }
 
@@ -194,3 +198,92 @@
   .ap-kpi-grid    { grid-template-columns: 1fr; }
   .ap-report-kpis { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Dark Mode Overrides — Accountant Portal
+   ═══════════════════════════════════════════════════════════ */
+[data-theme="dark"] .ap-kpi {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .ap-modal {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .ap-form-group input,
+[data-theme="dark"] .ap-form-group select,
+[data-theme="dark"] .ap-form-group textarea {
+  background: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .ap-filter-bar input,
+[data-theme="dark"] .ap-filter-bar select {
+  background: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .ap-receipt {
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .ap-receipt-row {
+  border-color: #334155;
+}
+
+[data-theme="dark"] .ap-btn-secondary {
+  background: #0F172A;
+  border-color: #334155;
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .ap-btn-secondary:hover {
+  border-color: #64748B;
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .ap-btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #FCA5A5;
+}
+
+[data-theme="dark"] .ap-user-card {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+[data-theme="dark"] .ap-nav-active {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #F87171 !important;
+}
+
+[data-theme="dark"] .ap-nav-active svg:first-child {
+  color: #F87171 !important;
+}
+
+[data-theme="dark"] .ap-trend-bar {
+  background: #334155;
+}
+
+[data-theme="dark"] .ap-trend-bar:hover {
+  background: var(--primary);
+}
+
+[data-theme="dark"] .ap-result-box--success {
+  background: rgba(22, 163, 74, 0.15);
+  border-color: rgba(22, 163, 74, 0.35);
+  color: #4ADE80;
+}
+
+[data-theme="dark"] .ap-result-box--warn {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #FCD34D;
+}
+

@@ -56,26 +56,30 @@ export default function StudentReportCard() {
       <div>
         <div className="sp-page-header" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', alignItems: 'flex-start' }}>
           <div>
-            <button onClick={() => setDetail(null)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
+            <button onClick={() => setDetail(null)} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '0.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>
               <ChevronLeft size={16} /> Back to list
             </button>
             <h1 className="sp-page-title">Report Card</h1>
             <p className="sp-page-sub">{detail.term_name} · {detail.academic_year}</p>
           </div>
-          <button className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.6rem 1.1rem', display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-            <Download size={16} /> Download PDF
+          <button
+            onClick={() => window.print()}
+            className="btn btn-primary"
+            style={{ fontSize: '0.85rem', padding: '0.6rem 1.1rem', display: 'flex', gap: '0.4rem', alignItems: 'center', cursor: 'pointer' }}
+          >
+            <Download size={16} /> Print / Save PDF
           </button>
         </div>
 
         <div className="sp-card">
           {/* School header */}
           <div style={{ background: 'var(--primary)', padding: '1.5rem', textAlign: 'center', color: 'white' }}>
-            <div style={{ fontWeight: 800, fontSize: '1.3rem' }}>EduFlow Private School</div>
-            <div style={{ fontSize: '0.85rem', opacity: 0.85, marginTop: '0.25rem' }}>Academic Report Card — {detail.term_name} · {detail.academic_year}</div>
+            <div style={{ fontWeight: 800, fontSize: '1.3rem', letterSpacing: '0.02em' }}>Haile-Manas Academy</div>
+            <div style={{ fontSize: '0.85rem', opacity: 0.9, marginTop: '0.25rem' }}>Academic Report Card — {detail.term_name} · {detail.academic_year}</div>
           </div>
 
           {/* Summary row */}
-          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', padding: '1.25rem', background: '#FEF2F2', borderBottom: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', padding: '1.25rem', background: 'var(--bg-muted, #F8FAFC)', borderBottom: '1px solid var(--border-color)' }}>
             {[
               ['Overall Score',   detail.total_percentage != null ? `${detail.total_percentage}%` : '—'],
               ['Overall Grade',   detail.overall_grade || '—'],

@@ -17,7 +17,6 @@ const NAV = [
   { to: '/accountant/fee-structures',    icon: Layers,          label: 'Fee Structures'    },
   { to: '/accountant/invoices/generate', icon: PlusSquare,      label: 'Generate Invoices' },
   { to: '/accountant/invoices',          icon: FileText,        label: 'Invoices'          },
-  { to: '/accountant/payments/record',   icon: CreditCard,      label: 'Record Payment'    },
   { to: '/accountant/payments',          icon: CreditCard,      label: 'Payments'          },
   { to: '/accountant/reports',           icon: BarChart2,       label: 'Reports'           },
 ];
@@ -31,9 +30,26 @@ export default function AccountantLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isItemActive = (to) => {
+    if (to === '/accountant/invoices') {
+      return (
+        location.pathname === '/accountant/invoices' ||
+        (location.pathname.startsWith('/accountant/invoices/') &&
+          !location.pathname.startsWith('/accountant/invoices/generate'))
+      );
+    }
+    if (to === '/accountant/invoices/generate') {
+      return location.pathname === '/accountant/invoices/generate';
+    }
+    if (to === '/accountant/dashboard') {
+      return location.pathname === '/accountant/dashboard' || location.pathname === '/accountant';
+    }
+    return location.pathname === to || location.pathname.startsWith(`${to}/`);
+  };
+
   const name   = user?.full_name || user?.email || 'Accountant';
   const avatar = initials(name);
-  const page   = NAV.find(n => location.pathname.startsWith(n.to))?.label
+  const page   = NAV.find(n => isItemActive(n.to))?.label
     || (location.pathname.includes('profile') ? 'My Profile' : 'Dashboard');
 
   return (
@@ -42,8 +58,13 @@ export default function AccountantLayout() {
 
       <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''} ${collapsed ? 'sl-sidebar--collapsed' : ''}`}>
         <div className="sl-logo">
-          <div className="sl-logo-icon"><Calculator size={18} color="white" /></div>
-          <div className="sl-logo-text"><div className="sl-logo-name">EduFlow</div><div className="sl-logo-sub">Finance Portal</div></div>
+          <div className="sl-logo-icon" style={{ background: 'transparent', padding: 0 }}>
+            <img src="/logo.svg" alt="Haile-Manas Academy" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+          </div>
+          <div className="sl-logo-text">
+            <div className="sl-logo-name" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Haile-Manas</div>
+            <div className="sl-logo-sub" style={{ fontSize: '0.65rem' }}>Finance Portal</div>
+          </div>
           <button
             type="button"
             className="sl-collapse-btn"
@@ -59,7 +80,7 @@ export default function AccountantLayout() {
         <nav className="sl-nav">
           {NAV.map(({ to, icon: Icon, label }) => (
             <NavLink key={to} to={to}
-              className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
+              className={() => `sl-nav-item${isItemActive(to) ? ' sl-nav-item--active' : ''}`}
               onClick={() => setOpen(false)}
               title={label}
             >

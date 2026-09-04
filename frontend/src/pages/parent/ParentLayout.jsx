@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, Calendar, Award,
+  LayoutDashboard, Users, Calendar, Award, GraduationCap,
   CreditCard, Bell, MessageSquare, User, LogOut,
-  Menu, X, HeartHandshake, PanelLeftClose, PanelLeftOpen,
+  Menu, X, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useSidebar } from '../../context/SidebarContext';
@@ -13,13 +13,14 @@ import '../../styles/portals/layout.css';
 import '../../styles/portals/parent.css';
 
 const NAV = [
-  { to: '/parent/dashboard',   icon: LayoutDashboard, label: 'Dashboard'    },
-  { to: '/parent/children',    icon: Users,           label: 'My Children'  },
-  { to: '/parent/attendance',  icon: Calendar,        label: 'Attendance'   },
-  { to: '/parent/grades',      icon: Award,           label: 'Academics'    },
-  { to: '/parent/fees',        icon: CreditCard,      label: 'Fee Payments' },
-  { to: '/parent/messages',    icon: MessageSquare,   label: 'Messages'     },
-  { to: '/parent/notices',     icon: Bell,            label: 'Announcements'},
+  { to: '/parent/dashboard',    icon: LayoutDashboard, label: 'Dashboard'    },
+  { to: '/parent/children',     icon: Users,           label: 'My Children'  },
+  { to: '/parent/attendance',   icon: Calendar,        label: 'Attendance'   },
+  { to: '/parent/grades',       icon: Award,           label: 'Academics'    },
+  { to: '/parent/report-cards', icon: GraduationCap,   label: 'Report Cards' },
+  { to: '/parent/fees',         icon: CreditCard,      label: 'Fee Payments' },
+  { to: '/parent/messages',     icon: MessageSquare,   label: 'Messages'     },
+  { to: '/parent/notices',      icon: Bell,            label: 'Announcements'},
 ];
 
 const initials = (n = '') => n.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'PR';
@@ -42,8 +43,13 @@ export default function ParentLayout() {
 
       <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''} ${collapsed ? 'sl-sidebar--collapsed' : ''}`}>
         <div className="sl-logo">
-          <div className="sl-logo-icon"><HeartHandshake size={18} color="white" /></div>
-          <div className="sl-logo-text"><div className="sl-logo-name">EduFlow</div><div className="sl-logo-sub">Parent Portal</div></div>
+          <div className="sl-logo-icon" style={{ background: 'transparent', padding: 0 }}>
+            <img src="/logo.svg" alt="Haile-Manas Academy" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+          </div>
+          <div className="sl-logo-text">
+            <div className="sl-logo-name" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Haile-Manas</div>
+            <div className="sl-logo-sub" style={{ fontSize: '0.65rem' }}>Parent Portal</div>
+          </div>
           <button
             type="button"
             className="sl-collapse-btn"

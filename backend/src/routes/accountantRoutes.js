@@ -68,4 +68,9 @@ router.get('/reports/collections', ctrl.collectionsReport);
 router.get('/reports/arrears',     ctrl.arrearsReport);
 router.get('/reports/revenue',     ctrl.revenueReport);
 
+// ── Lookups ───────────────────────────────────────────────────────────────────
+router.get('/academic-years', ctrl.getAcademicYears);
+router.get('/terms',          ctrl.getTerms);
+router.get('/classes',        ctrl.getClasses);
+
 module.exports = router;

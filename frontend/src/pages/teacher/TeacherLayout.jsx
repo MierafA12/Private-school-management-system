@@ -40,8 +40,13 @@ export default function TeacherLayout() {
 
       <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''} ${collapsed ? 'sl-sidebar--collapsed' : ''}`}>
         <div className="sl-logo">
-          <div className="sl-logo-icon"><GraduationCap size={18} color="white" /></div>
-          <div className="sl-logo-text"><div className="sl-logo-name">EduFlow</div><div className="sl-logo-sub">Teacher Portal</div></div>
+          <div className="sl-logo-icon" style={{ background: 'transparent', padding: 0 }}>
+            <img src="/logo.svg" alt="Haile-Manas Academy" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+          </div>
+          <div className="sl-logo-text">
+            <div className="sl-logo-name" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Haile-Manas</div>
+            <div className="sl-logo-sub" style={{ fontSize: '0.65rem' }}>Faculty Portal</div>
+          </div>
           <button
             type="button"
             className="sl-collapse-btn"

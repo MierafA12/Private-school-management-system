@@ -195,6 +195,7 @@ export default function App() {
             <Route path="invoices/generate" element={<GenerateInvoices />} />
             <Route path="invoices/:id"      element={<InvoiceDetail />} />
             <Route path="payments"          element={<PaymentList />} />
+            <Route path="payments/record"   element={<Navigate to="/accountant/payments?action=record" replace />} />
             <Route path="reports"           element={<FinancialReports />} />
             <Route path="profile"           element={<MyProfile />} />
             <Route path="notifications"     element={<NotificationCenter />} />

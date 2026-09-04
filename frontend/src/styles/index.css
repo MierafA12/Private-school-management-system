@@ -25,7 +25,8 @@
   --bg-color:       #F1F5F9; /* Rich Slate 100 canvas */
   --card-bg:        #FFFFFF; /* Crisp cards */
   --card-header-bg: #F8FAFC; /* Soft surface header */
-  --sidebar-bg:     #F8FAFC; /* Slate-tinted sidebar */
+  --sidebar-bg:     #0F172A; /* Premium dark slate sidebar */
+  --sidebar-border: #1E293B; /* Subtle dark border */
   --text-main:      #0F172A; /* Slate 900 */
   --text-muted:     #64748B; /* Slate 500 */
   --border-color:   #E2E8F0; /* Slate 200 border */
@@ -185,7 +186,7 @@ h1, h2, h3, h4, h5, h6 {
   --bg-color:       #0B0F19; /* Deep obsidian canvas */
   --card-bg:        #111827; /* Rich dark slate surface */
   --card-header-bg: #162032; /* Slightly elevated surface */
-  --sidebar-bg:     #0D1321; /* Clean dark sidebar */
+  --sidebar-bg:     #0F172A; /* Clean dark gray sidebar */
   --text-main:      #F1F5F9; /* High-contrast bright text (Slate 100) */
   --text-muted:     #94A3B8; /* Readable muted text (Slate 400) */
   --border-color:   #1E293B; /* Subtle dark border (Slate 800) */

@@ -78,7 +78,7 @@ export default function TeacherTimetable() {
                             style={{
                               verticalAlign: 'top',
                               fontWeight: 700,
-                              background: '#FAFAFA',
+                              background: 'var(--bg-muted, #FAFAFA)',
                               color: 'var(--text-main)',
                               borderRight: '1px solid var(--border-color)',
                             }}

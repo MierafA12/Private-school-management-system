@@ -95,10 +95,10 @@ export default function AccountantDashboard() {
           <div className="sp-card-header"><span className="sp-card-title">Quick Actions</span></div>
           <div className="sp-card-body" style={{ display: 'flex', flexDirection: 'column', gap: '.75rem' }}>
             {[
-              { to: '/accountant/invoices/generate', label: '➕ Generate Invoices',  color: 'green'  },
-              { to: '/accountant/payments/record',   label: '💳 Record Payment',     color: 'blue'   },
-              { to: '/accountant/fee-structures',    label: '⚙️ Fee Structures',     color: 'yellow' },
-              { to: '/accountant/reports',           label: '📊 Financial Reports',  color: 'gray'   },
+              { to: '/accountant/invoices/generate',      label: '➕ Generate Invoices',  color: 'green'  },
+              { to: '/accountant/payments?action=record',  label: '💳 Record Payment',     color: 'blue'   },
+              { to: '/accountant/fee-structures',         label: '⚙️ Fee Structures',     color: 'yellow' },
+              { to: '/accountant/reports',                label: '📊 Financial Reports',  color: 'gray'   },
             ].map(({ to, label, color }) => (
               <Link key={to} to={to}
                 className={`sp-badge sp-badge--${color}`}

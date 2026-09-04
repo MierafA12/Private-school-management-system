@@ -93,9 +93,9 @@ export default function StudentAttendance() {
         {/* Calendar */}
         <div className="sp-card">
           <div className="sp-card-header">
-            <button onClick={prevMonth} style={{ color: 'var(--text-muted)' }}><ChevronLeft size={18} /></button>
+            <button onClick={prevMonth} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}><ChevronLeft size={18} /></button>
             <span className="sp-card-title">{MONTH_NAMES[month - 1]} {year}</span>
-            <button onClick={nextMonth} style={{ color: 'var(--text-muted)' }}><ChevronRight size={18} /></button>
+            <button onClick={nextMonth} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}><ChevronRight size={18} /></button>
           </div>
           <div className="sp-card-body">
             {loading ? <LoadingSpinner message="" /> : error ? <ErrorBanner message={error} onRetry={load} /> : (
