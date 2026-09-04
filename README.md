@@ -150,24 +150,29 @@ ON CONFLICT (id) DO UPDATE SET
 
 ---
 
-## 🛠️ Local Setup
+## 🛠️ Local Setup & Subsystem Guides
+
+For in-depth guides and API references for each subsystem:
+- 📖 **Backend Documentation & API Reference**: [`backend/README.md`](backend/README.md)
+- 📖 **Frontend Documentation & Portal Guide**: [`frontend/README.md`](frontend/README.md)
 
 ### 1. Frontend Setup
 ```bash
 cd frontend
 npm install
 cp .env.example .env
-# Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env
 npm run dev
 ```
-Open `http://localhost:5173`.
+Open `http://localhost:5173`. For details, see [`frontend/README.md`](frontend/README.md).
 
 ### 2. Backend Setup
 ```bash
 cd backend
 npm install
+cp .env.example .env
 npm start
 ```
+Runs at `http://localhost:5001`. For details, see [`backend/README.md`](backend/README.md).
 
 ---
 
