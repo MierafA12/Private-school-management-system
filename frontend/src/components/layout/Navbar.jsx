@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, Menu, X } from 'lucide-react';
+import ThemeToggle from '../shared/ThemeToggle';
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -25,6 +26,7 @@ const Navbar = () => {
 
         {/* Desktop Actions */}
         <div className="nav-actions">
+          <ThemeToggle />
           <Link to="/login" className="btn btn-primary">Sign In</Link>
         </div>
 
@@ -45,10 +47,11 @@ const Navbar = () => {
           <a href="#solutions" onClick={closeMenu}>Solutions</a>
           <a href="#resources" onClick={closeMenu}>Resources</a>
           <a href="#pricing" onClick={closeMenu}>Pricing</a>
-          <div className="mobile-nav-actions">
-            <Link to="/login" className="btn btn-primary" onClick={closeMenu}>
+          <div className="mobile-nav-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+            <Link to="/login" className="btn btn-primary" onClick={closeMenu} style={{ flex: 1 }}>
               Sign In to Portal
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       )}

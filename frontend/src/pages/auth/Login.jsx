@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, AlertCircle, ArrowLeft, Eye, EyeOff, Waves } from 'lucide-react';
 import { useAuth, roleHomePath } from '../../context/AuthContext';
+import ThemeToggle from '../../components/shared/ThemeToggle';
 import "../../styles/pages/Auth.css";
 
 export default function Login() {
@@ -32,9 +33,12 @@ export default function Login() {
   return (
     <div className="auth-container">
       <div className="auth-wrapper">
-        <Link to="/landing" className="back-link">
-          <ArrowLeft size={16} /> Back to Home
-        </Link>
+        <div className="auth-top-bar">
+          <Link to="/landing" className="back-link">
+            <ArrowLeft size={16} /> Back to Home
+          </Link>
+          <ThemeToggle />
+        </div>
 
         <div className="auth-card">
           <div className="auth-brand">
