@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Users, BookOpen, Layers, CalendarDays, TrendingUp, UserCheck,
-  Megaphone, Clock, School, BarChart3,
+  Megaphone, Clock, BarChart3,
 } from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
@@ -35,9 +35,8 @@ export default function PrincipalDashboard() {
   if (!data)   return null;
 
   // Support both field naming conventions from the service
-  const stats               = data.stats || data;
-  const enrollment_overview = data.enrollment_overview || [];
-  const attendance_trend    = data.attendance_trend    || [];
+  const stats            = data.stats || data;
+  const attendance_trend = data.attendance_trend || [];
 
   const statCards = [
     {
@@ -81,15 +80,7 @@ export default function PrincipalDashboard() {
     },
   ];
 
-  // Group enrollment by class
-  const byClass = {};
-  let totalEnrolledCount = 0;
-  enrollment_overview.forEach(r => {
-    if (!byClass[r.class_name]) byClass[r.class_name] = { grade_level: r.grade_level, sections: [] };
-    byClass[r.class_name].sections.push(r);
-    totalEnrolledCount += parseInt(r.enrolled || 0, 10);
-  });
-  const sortedClasses = Object.entries(byClass).sort((a, b) => a[1].grade_level - b[1].grade_level);
+
 
   const todayStr = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -137,104 +128,36 @@ export default function PrincipalDashboard() {
       </div>
 
       {/* ── Operational Panels ── */}
-      <div className="sp-two-col">
-        {/* Attendance trend */}
-        <div className="sp-card">
-          <div className="sp-card-header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-              <BarChart3 size={16} style={{ color: '#475569' }} />
-              <span className="sp-card-title">Attendance Trend — Last 14 Days</span>
-            </div>
-          </div>
-          <div className="sp-card-body">
-            {attendance_trend.length === 0 ? (
-              <div className="sp-empty">
-                No attendance sessions recorded yet for this period.
-              </div>
-            ) : (
-              attendance_trend.map(r => {
-                const color = r.pct >= 90 ? '#10B981' : r.pct >= 70 ? '#F59E0B' : '#EF4444';
-                return (
-                  <div className="trend-row" key={r.date}>
-                    <span className="trend-label">{fmtDate(r.date)}</span>
-                    <div className="trend-bar-wrap">
-                      <div
-                        className="trend-bar-fill"
-                        style={{ width: `${r.pct}%`, background: color }}
-                      />
-                    </div>
-                    <span className="trend-pct" style={{ color }}>
-                      {r.pct}%
-                    </span>
-                  </div>
-                );
-              })
-            )}
+      <div className="sp-card" style={{ maxWidth: 800 }}>
+        <div className="sp-card-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <BarChart3 size={16} style={{ color: '#475569' }} />
+            <span className="sp-card-title">Attendance Trend — Last 14 Days</span>
           </div>
         </div>
-
-        {/* Enrollment by class */}
-        <div className="sp-card">
-          <div className="sp-card-header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-              <School size={16} style={{ color: '#475569' }} />
-              <span className="sp-card-title">Enrollment by Class</span>
-            </div>
-            <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}>
-              {totalEnrolledCount} Students Total
-            </span>
-          </div>
-          {sortedClasses.length === 0 ? (
+        <div className="sp-card-body">
+          {attendance_trend.length === 0 ? (
             <div className="sp-empty">
-              No active class enrollments recorded yet.
+              No attendance sessions recorded yet for this period.
             </div>
           ) : (
-            <div className="sp-table-wrap">
-              <table className="sp-table">
-                <thead>
-                  <tr>
-                    <th>Class</th>
-                    <th>Section</th>
-                    <th style={{ textAlign: 'right', paddingRight: '1.25rem' }}>Students</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedClasses.flatMap(([className, { sections }]) =>
-                    sections.map((s, i) => (
-                      <tr key={`${className}-${s.section_name}`}>
-                        {i === 0 && (
-                          <td
-                            rowSpan={sections.length}
-                            style={{
-                              fontWeight: 600,
-                              verticalAlign: 'top',
-                              color: '#0F172A',
-                            }}
-                          >
-                            {className}
-                          </td>
-                        )}
-                        <td>
-                          <span className="sp-badge sp-badge--gray">
-                            Section {s.section_name}
-                          </span>
-                        </td>
-                        <td
-                          style={{
-                            fontWeight: 600,
-                            textAlign: 'right',
-                            paddingRight: '1.25rem',
-                            fontVariantNumeric: 'tabular-nums',
-                          }}
-                        >
-                          {s.enrolled}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+            attendance_trend.map(r => {
+              const color = r.pct >= 90 ? '#10B981' : r.pct >= 70 ? '#F59E0B' : '#EF4444';
+              return (
+                <div className="trend-row" key={r.date}>
+                  <span className="trend-label">{fmtDate(r.date)}</span>
+                  <div className="trend-bar-wrap">
+                    <div
+                      className="trend-bar-fill"
+                      style={{ width: `${r.pct}%`, background: color }}
+                    />
+                  </div>
+                  <span className="trend-pct" style={{ color }}>
+                    {r.pct}%
+                  </span>
+                </div>
+              );
+            })
           )}
         </div>
       </div>
