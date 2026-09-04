@@ -233,6 +233,8 @@ CREATE TABLE IF NOT EXISTS fee_payments (
     CHECK (payment_method IN ('CASH','MPESA','BANK_TRANSFER','CHEQUE','CARD','OTHER')),
   CONSTRAINT chk_fee_payments_amount CHECK (amount > 0)
 );
+ALTER TABLE fee_payments ADD COLUMN IF NOT EXISTS student_id UUID REFERENCES students(id) ON DELETE CASCADE;
+ALTER TABLE fee_payments ADD COLUMN IF NOT EXISTS received_by UUID REFERENCES users(id) ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS idx_fee_payments_invoice ON fee_payments(fee_invoice_id);
 CREATE INDEX IF NOT EXISTS idx_fee_payments_student ON fee_payments(student_id);
 CREATE INDEX IF NOT EXISTS idx_fee_payments_date    ON fee_payments(payment_date);
