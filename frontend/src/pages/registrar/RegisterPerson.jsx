@@ -292,7 +292,7 @@ export default function RegisterPerson() {
                     options={['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(v => ({ value: v, label: v }))} />
                 </Field>
                 <Field label="Nationality">
-                  <Input value={nationality} onChange={setNationality} placeholder="e.g. Kenyan" />
+                  <Input value={nationality} onChange={setNationality} placeholder="e.g. Ethiopian" />
                 </Field>
                 <Field label="Religion">
                   <Input value={religion} onChange={setReligion} placeholder="e.g. Christian" />
@@ -307,7 +307,7 @@ export default function RegisterPerson() {
                 <Input type="email" value={email} onChange={setEmail} placeholder="user@school.com" />
               </Field>
               <Field label="Phone Number" hint="Alternative login">
-                <Input type="tel" value={phone} onChange={setPhone} placeholder="+254700000000" />
+                <Input type="tel" value={phone} onChange={setPhone} placeholder="+251 911 234 567" />
               </Field>
               <Field label="Password" required hint="Min 6 characters — user can change after login">
                 <Input type="password" value={password} onChange={setPassword} placeholder="••••••••" required minLength={6} />
@@ -340,7 +340,7 @@ export default function RegisterPerson() {
                   <Input value={emergencyName} onChange={setEmergencyName} placeholder="e.g. Jane Doe" required />
                 </Field>
                 <Field label="Contact Phone" required>
-                  <Input type="tel" value={emergencyPhone} onChange={setEmergencyPhone} placeholder="+254..." required />
+                  <Input type="tel" value={emergencyPhone} onChange={setEmergencyPhone} placeholder="+251 911 234 567" required />
                 </Field>
               </div>
             </>}

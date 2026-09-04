@@ -13,13 +13,13 @@ export default function SchoolProfile() {
     logo_url: '',
     address: '',
     city: '',
-    country: 'Kenya',
+    country: 'Ethiopia',
     phone: '',
     email: '',
     website: '',
     registration_number: '',
     principal_name: '',
-    currency: 'KES',
+    currency: 'ETB',
     academic_year_start_month: 1,
     terms_per_year: 3,
   });
@@ -38,8 +38,8 @@ export default function SchoolProfile() {
         setProfile((prev) => ({
           ...prev,
           ...data,
-          country: data.country || 'Kenya',
-          currency: data.currency || 'KES',
+          country: data.country || 'Ethiopia',
+          currency: data.currency || 'ETB',
         }));
       }
     } catch (err) {
@@ -239,27 +239,53 @@ export default function SchoolProfile() {
               </div>
               <div className="pf-field">
                 <label className="pf-label">Phone Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  className="pf-input"
-                  value={profile.phone || ''}
-                  onChange={handleChange}
-                  placeholder="+254 700 000 000"
-                />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      padding: '0 0.75rem',
+                      height: 36,
+                      background: '#F8FAFC',
+                      border: '1px solid #CBD5E1',
+                      borderRight: 'none',
+                      borderTopLeftRadius: 6,
+                      borderBottomLeftRadius: 6,
+                      fontSize: '0.8125rem',
+                      color: '#334155',
+                      fontWeight: 600,
+                      userSelect: 'none',
+                      flexShrink: 0,
+                    }}
+                    title="Ethiopia (+251)"
+                  >
+                    <span role="img" aria-label="Ethiopia Flag" style={{ fontSize: '1.1rem', lineHeight: 1 }}>🇪🇹</span>
+                    <span>+251</span>
+                  </div>
+                  <input
+                    type="tel"
+                    name="phone"
+                    className="pf-input"
+                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                    value={profile.phone || ''}
+                    onChange={handleChange}
+                    placeholder="911 234 567"
+                  />
+                </div>
               </div>
             </div>
 
             <div className="pf-grid-2">
               <div className="pf-field">
-                <label className="pf-label">City / County</label>
+                <label className="pf-label">City / Region</label>
                 <input
                   type="text"
                   name="city"
                   className="pf-input"
                   value={profile.city || ''}
                   onChange={handleChange}
-                  placeholder="e.g. Nairobi"
+                  placeholder="e.g. Addis Ababa"
                 />
               </div>
               <div className="pf-field">
@@ -268,9 +294,9 @@ export default function SchoolProfile() {
                   type="text"
                   name="country"
                   className="pf-input"
-                  value={profile.country || 'Kenya'}
+                  value={profile.country || 'Ethiopia'}
                   onChange={handleChange}
-                  placeholder="e.g. Kenya"
+                  placeholder="e.g. Ethiopia"
                 />
               </div>
             </div>
@@ -283,7 +309,7 @@ export default function SchoolProfile() {
                 className="pf-input"
                 value={profile.address || ''}
                 onChange={handleChange}
-                placeholder="P.O. Box 1234, Westlands Avenue"
+                placeholder="Bole Sub-City, Woreda 03"
               />
             </div>
 
@@ -295,7 +321,7 @@ export default function SchoolProfile() {
                 className="pf-input"
                 value={profile.website || ''}
                 onChange={handleChange}
-                placeholder="https://www.eduflow.edu"
+                placeholder="https://www.eduflow.edu.et"
               />
             </div>
           </div>
@@ -312,16 +338,16 @@ export default function SchoolProfile() {
                 <select
                   name="currency"
                   className="pf-select"
-                  value={profile.currency || 'KES'}
+                  value={profile.currency || 'ETB'}
                   onChange={handleChange}
                 >
-                  <option value="KES">KES — Kenyan Shilling</option>
+                  <option value="ETB">ETB — Ethiopian Birr (Br)</option>
                   <option value="USD">USD — US Dollar ($)</option>
                   <option value="EUR">EUR — Euro (€)</option>
                   <option value="GBP">GBP — British Pound (£)</option>
+                  <option value="KES">KES — Kenyan Shilling</option>
                   <option value="TZS">TZS — Tanzanian Shilling</option>
                   <option value="UGX">UGX — Ugandan Shilling</option>
-                  <option value="ETB">ETB — Ethiopian Birr</option>
                 </select>
               </div>
               <div className="pf-field">
@@ -332,9 +358,9 @@ export default function SchoolProfile() {
                   value={profile.terms_per_year || 3}
                   onChange={handleChange}
                 >
-                  <option value={2}>2 Terms (Semesters)</option>
-                  <option value={3}>3 Terms (Trimesters — Standard)</option>
-                  <option value={4}>4 Terms (Quarters)</option>
+                  <option value={2}>2 Semesters (Standard)</option>
+                  <option value={3}>3 Terms (Trimesters)</option>
+                  <option value={4}>4 Quarters</option>
                 </select>
               </div>
             </div>
@@ -376,7 +402,7 @@ export default function SchoolProfile() {
             <div className="school-summary-row">
               <span className="school-summary-row-label">Location</span>
               <span className="school-summary-row-val">
-                {[profile.city, profile.country].filter(Boolean).join(', ') || '—'}
+                {[profile.city || 'Addis Ababa', profile.country || 'Ethiopia'].filter(Boolean).join(', ')}
               </span>
             </div>
             {profile.email && (
@@ -388,12 +414,15 @@ export default function SchoolProfile() {
             {profile.phone && (
               <div className="school-summary-row">
                 <span className="school-summary-row-label">Phone</span>
-                <span className="school-summary-row-val">{profile.phone}</span>
+                <span className="school-summary-row-val" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <span>🇪🇹</span>
+                  <span>{profile.phone.startsWith('+251') ? profile.phone : `+251 ${profile.phone}`}</span>
+                </span>
               </div>
             )}
             <div className="school-summary-row">
               <span className="school-summary-row-label">Default Currency</span>
-              <span className="school-summary-row-val">{profile.currency || 'KES'}</span>
+              <span className="school-summary-row-val">{profile.currency || 'ETB'}</span>
             </div>
             <div className="school-summary-row">
               <span className="school-summary-row-label">Academic Cycle</span>

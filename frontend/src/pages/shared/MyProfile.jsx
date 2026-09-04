@@ -127,7 +127,7 @@ function ProfileTab() {
           <Input value={lastName} onChange={setLastName} placeholder="Last name" />
         </Field>
         <Field label="Phone">
-          <Input value={phone} onChange={setPhone} placeholder="+254..." type="tel" />
+          <Input value={phone} onChange={setPhone} placeholder="+251 911 234 567" type="tel" />
         </Field>
         <Field label="Gender">
           <select
