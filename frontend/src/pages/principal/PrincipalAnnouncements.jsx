@@ -178,7 +178,7 @@ export default function PrincipalAnnouncements() {
                 type="text"
                 required
                 className="pf-input"
-                placeholder="e.g. End of Term Examination Schedule & Early Dismissal"
+                placeholder="e.g. End of Semester Examination Schedule & Early Dismissal"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />

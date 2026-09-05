@@ -122,7 +122,7 @@ export default function StudentFees() {
           <div className="sp-stat-icon sp-stat-icon--blue"><CreditCard size={22} /></div>
           <div>
             <div className="sp-stat-value" style={{ fontSize: '1.1rem' }}>{fmtMoney(summary.total_billed)}</div>
-            <div className="sp-stat-label">Total Billed · This term</div>
+            <div className="sp-stat-label">Total Billed · This semester</div>
           </div>
         </div>
         <div className="sp-stat-card">
@@ -157,7 +157,7 @@ export default function StudentFees() {
               <thead>
                 <tr>
                   <th>Invoice #</th>
-                  <th>Term</th>
+                  <th>Semester</th>
                   <th>Total</th>
                   <th>Paid</th>
                   <th>Balance</th>

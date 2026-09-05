@@ -86,9 +86,9 @@ function YearForm({ initial = {}, onSave, onClose, saving }) {
   );
 }
 
-// ── Term Form ─────────────────────────────────────────────────────────────────
+// ── Semester Form ─────────────────────────────────────────────────────────────
 function TermForm({ yearId, initial = {}, onSave, onClose, saving }) {
-  const [name,      setName]      = useState(initial.name          || 'Semester 1 (Term 1: Meskerem – Tir)');
+  const [name,      setName]      = useState(initial.name          || 'Semester 1 (Meskerem – Tir)');
   const [startDate, setStartDate] = useState(initial.start_date?.slice(0,10) || '');
   const [endDate,   setEndDate]   = useState(initial.end_date?.slice(0,10)   || '');
   const [status,    setStatus]    = useState(initial.status         || 'ACTIVE');
@@ -113,13 +113,13 @@ function TermForm({ yearId, initial = {}, onSave, onClose, saving }) {
       )}
 
       <div className="pf-field">
-        <label className="pf-label">Term Name <span>*</span> (2 Terms per Year)</label>
+        <label className="pf-label">Semester Name <span>*</span> (2 Semesters per Year)</label>
         <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
           <button
             type="button"
             className="btn-ghost"
             style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }}
-            onClick={() => setName('Semester 1 (Term 1: Meskerem – Tir)')}
+            onClick={() => setName('Semester 1 (Meskerem – Tir)')}
           >
             Semester 1
           </button>
@@ -127,12 +127,12 @@ function TermForm({ yearId, initial = {}, onSave, onClose, saving }) {
             type="button"
             className="btn-ghost"
             style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }}
-            onClick={() => setName('Semester 2 (Term 2: Yakatit – Sene)')}
+            onClick={() => setName('Semester 2 (Yakatit – Sene)')}
           >
             Semester 2
           </button>
         </div>
-        <input className="pf-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Semester 1 (Term 1)" required />
+        <input className="pf-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Semester 1" required />
       </div>
 
       <div className="pf-grid-2">
@@ -223,13 +223,13 @@ export default function AcademicYears() {
   };
 
   const deleteTerm = async (id) => {
-    if (!confirm('Delete this term? This cannot be undone.')) return;
+    if (!confirm('Delete this semester? This cannot be undone.')) return;
     try { await principalApi.deleteTerm(id); await load(); }
     catch (err) { alert(err.message); }
   };
 
   const deleteYear = async (id) => {
-    if (!confirm('Are you sure you want to delete this academic year? This will delete all terms inside it. This cannot be undone.')) return;
+    if (!confirm('Are you sure you want to delete this academic year? This will delete all semesters inside it. This cannot be undone.')) return;
     try {
       await principalApi.deleteAcademicYear(id);
       await load();
@@ -246,7 +246,7 @@ export default function AcademicYears() {
       <div className="sp-page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <h1 className="sp-page-title">Academic Years</h1>
-          <p className="sp-page-sub">Manage school years and their terms</p>
+          <p className="sp-page-sub">Manage school years and their semesters</p>
         </div>
         <button className="btn-prim" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
           onClick={() => { setModal({ type: 'year' }); setMError(null); }}>
@@ -279,7 +279,7 @@ export default function AcademicYears() {
                     <span className={`sp-badge sp-badge--${yr.status === 'ACTIVE' ? 'blue' : 'gray'}`}>{yr.status}</span>
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                    {fmtDate(yr.start_date)} → {fmtDate(yr.end_date)} · {yr.terms?.length ?? yr.term_count}/2 terms · {yr.enrollment_count} enrolled
+                    {fmtDate(yr.start_date)} → {fmtDate(yr.end_date)} · {yr.terms?.length ?? yr.term_count}/2 semesters · {yr.enrollment_count} enrolled
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }} onClick={e => e.stopPropagation()}>
@@ -292,27 +292,27 @@ export default function AcademicYears() {
                   {(yr.terms?.length || 0) < 2 ? (
                     <button className="btn-prim" style={{ padding: '0.35rem 0.7rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
                       onClick={() => { setModal({ type: 'term', yearId: yr.id }); setMError(null); }}>
-                      <Plus size={13} /> Term
+                      <Plus size={13} /> Semester
                     </button>
                   ) : (
-                    <span className="sp-badge sp-badge--blue" style={{ fontSize: '0.75rem', padding: '0.35rem 0.6rem' }} title="Each academic year has exactly 2 terms (Semesters)">
-                      2/2 Terms
+                    <span className="sp-badge sp-badge--blue" style={{ fontSize: '0.75rem', padding: '0.35rem 0.6rem' }} title="Each academic year has exactly 2 semesters">
+                      2/2 Semesters
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Terms */}
+              {/* Semesters */}
               {expanded[yr.id] && (
                 <div style={{ borderTop: '1px solid var(--border-color)', padding: '0.75rem 1.25rem' }}>
                   {(!yr.terms || yr.terms.length === 0) ? (
                     <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', padding: '0.5rem 0' }}>
-                      No terms yet — click "+ Term" to add one.
+                      No semesters yet — click "+ Semester" to add one.
                     </div>
                   ) : (
                     <table className="sp-table" style={{ marginTop: 0 }}>
                       <thead>
-                        <tr><th>Term</th><th>Start</th><th>End</th><th>Status</th><th></th></tr>
+                        <tr><th>Semester</th><th>Start</th><th>End</th><th>Status</th><th></th></tr>
                       </thead>
                       <tbody>
                         {yr.terms.map(t => (
@@ -355,7 +355,7 @@ export default function AcademicYears() {
         </Modal>
       )}
       {modal?.type === 'term' && (
-        <Modal title={modal.termData ? 'Edit Term' : 'Add Term'} onClose={() => setModal(null)}>
+        <Modal title={modal.termData ? 'Edit Semester' : 'Add Semester'} onClose={() => setModal(null)}>
           {mError && <p style={{ color: 'var(--primary)', fontSize: '0.82rem', marginBottom: '0.75rem' }}>{mError}</p>}
           <TermForm yearId={modal.yearId} initial={modal.termData || {}} onSave={saveTerm} onClose={() => setModal(null)} saving={saving} />
         </Modal>

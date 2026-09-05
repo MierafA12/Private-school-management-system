@@ -239,7 +239,7 @@ export default function Timetable() {
   };
 
   const clearAll = async () => {
-    if (!confirm('Clear entire timetable for this section/term? This cannot be undone.')) return;
+    if (!confirm('Clear entire timetable for this section/semester? This cannot be undone.')) return;
     try {
       await principalApi.clearTimetable({ term_id: termId, section_id: sectionId });
       await loadSlots();
@@ -270,7 +270,7 @@ export default function Timetable() {
           {years.map(y => <option key={y.id} value={y.id}>{y.name}{y.is_current ? ' ✓' : ''}</option>)}
         </select>
         <select className="pf-select" style={{ minWidth: 120, width: 'auto' }} value={termId} onChange={e => setTermId(e.target.value)} disabled={!yearId}>
-          <option value="">Term</option>
+          <option value="">Semester</option>
           {terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
         <select className="pf-select" style={{ minWidth: 140, width: 'auto' }} value={classId} onChange={e => setClassId(e.target.value)}>
@@ -285,7 +285,7 @@ export default function Timetable() {
 
       {!canEdit ? (
         <div className="sp-card">
-          <EmptyState icon="📅" title="Select filters above" subtitle="Choose an academic year, term, class, and section to view or build the timetable." />
+          <EmptyState icon="📅" title="Select filters above" subtitle="Choose an academic year, semester, class, and section to view or build the timetable." />
         </div>
       ) : loading ? (
         <LoadingSpinner message="Loading timetable…" />

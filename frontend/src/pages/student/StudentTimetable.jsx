@@ -51,7 +51,7 @@ export default function StudentTimetable() {
         <div className="sp-page-header">
           <h1 className="sp-page-title">Weekly Timetable</h1>
         </div>
-        <div className="sp-card"><EmptyState icon="📅" title="No timetable yet" subtitle="Your class schedule hasn't been set up for this term." /></div>
+        <div className="sp-card"><EmptyState icon="📅" title="No timetable yet" subtitle="Your class schedule hasn't been set up for this semester." /></div>
       </div>
     );
   }

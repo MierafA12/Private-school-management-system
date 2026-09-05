@@ -65,7 +65,7 @@ export default function InvoiceDetail() {
             {[
               ['Student',       invoice.student_name],
               ['Student #',     invoice.student_number],
-              ['Term',          invoice.term_name],
+              ['Semester',      invoice.term_name],
               ['Academic Year', invoice.academic_year],
               ['Category',      invoice.fee_category || '—'],
               ['Total Amount',  fmt(invoice.total_amount, invoice.currency)],

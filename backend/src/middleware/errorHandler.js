@@ -16,7 +16,7 @@ const errorHandler = (err, req, res, next) => {
     } else if (constraint === 'uq_academic_years_one_current' || message.includes('uq_academic_years_one_current')) {
       msg = 'Another academic year is already marked as current. Please deactivate it first.';
     } else if (constraint === 'uq_terms_name_per_year' || message.includes('uq_terms_name_per_year')) {
-      msg = 'A term with this name already exists in this academic year.';
+      msg = 'A semester with this name already exists in this academic year.';
     } else if (constraint === 'uq_timetables_section_period_day' || message.includes('uq_timetables_section_period_day')) {
       msg = 'This section already has a class scheduled for this period and day.';
     } else if (constraint === 'uq_timetables_teacher_period_day' || message.includes('uq_timetables_teacher_period_day')) {
@@ -68,7 +68,7 @@ const errorHandler = (err, req, res, next) => {
     if (err.constraint === 'chk_terms_dates' || err.message?.includes('chk_terms_dates')) {
       return res.status(400).json({
         success: false,
-        message: 'Term end date must be after the start date.',
+        message: 'Semester end date must be after the start date.',
       });
     }
     if (err.constraint === 'chk_academic_years_dates' || err.message?.includes('chk_academic_years_dates')) {

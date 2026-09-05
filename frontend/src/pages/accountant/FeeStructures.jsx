@@ -84,13 +84,13 @@ export default function FeeStructures() {
         ) : (
           <div className="sp-table-wrap">
             <table className="sp-table">
-              <thead><tr><th>Category</th><th>Class</th><th>Term</th><th>Amount</th><th>Mandatory</th><th>Status</th><th>Actions</th></tr></thead>
+              <thead><tr><th>Category</th><th>Class</th><th>Semester</th><th>Amount</th><th>Mandatory</th><th>Status</th><th>Actions</th></tr></thead>
               <tbody>
                 {items.map(fs => (
                   <tr key={fs.id}>
                     <td style={{ fontWeight:600 }}>{fs.category}</td>
                     <td style={{ fontSize:'.82rem' }}>{fs.class_name || '—'}</td>
-                    <td style={{ fontSize:'.82rem', color:'var(--text-muted)' }}>{fs.term_name || 'All terms'}</td>
+                    <td style={{ fontSize:'.82rem', color:'var(--text-muted)' }}>{fs.term_name || 'All semesters'}</td>
                     <td style={{ fontWeight:700 }}>{fs.currency === 'ETB' ? 'Birr' : fs.currency} {parseFloat(fs.amount).toLocaleString()}</td>
                     <td><span className={`sp-badge sp-badge--${fs.is_mandatory?'green':'gray'}`}>{fs.is_mandatory?'Yes':'No'}</span></td>
                     <td><span className={`sp-badge sp-badge--${fs.status==='ACTIVE'?'green':fs.status==='INACTIVE'?'yellow':'gray'}`}>{fs.status}</span></td>
@@ -110,7 +110,7 @@ export default function FeeStructures() {
         <div className="ap-modal-overlay">
           <div className="ap-modal">
             <div className="ap-modal-title">{modal==='create'?'New Fee Structure':'Edit Fee Structure'}</div>
-            <div className="ap-modal-sub">Configure fee amount by grade, term, and category</div>
+            <div className="ap-modal-sub">Configure fee amount by grade, semester, and category</div>
             {saveErr && <div className="auth-error" style={{ marginBottom:'1rem', padding:'.75rem', borderRadius:8, fontSize:'.85rem' }}>{saveErr}</div>}
             <form onSubmit={handleSave}>
               <div className="ap-form-grid">
@@ -122,9 +122,9 @@ export default function FeeStructures() {
                   </select>
                 </div>
                 <div className="ap-form-group">
-                  <label>Term (optional)</label>
+                  <label>Semester (optional)</label>
                   <select value={form.term_id} onChange={e => setForm(f=>({...f, term_id:e.target.value}))}>
-                    <option value="">All terms</option>
+                    <option value="">All semesters</option>
                     {terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                   </select>
                 </div>

@@ -84,7 +84,7 @@ function ExamForm({ initial = {}, classes, subjects, terms, yearId, onSave, onCl
     <form onSubmit={submit}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Term *</label>
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Semester *</label>
           <select style={inputSt} value={termId} onChange={e => setTermId(e.target.value)} required>
             <option value="">— Select —</option>
             {terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -113,7 +113,7 @@ function ExamForm({ initial = {}, classes, subjects, terms, yearId, onSave, onCl
         </div>
         <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
           <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Exam Title *</label>
-          <input style={inputSt} value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Term 1 Mathematics Mid-Exam" required />
+          <input style={inputSt} value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Semester 1 Mathematics Mid-Exam" required />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
           <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Exam Date (Ethiopian Calendar) *</label>
@@ -453,7 +453,7 @@ export default function TeacherGrades() {
       {/* Filters */}
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         <select style={{ ...inputSt, maxWidth: 160 }} value={filterTerm} onChange={e => setFilterTerm(e.target.value)}>
-          <option value="">All Terms</option>
+          <option value="">All Semesters</option>
           {terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
         <select style={{ ...inputSt, maxWidth: 160 }} value={filterClass} onChange={e => setFilterClass(e.target.value)}>

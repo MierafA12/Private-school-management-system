@@ -171,7 +171,7 @@ export default function StudentReportCard() {
             <table className="sp-table">
               <thead>
                 <tr>
-                  <th>Term</th>
+                  <th>Semester</th>
                   <th>Academic Year</th>
                   <th>Score</th>
                   <th>Grade</th>

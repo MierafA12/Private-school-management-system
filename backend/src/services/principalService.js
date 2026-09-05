@@ -115,12 +115,12 @@ const createAcademicYear = async ({ name, start_date, end_date, is_current = fal
     await client.query(
       `INSERT INTO terms (academic_year_id, name, start_date, end_date, status)
        VALUES ($1, $2, $3, $4, $5)`,
-      [year.id, 'Semester 1 (Term 1: Meskerem – Tir)', start_date, midDate, 'ACTIVE']
+      [year.id, 'Semester 1 (Meskerem – Tir)', start_date, midDate, 'ACTIVE']
     );
     await client.query(
       `INSERT INTO terms (academic_year_id, name, start_date, end_date, status)
        VALUES ($1, $2, $3, $4, $5)`,
-      [year.id, 'Semester 2 (Term 2: Yakatit – Sene)', dayAfterMid, end_date, 'INACTIVE']
+      [year.id, 'Semester 2 (Yakatit – Sene)', dayAfterMid, end_date, 'INACTIVE']
     );
 
     await client.query('COMMIT');
@@ -237,7 +237,7 @@ const deleteAcademicYear = async (id) => {
 
 const createTerm = async ({ academic_year_id, name, start_date, end_date, status = 'ACTIVE' }) => {
   if (new Date(end_date) <= new Date(start_date)) {
-    const err = new Error('Term end date must be after start date.');
+    const err = new Error('Semester end date must be after start date.');
     err.status = 400;
     throw err;
   }
@@ -248,7 +248,7 @@ const createTerm = async ({ academic_year_id, name, start_date, end_date, status
     [academic_year_id, trimmedName]
   );
   if (existingTerm.length > 0) {
-    const err = new Error(`A term with the name "${trimmedName}" already exists in this academic year.`);
+    const err = new Error(`A semester with the name "${trimmedName}" already exists in this academic year.`);
     err.status = 409;
     throw err;
   }
@@ -258,7 +258,7 @@ const createTerm = async ({ academic_year_id, name, start_date, end_date, status
     [academic_year_id]
   );
   if (parseInt(countRows[0].count, 10) >= 2) {
-    const err = new Error('An academic year can only have 2 terms (Semester 1 and Semester 2).');
+    const err = new Error('An academic year can only have 2 semesters (Semester 1 and Semester 2).');
     err.status = 400;
     throw err;
   }
@@ -274,7 +274,7 @@ const createTerm = async ({ academic_year_id, name, start_date, end_date, status
 const updateTerm = async (id, fields) => {
   if (fields.start_date && fields.end_date) {
     if (new Date(fields.end_date) <= new Date(fields.start_date)) {
-      const err = new Error('Term end date must be after start date.');
+      const err = new Error('Semester end date must be after start date.');
       err.status = 400;
       throw err;
     }
@@ -284,7 +284,7 @@ const updateTerm = async (id, fields) => {
       const s = fields.start_date ? new Date(fields.start_date) : new Date(existing[0].start_date);
       const e = fields.end_date ? new Date(fields.end_date) : new Date(existing[0].end_date);
       if (e <= s) {
-        const err = new Error('Term end date must be after start date.');
+        const err = new Error('Semester end date must be after start date.');
         err.status = 400;
         throw err;
       }
@@ -299,7 +299,7 @@ const updateTerm = async (id, fields) => {
         [curr[0].academic_year_id, fields.name.trim(), id]
       );
       if (existingTerm.length > 0) {
-        const err = new Error(`A term with the name "${fields.name.trim()}" already exists in this academic year.`);
+        const err = new Error(`A semester with the name "${fields.name.trim()}" already exists in this academic year.`);
         err.status = 409;
         throw err;
       }

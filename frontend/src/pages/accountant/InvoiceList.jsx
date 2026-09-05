@@ -50,7 +50,7 @@ export default function InvoiceList() {
       <div className="ap-filter-bar">
         <input placeholder="Search student / invoice #…" value={filter.search} onChange={e => set('search', e.target.value)} style={{ flex:1, minWidth:200 }} />
         <select value={filter.term_id}   onChange={e => set('term_id',  e.target.value)}>
-          <option value="">All terms</option>
+          <option value="">All semesters</option>
           {terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
         <select value={filter.class_id}  onChange={e => set('class_id', e.target.value)}>
@@ -76,7 +76,7 @@ export default function InvoiceList() {
               <div className="sp-table-wrap">
                 <table className="sp-table">
                   <thead>
-                    <tr><th>Invoice #</th><th>Student</th><th>Class</th><th>Term</th><th>Total</th><th>Paid</th><th>Balance</th><th>Due</th><th>Status</th><th></th></tr>
+                    <tr><th>Invoice #</th><th>Student</th><th>Class</th><th>Semester</th><th>Total</th><th>Paid</th><th>Balance</th><th>Due</th><th>Status</th><th></th></tr>
                   </thead>
                   <tbody>
                     {data.invoices.map(inv => (

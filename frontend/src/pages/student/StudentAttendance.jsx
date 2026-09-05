@@ -83,7 +83,7 @@ export default function StudentAttendance() {
             </div>
             <div>
               <div className="sp-stat-value">{summaryMap[s.key] ?? 0}</div>
-              <div className="sp-stat-label">{s.label} · This term</div>
+              <div className="sp-stat-label">{s.label} · This semester</div>
             </div>
           </div>
         ))}

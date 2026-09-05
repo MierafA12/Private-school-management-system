@@ -246,7 +246,7 @@ export default function FeeStructures() {
             <DollarSign size={22} style={{ color: 'var(--primary, #991B1B)' }} />
             Fee Structures
           </h1>
-          <p className="sp-page-sub">Configure official tuition, transport, and term fees per academic year and class</p>
+          <p className="sp-page-sub">Configure official tuition, transport, and semester fees per academic year and class</p>
         </div>
         <button
           type="button"
@@ -287,7 +287,7 @@ export default function FeeStructures() {
             <span className="sp-stat-icon"><Layers size={16} /></span>
           </div>
           <div className="sp-stat-value">{totalCount}</div>
-          <div className="sp-stat-sub">Across all classes & terms</div>
+          <div className="sp-stat-sub">Across all classes & semesters</div>
         </div>
 
         <div className="sp-stat-card">

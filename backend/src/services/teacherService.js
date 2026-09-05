@@ -175,7 +175,7 @@ const submitAttendance = async (teacherId, { classId, sectionId, date, records }
        LIMIT 1`,
       [date]
     );
-    if (!termRows.length) throw Object.assign(new Error('No active term found for this date.'), { status: 422 });
+    if (!termRows.length) throw Object.assign(new Error('No active semester found for this date.'), { status: 422 });
     const { id: termId, academic_year_id } = termRows[0];
 
     // Upsert session

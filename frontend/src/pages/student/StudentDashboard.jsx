@@ -37,9 +37,9 @@ export default function StudentDashboard() {
   const { student, enrollment, term, summary, recent_attendance, upcoming_exams } = data;
 
   const stats = [
-    { icon: CalendarDays, label: 'Attendance',   value: summary.attendance_percentage != null ? `${summary.attendance_percentage}%` : '—', color: 'green',  sub: 'This term'   },
+    { icon: CalendarDays, label: 'Attendance',   value: summary.attendance_percentage != null ? `${summary.attendance_percentage}%` : '—', color: 'green',  sub: 'This semester'   },
     { icon: BookOpen,     label: 'Subjects',      value: summary.subject_count,                                                              color: 'blue',   sub: 'Enrolled'    },
-    { icon: TrendingUp,   label: 'Term',          value: term?.name || '—',                                                                  color: 'yellow', sub: 'Active term' },
+    { icon: TrendingUp,   label: 'Semester',      value: term?.name || '—',                                                                  color: 'yellow', sub: 'Active semester' },
     { icon: CreditCard,   label: 'Fees Due',      value: summary.fee_outstanding > 0 ? `Birr ${summary.fee_outstanding.toLocaleString()}` : 'Cleared', color: summary.fee_outstanding > 0 ? 'red' : 'green', sub: 'Balance' },
   ];
 

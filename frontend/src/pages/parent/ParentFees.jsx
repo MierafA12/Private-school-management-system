@@ -138,7 +138,7 @@ export default function ParentFees() {
             <table className="sp-table">
               <thead>
                 <tr>
-                  <th>Invoice #</th><th>Student</th><th>Term</th><th>Total</th>
+                  <th>Invoice #</th><th>Student</th><th>Semester</th><th>Total</th>
                   <th>Paid</th><th>Balance</th><th>Due</th><th>Status</th><th>Action</th>
                 </tr>
               </thead>

@@ -67,7 +67,7 @@ export default function PrincipalDashboard() {
       icon: CalendarDays,
       label: 'Current Enrollments',
       value: stats.current_enrollments ?? '0',
-      sub: 'Active term registrants',
+      sub: 'Active semester registrants',
     },
     {
       icon: TrendingUp,

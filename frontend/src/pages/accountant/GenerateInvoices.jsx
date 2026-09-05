@@ -75,9 +75,9 @@ export default function GenerateInvoices() {
           <form onSubmit={handleGenerate}>
             <div className="ap-form-grid">
               <div className="ap-form-group ap-form-full">
-                <label>Term *</label>
+                <label>Semester *</label>
                 <select value={form.term_id} onChange={e => set('term_id', e.target.value)} required>
-                  <option value="">Select term…</option>
+                  <option value="">Select semester…</option>
                   {terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                 </select>
               </div>

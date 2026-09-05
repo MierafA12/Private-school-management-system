@@ -76,7 +76,7 @@ export default function FinancialReports() {
         </>}
         {tab==='arrears' && <>
           <select value={filter.term_id} onChange={e=>set('term_id',e.target.value)}>
-            <option value="">All terms</option>
+            <option value="">All semesters</option>
             {terms.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
           <select value={filter.class_id} onChange={e=>set('class_id',e.target.value)}>
@@ -90,7 +90,7 @@ export default function FinancialReports() {
             {years.map(y=><option key={y.id} value={y.id}>{y.name}</option>)}
           </select>
           <select value={filter.term_id} onChange={e=>set('term_id',e.target.value)}>
-            <option value="">All terms</option>
+            <option value="">All semesters</option>
             {terms.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
         </>}
@@ -159,7 +159,7 @@ export default function FinancialReports() {
                 {!data.students?.length ? <div className="sp-empty"><div className="sp-empty-icon">✅</div>No outstanding balances</div> : (
                   <div className="sp-table-wrap">
                     <table className="sp-table">
-                      <thead><tr><th>Student</th><th>Invoice</th><th>Class</th><th>Term</th><th>Total</th><th>Balance</th><th>Due</th><th>Status</th></tr></thead>
+                      <thead><tr><th>Student</th><th>Invoice</th><th>Class</th><th>Semester</th><th>Total</th><th>Balance</th><th>Due</th><th>Status</th></tr></thead>
                       <tbody>
                         {data.students.map(s => (
                           <tr key={s.invoice_number}>

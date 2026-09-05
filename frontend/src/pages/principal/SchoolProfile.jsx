@@ -383,15 +383,15 @@ export default function SchoolProfile() {
                 </select>
               </div>
               <div className="pf-field">
-                <label className="pf-label">Terms Per Academic Year</label>
+                <label className="pf-label">Semesters Per Academic Year</label>
                 <select
                   name="terms_per_year"
                   className="pf-select"
-                  value={profile.terms_per_year || 3}
+                  value={profile.terms_per_year || 2}
                   onChange={handleChange}
                 >
                   <option value={2}>2 Semesters (Standard)</option>
-                  <option value={3}>3 Terms (Trimesters)</option>
+                  <option value={3}>3 Semesters</option>
                   <option value={4}>4 Quarters</option>
                 </select>
               </div>
@@ -458,7 +458,7 @@ export default function SchoolProfile() {
             </div>
             <div className="school-summary-row">
               <span className="school-summary-row-label">Academic Cycle</span>
-              <span className="school-summary-row-val">{profile.terms_per_year || 3} Terms / Year</span>
+              <span className="school-summary-row-val">{profile.terms_per_year || 2} Semesters / Year</span>
             </div>
           </div>
         </div>

@@ -173,7 +173,7 @@ export default function ReportCards() {
   useEffect(() => { loadCards(); }, [loadCards]);
 
   const generateAll = async () => {
-    if (!termId || !sectionId) { alert('Select a term and section first.'); return; }
+    if (!termId || !sectionId) { alert('Select a semester and section first.'); return; }
     if (!confirm(`Generate report cards for all students in this section? Existing cards will be updated.`)) return;
     setGenerating(true);
     try {
@@ -236,7 +236,7 @@ export default function ReportCards() {
           {years.map(y => <option key={y.id} value={y.id}>{y.name}{y.is_current ? ' ✓' : ''}</option>)}
         </select>
         <select className="pf-select" style={{ minWidth: 120 }} value={termId} onChange={e => setTermId(e.target.value)} disabled={!yearId}>
-          <option value="">Term</option>
+          <option value="">Semester</option>
           {terms.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
         <select className="pf-select" style={{ minWidth: 140 }} value={classId} onChange={e => { setClassId(e.target.value); setSectionId(''); }}>
@@ -252,7 +252,7 @@ export default function ReportCards() {
       {/* Tip */}
       {!termId && (
         <div className="sp-card">
-          <EmptyState icon="📋" title="Select filters above" subtitle="Choose a term and optionally a section to view or generate report cards." />
+          <EmptyState icon="📋" title="Select filters above" subtitle="Choose a semester and optionally a section to view or generate report cards." />
         </div>
       )}
 

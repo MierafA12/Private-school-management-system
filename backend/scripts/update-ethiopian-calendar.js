@@ -12,13 +12,10 @@ async function updateToEthiopianCalendar() {
     console.log('✅ Academic Year updated:', ayRes.rows[0]);
 
     await pool.query(
-      `UPDATE terms SET name = 'Term 1 (Meskerem – Tahsas)' WHERE name = 'Term 1' OR name LIKE 'Term 1%'`
+      `UPDATE terms SET name = 'Semester 1 (Meskerem – Tir)' WHERE name ILIKE '%Semester 1%' OR name ILIKE '%Term 1%'`
     );
     await pool.query(
-      `UPDATE terms SET name = 'Term 2 (Tir – Magabit)' WHERE name = 'Term 2' OR name LIKE 'Term 2%'`
-    );
-    await pool.query(
-      `UPDATE terms SET name = 'Term 3 (Miyazya – Sene)' WHERE name = 'Term 3' OR name LIKE 'Term 3%'`
+      `UPDATE terms SET name = 'Semester 2 (Yakatit – Sene)' WHERE name ILIKE '%Semester 2%' OR name ILIKE '%Term 2%'`
     );
 
     const termsRes = await pool.query(`SELECT id, name, status FROM terms ORDER BY start_date`);
