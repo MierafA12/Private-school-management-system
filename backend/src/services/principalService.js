@@ -165,14 +165,130 @@ const getClassById = async (id) => {
   if (!cls.length) return null;
   const { rows: sections } = await pool.query(
     `SELECT s.*,
-       (SELECT COUNT(*) FROM enrollments e
-        JOIN academic_years ay ON ay.id = e.academic_year_id
-        WHERE e.section_id = s.id AND ay.is_current = TRUE
-          AND e.enrollment_status = 'ACTIVE') AS current_students
+       COALESCE(
+         (SELECT COUNT(*)::int FROM enrollments e
+          LEFT JOIN academic_years ay ON ay.id = e.academic_year_id
+          WHERE e.section_id = s.id
+            AND (ay.is_current = TRUE OR e.academic_year_id = (SELECT id FROM academic_years WHERE is_current = TRUE LIMIT 1) OR (SELECT COUNT(*) FROM academic_years WHERE is_current = TRUE) = 0)
+            AND UPPER(e.enrollment_status) = 'ACTIVE'),
+         0
+       ) AS current_students
      FROM sections s WHERE s.class_id = $1 ORDER BY s.name`,
     [id]
   );
   return { ...cls[0], sections };
+};
+
+const getSectionStudents = async (sectionId) => {
+  const { rows } = await pool.query(
+    `SELECT
+       e.id AS enrollment_id,
+       e.roll_number,
+       e.enrollment_date,
+       e.enrollment_status,
+       s.id AS student_id,
+       s.student_number,
+       s.admission_number,
+       s.first_name,
+       s.middle_name,
+       s.last_name,
+       s.gender,
+       u.email,
+       u.phone
+     FROM enrollments e
+     JOIN students s ON s.id = e.student_id
+     LEFT JOIN users u ON u.id = s.user_id
+     LEFT JOIN academic_years ay ON ay.id = e.academic_year_id
+     WHERE e.section_id = $1
+       AND (ay.is_current = TRUE OR e.academic_year_id = (SELECT id FROM academic_years WHERE is_current = TRUE LIMIT 1) OR (SELECT COUNT(*) FROM academic_years WHERE is_current = TRUE) = 0)
+       AND UPPER(e.enrollment_status) = 'ACTIVE'
+     ORDER BY e.roll_number, s.last_name, s.first_name`,
+    [sectionId]
+  );
+  return rows;
+};
+
+const getUnenrolledStudents = async (search) => {
+  const { rows: ay } = await pool.query(`SELECT id FROM academic_years WHERE is_current = TRUE LIMIT 1`);
+  const currentYearId = ay[0]?.id;
+
+  let queryStr = `
+    SELECT
+      s.id,
+      s.student_number,
+      s.admission_number,
+      s.first_name,
+      s.middle_name,
+      s.last_name,
+      s.gender,
+      u.email,
+      u.phone
+    FROM students s
+    LEFT JOIN users u ON u.id = s.user_id
+    WHERE s.current_status = 'ACTIVE'
+  `;
+  const params = [];
+
+  if (currentYearId) {
+    queryStr += ` AND s.id NOT IN (
+      SELECT student_id FROM enrollments
+      WHERE academic_year_id = $1 AND UPPER(enrollment_status) = 'ACTIVE'
+    )`;
+    params.push(currentYearId);
+  }
+
+  if (search) {
+    params.push(`%${search.toLowerCase()}%`);
+    queryStr += ` AND (LOWER(s.first_name || ' ' || s.last_name) LIKE $${params.length} OR LOWER(s.student_number) LIKE $${params.length})`;
+  }
+
+  queryStr += ` ORDER BY s.last_name, s.first_name LIMIT 50`;
+  const { rows } = await pool.query(queryStr, params);
+  return rows;
+};
+
+const enrollStudentToSection = async ({ sectionId, studentId, rollNumber, enrollmentDate }) => {
+  const { rows: sec } = await pool.query(`SELECT id, class_id, capacity FROM sections WHERE id = $1`, [sectionId]);
+  if (!sec.length) {
+    const err = new Error('Section not found.'); err.status = 404; throw err;
+  }
+
+  const { rows: ay } = await pool.query(`SELECT id FROM academic_years WHERE is_current = TRUE LIMIT 1`);
+  if (!ay.length) {
+    const err = new Error('No active academic year found.'); err.status = 400; throw err;
+  }
+  const academicYearId = ay[0].id;
+
+  const { rows: existing } = await pool.query(
+    `SELECT id FROM enrollments WHERE student_id = $1 AND academic_year_id = $2`,
+    [studentId, academicYearId]
+  );
+  if (existing.length) {
+    const err = new Error('Student is already enrolled in this academic year.'); err.status = 409; throw err;
+  }
+
+  let rNum = rollNumber;
+  if (!rNum) {
+    const { rows: cnt } = await pool.query(
+      `SELECT COUNT(*) AS cnt FROM enrollments WHERE section_id = $1 AND academic_year_id = $2`,
+      [sectionId, academicYearId]
+    );
+    rNum = String(parseInt(cnt[0].cnt) + 1).padStart(3, '0');
+  }
+
+  const { rows } = await pool.query(
+    `INSERT INTO enrollments
+       (student_id, academic_year_id, class_id, section_id, roll_number, enrollment_date, enrollment_status)
+     VALUES ($1, $2, $3, $4, $5, COALESCE($6, CURRENT_DATE), 'ACTIVE')
+     RETURNING *`,
+    [studentId, academicYearId, sec[0].class_id, sectionId, rNum, enrollmentDate || null]
+  );
+  return rows[0];
+};
+
+const removeStudentFromSection = async (enrollmentId) => {
+  await pool.query(`DELETE FROM enrollments WHERE id = $1`, [enrollmentId]);
+  return { success: true };
 };
 
 const createClass = async ({ name, grade_level, description }) => {
@@ -753,6 +869,7 @@ module.exports = {
   // Classes & sections
   getClasses, getClassById, createClass, updateClass, deleteClass,
   createSection, updateSection, deleteSection,
+  getSectionStudents, getUnenrolledStudents, enrollStudentToSection, removeStudentFromSection,
 
   // Subjects & curriculum
   getSubjects, createSubject, updateSubject, deleteSubject,

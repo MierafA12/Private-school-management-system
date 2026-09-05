@@ -109,7 +109,14 @@ router.patch('/sections/:id',
   [body('capacity').optional().isInt({ min: 1 })],
   validate, ctrl.updateSection
 );
-router.delete('/sections/:id', ctrl.deleteSection);
+router.get('/sections/:id/students', ctrl.getSectionStudents);
+router.get('/unenrolled-students', ctrl.getUnenrolledStudents);
+router.post('/sections/:id/enroll',
+  [body('student_id').isUUID().withMessage('student_id must be a valid UUID.')],
+  validate,
+  ctrl.enrollStudent
+);
+router.delete('/sections/:id/students/:enrollmentId', ctrl.removeStudent);
 
 // ── Subjects ───────────────────────────────────────────────────────────────────
 router.get('/subjects', ctrl.getSubjects);

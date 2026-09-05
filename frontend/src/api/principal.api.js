@@ -22,9 +22,13 @@ export const principalApi = {
   deleteClass:   (id)        => request(`/principal/classes/${id}`, { method: 'DELETE' }),
 
   // Sections
-  createSection: (classId, data) => request(`/principal/classes/${classId}/sections`, { method: 'POST', body: JSON.stringify(data) }),
-  updateSection: (id, data)      => request(`/principal/sections/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
-  deleteSection: (id)            => request(`/principal/sections/${id}`, { method: 'DELETE' }),
+  createSection:            (classId, data)             => request(`/principal/classes/${classId}/sections`, { method: 'POST', body: JSON.stringify(data) }),
+  updateSection:            (id, data)                  => request(`/principal/sections/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteSection:            (id)                        => request(`/principal/sections/${id}`, { method: 'DELETE' }),
+  getSectionStudents:       (sectionId)                 => request(`/principal/sections/${sectionId}/students`),
+  getUnenrolledStudents:    (search)                    => request(`/principal/unenrolled-students${search ? `?search=${encodeURIComponent(search)}` : ''}`),
+  enrollStudentToSection:   (sectionId, data)           => request(`/principal/sections/${sectionId}/enroll`, { method: 'POST', body: JSON.stringify(data) }),
+  removeStudentFromSection: (sectionId, enrollmentId)   => request(`/principal/sections/${sectionId}/students/${enrollmentId}`, { method: 'DELETE' }),
 
   // Subjects
   getSubjects:   ()          => request('/principal/subjects'),
