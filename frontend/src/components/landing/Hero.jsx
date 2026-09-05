@@ -47,17 +47,16 @@ const Hero = () => {
         <h1 className="hero-title hero-title--light">
           The Complete Educational Platform 
         </h1>
-        <p className="hero-desc hero-desc--light">
-          Streamline your entire academic journey from a single, secure cloud platform.
-        </p>
-        <div className="hero-cta">
-          <Link to="/login" className="btn btn-primary">
-            Sign In to Portal
-          </Link>
-          <a href="#solutions" className="btn btn-secondary-outline hero-btn--glass">
-            Explore Features
-          </a>
-        </div>
+      </div>
+
+      {/* Bottom CTA action buttons */}
+      <div className="hero-cta hero-cta--bottom">
+        <Link to="/login" className="btn btn-primary">
+          Sign In to Portal
+        </Link>
+        <a href="#solutions" className="btn btn-secondary-outline hero-btn--glass">
+          Explore Features
+        </a>
       </div>
 
       {/* Video controls (bottom-left) */}

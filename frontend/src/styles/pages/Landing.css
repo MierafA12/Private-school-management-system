@@ -265,6 +265,33 @@
   flex-wrap: wrap;
 }
 
+.hero-section--video-bg .hero-cta--bottom {
+  position: absolute;
+  bottom: 4.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-section--video-bg .hero-cta--bottom .btn {
+  padding: 0.7rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.hero-section--video-bg .hero-cta--bottom .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
 .hero-section--video-bg .hero-cta .btn {
   padding: 0.55rem 1.15rem;
   font-size: 0.8rem;
@@ -319,7 +346,7 @@
 /* ── Scroll Indicator (bottom-center) ── */
 .hero-scroll-indicator {
   position: absolute;
-  bottom: 2rem;
+  bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 3;
@@ -344,12 +371,24 @@
   .hero-desc--light {
     font-size: 1.05rem;
   }
+  .hero-section--video-bg .hero-cta--bottom {
+    bottom: 3.25rem;
+    width: calc(100% - 2.5rem);
+    max-width: 360px;
+    gap: 0.65rem;
+  }
+  .hero-section--video-bg .hero-cta--bottom .btn {
+    flex: 1;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.8125rem;
+    text-align: center;
+  }
   .hero-video-controls {
     bottom: 1.25rem;
     left: 1.25rem;
   }
   .hero-scroll-indicator {
-    bottom: 1.25rem;
+    bottom: 1rem;
   }
 }
 
