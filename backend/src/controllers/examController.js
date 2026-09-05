@@ -53,17 +53,21 @@ const deleteSchedule = async (req, res, next) => {
 
 const getComponents = async (req, res, next) => {
   try {
-    // Returns default components or schedule info
-    const schedule = await examService.getExamScheduleById(req.params.examId);
-    if (!schedule) return res.status(404).json({ success: false, message: 'Exam schedule not found.' });
-    res.json({ success: true, data: [{ name: 'Final Exam', weight: 100, max_marks: 100 }] });
+    const components = await examService.getComponents(req.params.examId);
+    res.json({ success: true, data: components });
   } catch (err) {
     next(err);
   }
 };
 
-const saveComponents = async (req, res) => {
-  res.json({ success: true, message: 'Components saved.' });
+const saveComponents = async (req, res, next) => {
+  try {
+    const components = req.body.components || req.body;
+    const saved = await examService.saveComponents(req.params.examId, Array.isArray(components) ? components : []);
+    res.json({ success: true, data: saved });
+  } catch (err) {
+    next(err);
+  }
 };
 
 const getMarkSheet = async (req, res, next) => {
@@ -77,7 +81,12 @@ const getMarkSheet = async (req, res, next) => {
 
 const saveMarks = async (req, res, next) => {
   try {
-    const result = await examService.saveMarks(req.params.examId, req.params.studentId, req.body.marks || req.body);
+    const result = await examService.saveMarks(
+      req.params.examId,
+      req.params.studentId,
+      req.body.marks || req.body,
+      req.user?.id
+    );
     res.json({ success: true, data: result });
   } catch (err) {
     next(err);

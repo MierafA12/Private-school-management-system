@@ -161,8 +161,61 @@ const deleteExamSchedule = async (id) => {
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
-// MARKSHEET & MARKS SUBMISSION
+// MARK COMPONENTS & MARKSHEET
 // ═════════════════════════════════════════════════════════════════════════════
+
+const getComponents = async (examScheduleId) => {
+  let { rows } = await pool.query(
+    `SELECT id, exam_schedule_id, name, max_marks, sort_order
+     FROM mark_components
+     WHERE exam_schedule_id = $1
+     ORDER BY sort_order ASC, created_at ASC`,
+    [examScheduleId]
+  );
+
+  // If no components exist, seed default breakdown (Assignment: 10, Mid Exam: 40, Final Exam: 50)
+  if (rows.length === 0) {
+    const defaults = [
+      { name: 'Assignment', max_marks: 10, sort_order: 0 },
+      { name: 'Mid Exam',   max_marks: 40, sort_order: 1 },
+      { name: 'Final Exam', max_marks: 50, sort_order: 2 },
+    ];
+    for (const d of defaults) {
+      const { rows: created } = await pool.query(
+        `INSERT INTO mark_components (exam_schedule_id, name, max_marks, sort_order)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id, exam_schedule_id, name, max_marks, sort_order`,
+        [examScheduleId, d.name, d.max_marks, d.sort_order]
+      );
+      rows.push(created[0]);
+    }
+  }
+
+  return rows;
+};
+
+const saveComponents = async (examScheduleId, components) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('DELETE FROM mark_components WHERE exam_schedule_id = $1', [examScheduleId]);
+    for (let i = 0; i < components.length; i++) {
+      const c = components[i];
+      await client.query(
+        `INSERT INTO mark_components (exam_schedule_id, name, max_marks, sort_order)
+         VALUES ($1, $2, $3, $4)`,
+        [examScheduleId, c.name, parseFloat(c.max_marks) || 0, c.sort_order ?? i]
+      );
+    }
+    await client.query('COMMIT');
+    return getComponents(examScheduleId);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+};
 
 const getMarkSheet = async (examId, sectionId) => {
   const schedule = await getExamScheduleById(examId);
@@ -173,48 +226,63 @@ const getMarkSheet = async (examId, sectionId) => {
   }
 
   const effectiveSectionId = sectionId || schedule.section_id;
+  const components = await getComponents(examId);
 
   // Retrieve enrolled students in the section
   const { rows: students } = await pool.query(
     `SELECT
+       s.id,
        s.id AS student_id,
-       s.student_number,
+       s.admission_number,
        s.first_name,
        s.last_name,
-       e.roll_number,
-       rc.id AS report_card_id,
-       rci.marks_obtained,
-       rci.max_marks,
-       rci.percentage,
-       rci.grade,
-       rci.remarks
+       e.roll_number
      FROM enrollments e
      JOIN students s ON s.id = e.student_id
-     LEFT JOIN report_cards rc
-       ON rc.student_id = s.id
-      AND rc.term_id = $1
-     LEFT JOIN report_card_items rci
-       ON rci.report_card_id = rc.id
-      AND rci.curriculum_subject_id = $2
-     WHERE e.class_id = $3
-       AND e.section_id = $4
+     WHERE e.class_id = $1
+       AND e.section_id = $2
        AND e.enrollment_status = 'ACTIVE'
      ORDER BY e.roll_number, s.last_name, s.first_name`,
-    [
-      schedule.term_id,
-      schedule.curriculum_subject_id,
-      schedule.class_id,
-      effectiveSectionId,
-    ]
+    [schedule.class_id, effectiveSectionId]
   );
+
+  // Retrieve marks for all students in these components
+  const compIds = components.map(c => c.id);
+  let marksMap = {};
+  if (compIds.length > 0 && students.length > 0) {
+    const { rows: sm } = await pool.query(
+      `SELECT student_id, mark_component_id, marks_obtained, is_absent, teacher_remarks
+       FROM student_marks
+       WHERE mark_component_id = ANY($1::uuid[])`,
+      [compIds]
+    );
+    for (const row of sm) {
+      if (!marksMap[row.student_id]) marksMap[row.student_id] = {};
+      marksMap[row.student_id][row.mark_component_id] = row;
+    }
+  }
+
+  // Format each student with their marks array corresponding to components
+  const mappedStudents = students.map(stu => ({
+    ...stu,
+    marks: components.map(comp => {
+      const entry = marksMap[stu.id]?.[comp.id];
+      return {
+        mark_component_id: comp.id,
+        marks_obtained: entry ? (entry.marks_obtained !== null ? parseFloat(entry.marks_obtained) : '') : '',
+        is_absent: entry?.is_absent ?? false,
+      };
+    }),
+  }));
 
   return {
     exam: schedule,
-    students,
+    components,
+    students: mappedStudents,
   };
 };
 
-const saveMarks = async (examId, studentId, marksData) => {
+const saveMarks = async (examId, studentId, marksData, enteredBy = null) => {
   const schedule = await getExamScheduleById(examId);
   if (!schedule) {
     const err = new Error('Exam schedule not found.');
@@ -222,80 +290,75 @@ const saveMarks = async (examId, studentId, marksData) => {
     throw err;
   }
 
-  // Ensure report_card exists for this student and term
-  const { rows: enrollRows } = await pool.query(
-    `SELECT id FROM enrollments
-     WHERE student_id = $1
-       AND academic_year_id = $2
-       AND enrollment_status = 'ACTIVE'
-     LIMIT 1`,
-    [studentId, schedule.academic_year_id]
-  );
+  const marksList = Array.isArray(marksData) ? marksData : (marksData.marks ? marksData.marks : [marksData]);
 
-  const enrollmentId = enrollRows[0]?.id;
-  if (!enrollmentId) {
-    const err = new Error('Active enrollment not found for student.');
-    err.status = 400;
-    throw err;
-  }
+  for (const m of marksList) {
+    if (!m.mark_component_id) continue;
+    const isAbsent = Boolean(m.is_absent);
+    const marksObtained = isAbsent ? null : (parseFloat(m.marks_obtained) || 0);
 
-  let { rows: cardRows } = await pool.query(
-    `SELECT id FROM report_cards WHERE student_id = $1 AND term_id = $2`,
-    [studentId, schedule.term_id]
-  );
-
-  let reportCardId = cardRows[0]?.id;
-  if (!reportCardId) {
-    const { rows: newCard } = await pool.query(
-      `INSERT INTO report_cards (student_id, term_id, enrollment_id)
-       VALUES ($1, $2, $3) RETURNING id`,
-      [studentId, schedule.term_id, enrollmentId]
+    await pool.query(
+      `INSERT INTO student_marks (
+         mark_component_id, student_id, marks_obtained, is_absent, entered_by, updated_at
+       ) VALUES ($1, $2, $3, $4, $5, NOW())
+       ON CONFLICT (mark_component_id, student_id)
+       DO UPDATE SET
+         marks_obtained = EXCLUDED.marks_obtained,
+         is_absent      = EXCLUDED.is_absent,
+         entered_by     = EXCLUDED.entered_by,
+         updated_at     = NOW()`,
+      [m.mark_component_id, studentId, marksObtained, isAbsent, enteredBy]
     );
-    reportCardId = newCard[0].id;
   }
 
-  const marksObtained = parseFloat(marksData.marks_obtained ?? marksData.marks ?? 0);
-  const maxMarks = parseFloat(marksData.max_marks || 100);
-  const percentage = maxMarks > 0 ? (marksObtained / maxMarks) * 100 : 0;
+  // Calculate and sync student's overall score to report_card_items if report_card exists
+  try {
+    const components = await getComponents(examId);
+    const compIds = components.map(c => c.id);
+    const { rows: allMarks } = await pool.query(
+      `SELECT marks_obtained, is_absent FROM student_marks
+       WHERE student_id = $1 AND mark_component_id = ANY($2::uuid[])`,
+      [studentId, compIds]
+    );
 
-  // Derive grade from grading scale if available
-  let grade = marksData.grade || null;
-  if (!grade) {
-    const { rows: scaleRows } = await pool.query(
+    const totalObtained = allMarks.reduce((acc, cur) => acc + (cur.is_absent ? 0 : (parseFloat(cur.marks_obtained) || 0)), 0);
+    const maxTotal = components.reduce((acc, cur) => acc + (parseFloat(cur.max_marks) || 0), 0) || 100;
+    const percentage = maxTotal > 0 ? (totalObtained / maxTotal) * 100 : 0;
+
+    let { rows: scaleRows } = await pool.query(
       `SELECT grade FROM grading_scales
        WHERE min_percentage <= $1 AND max_percentage >= $1
        ORDER BY min_percentage DESC LIMIT 1`,
       [percentage]
     );
-    grade = scaleRows[0]?.grade || (percentage >= 50 ? 'P' : 'F');
+    const grade = scaleRows[0]?.grade || (percentage >= 50 ? 'P' : 'F');
+
+    // Check report_card
+    const { rows: cardRows } = await pool.query(
+      `SELECT id FROM report_cards WHERE student_id = $1 AND term_id = $2`,
+      [studentId, schedule.term_id]
+    );
+
+    if (cardRows.length > 0) {
+      await pool.query(
+        `INSERT INTO report_card_items (
+           report_card_id, curriculum_subject_id, total_marks, percentage, letter_grade, is_passed, updated_at
+         ) VALUES ($1, $2, $3, $4, $5, $6, NOW())
+         ON CONFLICT (report_card_id, curriculum_subject_id)
+         DO UPDATE SET
+           total_marks  = EXCLUDED.total_marks,
+           percentage   = EXCLUDED.percentage,
+           letter_grade = EXCLUDED.letter_grade,
+           is_passed    = EXCLUDED.is_passed,
+           updated_at   = NOW()`,
+        [cardRows[0].id, schedule.curriculum_subject_id, totalObtained, percentage, grade, percentage >= 50]
+      );
+    }
+  } catch (syncErr) {
+    console.error('[examService] report_card_items sync error:', syncErr.message);
   }
 
-  // Upsert report_card_items
-  const { rows } = await pool.query(
-    `INSERT INTO report_card_items (
-       report_card_id, curriculum_subject_id, marks_obtained, max_marks, percentage, grade, remarks
-     ) VALUES ($1, $2, $3, $4, $5, $6, $7)
-     ON CONFLICT (report_card_id, curriculum_subject_id)
-     DO UPDATE SET
-       marks_obtained = EXCLUDED.marks_obtained,
-       max_marks      = EXCLUDED.max_marks,
-       percentage     = EXCLUDED.percentage,
-       grade          = EXCLUDED.grade,
-       remarks        = EXCLUDED.remarks,
-       updated_at     = NOW()
-     RETURNING *`,
-    [
-      reportCardId,
-      schedule.curriculum_subject_id,
-      marksObtained,
-      maxMarks,
-      percentage,
-      grade,
-      marksData.remarks || null,
-    ]
-  );
-
-  return rows[0];
+  return { success: true };
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -440,8 +503,8 @@ const generateReportCard = async ({ student_id, term_id }) => {
   // Recalculate summary metrics from items
   const { rows: sumRows } = await pool.query(
     `SELECT
-       COALESCE(SUM(marks_obtained), 0) AS total_marks,
-       COALESCE(AVG(percentage), 0)     AS total_percentage
+       COALESCE(SUM(total_marks), 0) AS total_marks,
+       COALESCE(AVG(percentage), 0)  AS total_percentage
      FROM report_card_items
      WHERE report_card_id = $1`,
     [cardId]
@@ -507,8 +570,8 @@ const addRemarks = async (id, subjectId, remarks) => {
   if (subjectId && subjectId !== 'general') {
     const { rows } = await pool.query(
       `UPDATE report_card_items
-       SET remarks    = $1,
-           updated_at = NOW()
+       SET teacher_remarks = $1,
+           updated_at      = NOW()
        WHERE report_card_id = $2 AND curriculum_subject_id = $3
        RETURNING *`,
       [remarks, id, subjectId]
@@ -533,6 +596,8 @@ module.exports = {
   createExamSchedule,
   updateExamSchedule,
   deleteExamSchedule,
+  getComponents,
+  saveComponents,
   getMarkSheet,
   saveMarks,
   listReportCards,

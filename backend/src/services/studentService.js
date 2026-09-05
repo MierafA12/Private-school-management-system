@@ -304,7 +304,7 @@ const getMySubjects = async (sectionId, academicYearId) => {
      JOIN teachers te ON te.id = t.teacher_id
      WHERE t.section_id       = $1
        AND t.academic_year_id = $2
-     ORDER BY s.name`,
+     ORDER BY subject_name`,
     [sectionId, academicYearId]
   );
   return rows;

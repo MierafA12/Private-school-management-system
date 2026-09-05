@@ -13,7 +13,7 @@ const getTeacherByUserId = async (userId) => {
 const getAssignedClasses = async (teacherId) => {
   const { rows } = await pool.query(
     `SELECT DISTINCT
-       t.class_id, c.name AS class_name,
+       t.class_id, c.name AS class_name, c.grade_level,
        t.section_id, sec.name AS section_name,
        cs.id AS curriculum_subject_id,
        sub.id AS subject_id,
@@ -29,7 +29,7 @@ const getAssignedClasses = async (teacherId) => {
      JOIN terms ter ON ter.id = t.term_id
      WHERE t.teacher_id = $1
        AND ay.is_current = TRUE
-     ORDER BY c.grade_level, sec.name, sub.name`,
+     ORDER BY c.grade_level, section_name, subject_name`,
     [teacherId]
   );
   return rows;

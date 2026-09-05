@@ -5,10 +5,29 @@ const ctrl = require('../controllers/principalController');
 const { authenticate, authorize } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 
-const ALLOWED = ['Principal', 'Super Admin'];
+const ADMIN_ROLES = ['Principal', 'Super Admin'];
+const STAFF_ROLES = ['Principal', 'Super Admin', 'Teacher', 'Registrar', 'Accountant'];
 
 router.use(authenticate);
-router.use(authorize(...ALLOWED));
+
+// Allow staff members to read academic structure; require Principal / Super Admin for modifications and admin dashboard
+router.use((req, res, next) => {
+  if (ADMIN_ROLES.includes(req.user.role_name)) {
+    return next();
+  }
+
+  // Staff roles can perform GET requests on academic resources (years, classes, curriculum, subjects, etc.)
+  if (STAFF_ROLES.includes(req.user.role_name)) {
+    if (req.method === 'GET' && req.path !== '/dashboard') {
+      return next();
+    }
+  }
+
+  return res.status(403).json({
+    success: false,
+    message: `Access denied. Required role(s): ${ADMIN_ROLES.join(', ')}.`,
+  });
+});
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 router.get('/dashboard', ctrl.getDashboard);

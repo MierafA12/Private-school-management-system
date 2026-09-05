@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, School, CalendarDays, Layers, BookOpen,
   Star, DollarSign, UserCheck, Clock, Megaphone, FileText, LogOut,
