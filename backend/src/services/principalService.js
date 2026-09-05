@@ -683,13 +683,17 @@ const getTeacherList = async () => {
        t.first_name, t.last_name,
        (t.first_name || ' ' || t.last_name) AS full_name,
        t.specialization, t.employment_status,
-       u.email
+       t.phone_number,
+       u.email, u.phone AS user_phone
      FROM teachers t
      JOIN users u ON u.id = t.user_id
      WHERE t.employment_status = 'ACTIVE'
      ORDER BY t.last_name, t.first_name`
   );
-  return rows;
+  return rows.map(r => ({
+    ...r,
+    phone: r.phone_number || r.user_phone || null,
+  }));
 };
 
 // ═════════════════════════════════════════════════════════════════════════════

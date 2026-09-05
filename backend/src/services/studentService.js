@@ -150,14 +150,17 @@ const getDashboardSummary = async (studentId, enrollmentId, termId) => {
     [enrollmentId]
   );
 
-  // Fee outstanding (current term)
-  const feeResult = await pool.query(
-    `SELECT COALESCE(SUM(balance), 0) AS outstanding
-     FROM fee_invoices
-     WHERE student_id = $1 AND term_id = $2`,
-    [studentId, termId]
-  );
-  const feeOutstanding = parseFloat(feeResult.rows[0]?.outstanding || 0);
+  // Fee outstanding (current term) — wrapped so missing table doesn't break dashboard
+  let feeOutstanding = 0;
+  try {
+    const feeResult = await pool.query(
+      `SELECT COALESCE(SUM(balance), 0) AS outstanding
+       FROM fee_invoices
+       WHERE student_id = $1 AND term_id = $2`,
+      [studentId, termId]
+    );
+    feeOutstanding = parseFloat(feeResult.rows[0]?.outstanding || 0);
+  } catch (_) { /* fee_invoices table may not exist yet */ }
 
   return {
     attendance_percentage: attPct,
@@ -245,6 +248,7 @@ const getYearlyAttendanceSummary = async (studentId, academicYearId) => {
 
 /**
  * Weekly timetable for the student's current enrollment
+ * Now includes teacher phone number for the list view
  */
 const getTimetable = async (sectionId, termId) => {
   const { rows } = await pool.query(
@@ -257,21 +261,20 @@ const getTimetable = async (sectionId, termId) => {
        t.room_number,
        s.name  AS subject_name,
        s.code  AS subject_code,
-       (te.first_name || ' ' || te.last_name) AS teacher_name
+       (te.first_name || ' ' || te.last_name) AS teacher_name,
+       COALESCE(te.phone_number, u.phone)      AS teacher_phone
      FROM timetables t
      JOIN curriculum_subjects cs ON cs.id = t.curriculum_subject_id
-     JOIN subjects s ON s.id = cs.subject_id
+     JOIN subjects s  ON s.id  = cs.subject_id
      JOIN teachers te ON te.id = t.teacher_id
+     JOIN users    u  ON u.id  = te.user_id
      WHERE t.section_id = $1
        AND t.term_id    = $2
      ORDER BY
        CASE t.day_of_week
-         WHEN 'Monday'    THEN 1
-         WHEN 'Tuesday'   THEN 2
-         WHEN 'Wednesday' THEN 3
-         WHEN 'Thursday'  THEN 4
-         WHEN 'Friday'    THEN 5
-         WHEN 'Saturday'  THEN 6
+         WHEN 'Monday'    THEN 1 WHEN 'Tuesday'   THEN 2
+         WHEN 'Wednesday' THEN 3 WHEN 'Thursday'  THEN 4
+         WHEN 'Friday'    THEN 5 WHEN 'Saturday'  THEN 6
          WHEN 'Sunday'    THEN 7
        END,
        t.period_number`,
@@ -620,6 +623,37 @@ const getAnnouncementById = async (announcementId, classId) => {
   return rows[0] || null;
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// CLASS ADVISOR
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Get the class advisor for a student's current section/year
+ */
+const getClassAdvisor = async (sectionId, academicYearId) => {
+  const { rows } = await pool.query(
+    `SELECT
+       ca.id,
+       ca.assigned_date,
+       (t.first_name || ' ' || t.last_name) AS advisor_name,
+       t.first_name, t.last_name,
+       t.employee_number,
+       COALESCE(t.phone_number, u.phone) AS phone,
+       u.email,
+       t.profile_photo,
+       t.qualification,
+       t.specialization
+     FROM class_advisors ca
+     JOIN teachers t ON t.id = ca.teacher_id
+     JOIN users    u ON u.id = t.user_id
+     WHERE ca.section_id       = $1
+       AND ca.academic_year_id = $2
+     LIMIT 1`,
+    [sectionId, academicYearId]
+  );
+  return rows[0] || null;
+};
+
 module.exports = {
   getProfileByUserId,
   updateProfile,
@@ -641,4 +675,5 @@ module.exports = {
   getCurrentTermFeeSummary,
   getAnnouncements,
   getAnnouncementById,
+  getClassAdvisor,
 };

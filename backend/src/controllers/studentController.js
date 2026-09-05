@@ -31,17 +31,16 @@ const resolveCurrentTerm = async () => {
 // ═════════════════════════════════════════════════════════════════════════════
 const getProfile = async (req, res, next) => {
   try {
-    const profile    = await resolveStudent(req.user.id);
+    const profile    = await studentService.getProfileByUserId(req.user.id);
+    if (!profile) return res.status(404).json({ success: false, message: 'Student profile not found.' });
     const enrollment = await studentService.getCurrentEnrollment(profile.id);
     const parents    = await studentService.getMyParents(profile.id);
+    const advisor    = enrollment
+      ? await studentService.getClassAdvisor(enrollment.section_id, enrollment.academic_year_id)
+      : null;
 
-    res.json({
-      success: true,
-      data: { profile, enrollment, parents },
-    });
-  } catch (err) {
-    next(err);
-  }
+    res.json({ success: true, data: { profile, enrollment, parents, advisor } });
+  } catch (err) { next(err); }
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -86,13 +85,22 @@ const getDashboard = async (req, res, next) => {
       upcomingExams = exams.slice(0, 5);
     }
 
+    // Class advisor
+    let advisor = null;
+    if (enrollment) {
+      advisor = await studentService.getClassAdvisor(
+        enrollment.section_id, enrollment.academic_year_id
+      );
+    }
+
     res.json({
       success: true,
       data: {
-        student:          { name: `${profile.first_name} ${profile.last_name}`, ...profile },
+        student:           { name: `${profile.first_name} ${profile.last_name}`, ...profile },
         enrollment,
         term,
         summary,
+        advisor,
         recent_attendance: recentAttendance,
         upcoming_exams:    upcomingExams,
       },
@@ -142,10 +150,13 @@ const getTimetable = async (req, res, next) => {
     const term       = await resolveCurrentTerm();
 
     if (!enrollment || !term) {
-      return res.json({ success: true, data: [] });
+      return res.json({ success: true, data: { timetable: [], grouped: {}, term: null, enrollment: null, advisor: null } });
     }
 
-    const timetable = await studentService.getTimetable(enrollment.section_id, term.id);
+    const [timetable, advisor] = await Promise.all([
+      studentService.getTimetable(enrollment.section_id, term.id),
+      studentService.getClassAdvisor(enrollment.section_id, enrollment.academic_year_id),
+    ]);
 
     // Group by day for easier frontend rendering
     const grouped = {};
@@ -154,7 +165,7 @@ const getTimetable = async (req, res, next) => {
       grouped[slot.day_of_week].push(slot);
     }
 
-    res.json({ success: true, data: { timetable, grouped, term, enrollment } });
+    res.json({ success: true, data: { timetable, grouped, term, enrollment, advisor } });
   } catch (err) {
     next(err);
   }

@@ -11,9 +11,11 @@ const getTeacherByUserId = async (userId) => {
 
 // ─── Classes / sections assigned to this teacher via timetable ────────────────
 const getAssignedClasses = async (teacherId) => {
+  // NOTE: Cannot use SELECT DISTINCT with ORDER BY on non-selected columns in PostgreSQL.
+  // Use a subquery instead.
   const { rows } = await pool.query(
-    `SELECT DISTINCT
-       t.class_id, c.name AS class_name,
+    `SELECT
+       t.class_id, c.name AS class_name, c.grade_level,
        t.section_id, sec.name AS section_name,
        cs.id AS curriculum_subject_id,
        sub.id AS subject_id,
@@ -27,8 +29,13 @@ const getAssignedClasses = async (teacherId) => {
      JOIN subjects sub ON sub.id = cs.subject_id
      JOIN academic_years ay ON ay.id = t.academic_year_id
      JOIN terms ter ON ter.id = t.term_id
-     WHERE t.teacher_id = $1
-       AND ay.is_current = TRUE
+     WHERE t.teacher_id = $1 AND ay.is_current = TRUE
+     GROUP BY
+       t.class_id, c.name, c.grade_level,
+       t.section_id, sec.name,
+       cs.id, sub.id, sub.name, sub.code,
+       t.academic_year_id, ay.name,
+       t.term_id, ter.name
      ORDER BY c.grade_level, sec.name, sub.name`,
     [teacherId]
   );
@@ -223,6 +230,33 @@ const getSectionStudents = async (classId, sectionId) => {
   return rows;
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// TIMETABLE PUBLISH / BROADCAST
+// When a principal publishes, mark the timetable as published for a section/term.
+// Students and teachers in that section can then see it.
+// We track this with a simple timetables_published helper table or a flag.
+// Since altering the existing timetables table would require a migration,
+// we use the existing data — timetables are always visible once created.
+// Broadcast = create an announcement targeting the section's class.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const broadcastTimetable = async (userId, { term_id, section_id, class_id, term_name, class_name, section_name }) => {
+  const pool = require('../db');
+
+  // Create an announcement for the class
+  const title = `📅 Timetable Published — ${class_name} Section ${section_name}`;
+  const body  = `The weekly timetable for ${class_name} Section ${section_name} (${term_name}) has been published. Please check your portal to view your schedule.`;
+
+  const { rows } = await pool.query(
+    `INSERT INTO announcements
+       (title, body, audience, class_id, priority, is_published, publish_at, created_by)
+     VALUES ($1, $2, 'CLASS', $3, 'NORMAL', TRUE, NOW(), $4)
+     RETURNING *`,
+    [title, body, class_id, userId]
+  );
+  return rows[0];
+};
+
 module.exports = {
   getTeacherByUserId,
   getAssignedClasses,
@@ -232,4 +266,5 @@ module.exports = {
   getAttendanceSheet,
   submitAttendance,
   getSectionStudents,
+  broadcastTimetable,
 };

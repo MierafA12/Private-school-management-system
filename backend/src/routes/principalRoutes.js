@@ -195,6 +195,26 @@ router.post('/timetable/clear',
   validate, ctrl.clearTimetable
 );
 
+// ── Broadcast timetable to section ────────────────────────────────────────────
+router.post('/timetable/broadcast',
+  [
+    body('term_id').isUUID().withMessage('term_id required.'),
+    body('section_id').isUUID().withMessage('section_id required.'),
+    body('class_id').isUUID().withMessage('class_id required.'),
+    body('term_name').notEmpty(),
+    body('class_name').notEmpty(),
+    body('section_name').notEmpty(),
+  ],
+  validate,
+  async (req, res, next) => {
+    try {
+      const teacherSvc = require('../services/teacherService');
+      const announcement = await teacherSvc.broadcastTimetable(req.user.id, req.body);
+      res.status(201).json({ success: true, data: announcement, message: 'Timetable published and announcement sent to the class.' });
+    } catch (err) { next(err); }
+  }
+);
+
 // ── Fee Structures ────────────────────────────────────────────────────────────
 router.get('/fee-structures', ctrl.getFeeStructures);
 router.post('/fee-structures',

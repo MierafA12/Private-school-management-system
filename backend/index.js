@@ -14,6 +14,7 @@ const accountantRoutes    = require('./src/routes/accountantRoutes');
 const teacherRoutes       = require('./src/routes/teacherRoutes');
 const notificationRoutes  = require('./src/routes/notificationRoutes');
 const examRoutes          = require('./src/routes/examRoutes');
+const assignmentRoutes    = require('./src/routes/assignmentRoutes');
 const errorHandler        = require('./src/middleware/errorHandler');
 
 const app  = express();
@@ -48,6 +49,7 @@ app.use('/api/accountant',    accountantRoutes);
 app.use('/api/teacher',       teacherRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/exams',         examRoutes);
+app.use('/api/assignments',   assignmentRoutes);
 
 // ─── Health Check ────────────────────────────────────────────────────────────
 app.get('/', (req, res) => res.json({ message: 'School Management System API is running.' }));

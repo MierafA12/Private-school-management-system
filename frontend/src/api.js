@@ -201,6 +201,7 @@ export const principalApi = {
   updateTimetableSlot:  (id, data)    => request(`/principal/timetable/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteTimetableSlot:  (id)          => request(`/principal/timetable/${id}`, { method: 'DELETE' }),
   clearTimetable:       (data)        => request('/principal/timetable/clear', { method: 'POST', body: JSON.stringify(data) }),
+  broadcastTimetable:   (data)        => request('/principal/timetable/broadcast', { method: 'POST', body: JSON.stringify(data) }),
 
   // Teachers list
   getTeacherList: () => request('/principal/teachers'),
@@ -346,4 +347,24 @@ export const examApi = {
   publishReportCard:       (id, pub)   => request(`/exams/report-cards/${id}/publish`,    { method: 'PATCH', body: JSON.stringify({ is_published: pub }) }),
   addRemarks:              (id, subId, remarks) =>
     request(`/exams/report-cards/${id}/remarks/${subId}`, { method: 'PATCH', body: JSON.stringify({ remarks }) }),
+};
+
+// ─── Assignment API ───────────────────────────────────────────────────────────
+export const assignmentApi = {
+  // Teacher
+  list:           (p = {}) => request(`/assignments?${new URLSearchParams(p)}`),
+  getById:        (id)     => request(`/assignments/${id}`),
+  create:         (data)   => request('/assignments',          { method: 'POST',   body: JSON.stringify(data) }),
+  update:         (id, d)  => request(`/assignments/${id}`,   { method: 'PATCH',  body: JSON.stringify(d)    }),
+  remove:         (id)     => request(`/assignments/${id}`,   { method: 'DELETE' }),
+
+  addGroup:       (id, d)  => request(`/assignments/${id}/groups`,   { method: 'POST',   body: JSON.stringify(d) }),
+  updateGroup:    (gid, d) => request(`/assignments/groups/${gid}`,  { method: 'PATCH',  body: JSON.stringify(d) }),
+  deleteGroup:    (gid)    => request(`/assignments/groups/${gid}`,  { method: 'DELETE' }),
+
+  grade:          (subId, d) => request(`/assignments/submissions/${subId}/grade`, { method: 'PATCH', body: JSON.stringify(d) }),
+
+  // Student
+  myAssignments:  ()       => request('/assignments/student/my'),
+  submit:         (id, d)  => request(`/assignments/${id}/submit`, { method: 'POST', body: JSON.stringify(d) }),
 };
