@@ -13,7 +13,8 @@ const NAV = [
   { to: '/teacher/classes',    icon: Users,           label: 'My Classes' },
   { to: '/teacher/timetable',  icon: Calendar,        label: 'Timetable'  },
   { to: '/teacher/attendance', icon: CheckSquare,     label: 'Attendance' },
-  { to: '/teacher/grades',     icon: FileText,        label: 'Grades'     },
+  { to: '/teacher/grades',      icon: FileText,        label: 'Grades'      },
+  { to: '/teacher/assignments', icon: ClipboardList,   label: 'Assignments' },
 ];
 
 const initials = (n = '') => n.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'TC';
