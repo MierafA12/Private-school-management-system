@@ -67,13 +67,15 @@ export default function PrincipalLayout() {
   const activeGroup = NAV_GROUPS.find(g => g.items.some(i => location.pathname.startsWith(i.to)));
   const pageTitle  = activeItem?.label || 'Dashboard';
 
+  const firstName = name.split(' ')[0] || 'Principal';
+
   return (
     <div className="sl-root">
       {open && <div className="sl-overlay" onClick={() => setOpen(false)} />}
 
       <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''} ${collapsed ? 'sl-sidebar--collapsed' : ''}`}>
         <div className="sl-logo">
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }}>
+          <Link to="/principal/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }} title="Principal Dashboard">
             <img src="/logo.svg" alt="Haile-Manas Academy" style={{ width: 28, height: 28, flexShrink: 0 }} />
             <div className="sl-logo-text">
               <div className="sl-logo-name" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Haile-Manas</div>
@@ -147,16 +149,16 @@ export default function PrincipalLayout() {
             <button className="sl-menu-btn" onClick={() => setOpen(true)} aria-label="Open Menu">
               <Menu size={20} />
             </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div className="sl-topbar-title-wrap">
+              <span className="sl-portal-pill sl-portal-pill--principal">Principal</span>
               {activeGroup && activeGroup.title !== 'Overview' && (
                 <>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-                    {activeGroup.title}
-                  </span>
-                  <ChevronRight size={14} style={{ color: '#94A3B8' }} />
+                  <span className="sl-topbar-divider">/</span>
+                  <span className="sl-topbar-parent">{activeGroup.title}</span>
                 </>
               )}
-              <span className="sl-page-title">{pageTitle}</span>
+              <span className="sl-topbar-divider">/</span>
+              <h1 className="sl-page-title">{pageTitle}</h1>
             </div>
           </div>
           <div className="sl-topbar-right">
@@ -164,11 +166,16 @@ export default function PrincipalLayout() {
             <ThemeToggle />
             <NotificationBell portalRoot="/principal" />
             <button
-              className="sl-topbar-avatar-btn"
+              className="sl-topbar-user-btn"
               onClick={() => navigate('/principal/profile')}
-              title="My Profile"
+              title={`Profile: ${name} (${user?.role || 'Principal'})`}
+              aria-label="My Profile"
             >
-              {avatar}
+              <div className="sl-topbar-avatar">{avatar}</div>
+              <div className="sl-topbar-user-meta">
+                <span className="sl-topbar-user-name">{firstName}</span>
+                <span className="sl-topbar-user-role">Principal</span>
+              </div>
             </button>
           </div>
         </header>

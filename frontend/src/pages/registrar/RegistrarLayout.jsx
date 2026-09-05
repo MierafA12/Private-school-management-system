@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, UserPlus, Users, ClipboardList, User, LogOut,
-  Menu, X, GraduationCap, PanelLeftClose, PanelLeftOpen,
+  LayoutDashboard, UserPlus, Users, ClipboardList, LogOut,
+  Menu, X, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useSidebar } from '../../context/SidebarContext';
@@ -30,7 +30,9 @@ export default function RegistrarLayout() {
 
   const name   = user?.full_name || user?.email || 'Registrar';
   const avatar = initials(name);
-  const page   = NAV.find(n => location.pathname.startsWith(n.to))?.label || 'Dashboard';
+  const firstName = name.split(' ')[0] || 'Registrar';
+  const page   = NAV.find(n => location.pathname.startsWith(n.to))?.label
+    || (location.pathname.includes('profile') ? 'My Profile' : 'Dashboard');
 
   return (
     <div className="sl-root">
@@ -38,7 +40,7 @@ export default function RegistrarLayout() {
 
       <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''} ${collapsed ? 'sl-sidebar--collapsed' : ''}`}>
         <div className="sl-logo">
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }}>
+          <Link to="/registrar/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }} title="Registrar Dashboard">
             <img src="/logo.svg" alt="Haile-Manas Academy" style={{ width: 28, height: 28, flexShrink: 0 }} />
             <div className="sl-logo-text">
               <div className="sl-logo-name" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Haile-Manas</div>
@@ -59,7 +61,10 @@ export default function RegistrarLayout() {
 
         <nav className="sl-nav">
           {NAV.map(({ to, icon: Icon, label }) => (
-            <NavLink key={to} to={to}
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/registrar/dashboard'}
               className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
               onClick={() => setOpen(false)}
               title={label}
@@ -70,20 +75,28 @@ export default function RegistrarLayout() {
         </nav>
 
         <div className="sl-sidebar-footer">
-          <NavLink to="/registrar/profile" className="sl-user-row" onClick={() => setOpen(false)}
-            style={{ textDecoration: 'none', cursor: 'pointer' }}
-            title={`${name} (${user?.role || 'Registrar'})`}
-          >
-            <div className="sl-avatar">{avatar}</div>
-            <div className="sl-user-details">
-              <span className="sl-user-name">{name}</span>
-              <span className="sl-user-role">{user?.role || 'Registrar'}</span>
-            </div>
-            <User size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-          </NavLink>
-          <button className="sl-logout-full" onClick={() => { logout(); navigate('/login', { replace: true }); }} title="Sign Out">
-            <LogOut size={14} /><span>Sign Out</span>
-          </button>
+          <div className="sl-user-row">
+            <NavLink
+              to="/registrar/profile"
+              className="sl-user-link"
+              onClick={() => setOpen(false)}
+              title={`${name} (${user?.role || 'Registrar'})`}
+            >
+              <div className="sl-avatar">{avatar}</div>
+              <div className="sl-user-details">
+                <span className="sl-user-name">{name}</span>
+                <span className="sl-user-role">{user?.role || 'Registrar'}</span>
+              </div>
+            </NavLink>
+            <button
+              className="sl-logout-btn"
+              onClick={() => { logout(); navigate('/login', { replace: true }); }}
+              title="Sign Out"
+              aria-label="Sign Out"
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -91,14 +104,27 @@ export default function RegistrarLayout() {
         <header className="sl-topbar">
           <div className="sl-topbar-left">
             <button className="sl-menu-btn" onClick={() => setOpen(true)} aria-label="Open Menu"><Menu size={20} /></button>
-            <span className="sl-page-title">{page}</span>
+            <div className="sl-topbar-title-wrap">
+              <span className="sl-portal-pill sl-portal-pill--registrar">Registrar</span>
+              <span className="sl-topbar-divider">/</span>
+              <h1 className="sl-page-title">{page}</h1>
+            </div>
           </div>
           <div className="sl-topbar-right">
             <EthiopianDateBadge />
             <ThemeToggle />
             <NotificationBell portalRoot="/registrar" />
-            <button className="sl-topbar-avatar-btn" onClick={() => navigate('/registrar/profile')} title="My Profile">
-              {avatar}
+            <button
+              className="sl-topbar-user-btn"
+              onClick={() => navigate('/registrar/profile')}
+              title={`Profile: ${name} (${user?.role || 'Registrar'})`}
+              aria-label="My Profile"
+            >
+              <div className="sl-topbar-avatar">{avatar}</div>
+              <div className="sl-topbar-user-meta">
+                <span className="sl-topbar-user-name">{firstName}</span>
+                <span className="sl-topbar-user-role">Registrar</span>
+              </div>
             </button>
           </div>
         </header>

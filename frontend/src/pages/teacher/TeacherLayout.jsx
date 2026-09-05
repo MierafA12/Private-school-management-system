@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Calendar, CheckSquare,
-  FileText, User, LogOut, Menu, X, GraduationCap,
+  FileText, LogOut, Menu, X,
   PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -32,6 +32,7 @@ export default function TeacherLayout() {
 
   const name   = user?.full_name || user?.email || 'Teacher';
   const avatar = initials(name);
+  const firstName = name.split(' ')[0] || 'Teacher';
   const page   = NAV.find(n => location.pathname.startsWith(n.to))?.label
     || (location.pathname.includes('profile') ? 'My Profile' : 'Dashboard');
 
@@ -41,13 +42,13 @@ export default function TeacherLayout() {
 
       <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''} ${collapsed ? 'sl-sidebar--collapsed' : ''}`}>
         <div className="sl-logo">
-          <div className="sl-logo-icon" style={{ background: 'transparent', padding: 0 }}>
-            <img src="/logo.svg" alt="Haile-Manas Academy" style={{ width: 28, height: 28, objectFit: 'contain' }} />
-          </div>
-          <div className="sl-logo-text">
-            <div className="sl-logo-name" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Haile-Manas</div>
-            <div className="sl-logo-sub" style={{ fontSize: '0.65rem' }}>Faculty Portal</div>
-          </div>
+          <Link to="/teacher/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }} title="Teacher Dashboard">
+            <img src="/logo.svg" alt="Haile-Manas Academy" style={{ width: 28, height: 28, flexShrink: 0 }} />
+            <div className="sl-logo-text">
+              <div className="sl-logo-name" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Haile-Manas</div>
+              <div className="sl-logo-sub" style={{ fontSize: '0.68rem', letterSpacing: '0.02em' }}>Faculty Portal</div>
+            </div>
+          </Link>
           <button
             type="button"
             className="sl-collapse-btn"
@@ -62,7 +63,10 @@ export default function TeacherLayout() {
 
         <nav className="sl-nav">
           {NAV.map(({ to, icon: Icon, label }) => (
-            <NavLink key={to} to={to}
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/teacher/dashboard'}
               className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
               onClick={() => setOpen(false)}
               title={label}
@@ -73,20 +77,28 @@ export default function TeacherLayout() {
         </nav>
 
         <div className="sl-sidebar-footer">
-          <NavLink to="/teacher/profile" className="sl-user-row" onClick={() => setOpen(false)}
-            style={{ textDecoration: 'none', cursor: 'pointer' }}
-            title={`${name} (${user?.role || 'Teacher'})`}
-          >
-            <div className="sl-avatar">{avatar}</div>
-            <div className="sl-user-details">
-              <span className="sl-user-name">{name}</span>
-              <span className="sl-user-role">{user?.role || 'Teacher'}</span>
-            </div>
-            <User size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-          </NavLink>
-          <button className="sl-logout-full" onClick={() => { logout(); navigate('/login', { replace: true }); }} title="Sign Out">
-            <LogOut size={14} /><span>Sign Out</span>
-          </button>
+          <div className="sl-user-row">
+            <NavLink
+              to="/teacher/profile"
+              className="sl-user-link"
+              onClick={() => setOpen(false)}
+              title={`${name} (${user?.role || 'Teacher'})`}
+            >
+              <div className="sl-avatar">{avatar}</div>
+              <div className="sl-user-details">
+                <span className="sl-user-name">{name}</span>
+                <span className="sl-user-role">{user?.role || 'Teacher'}</span>
+              </div>
+            </NavLink>
+            <button
+              className="sl-logout-btn"
+              onClick={() => { logout(); navigate('/login', { replace: true }); }}
+              title="Sign Out"
+              aria-label="Sign Out"
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -94,14 +106,27 @@ export default function TeacherLayout() {
         <header className="sl-topbar">
           <div className="sl-topbar-left">
             <button className="sl-menu-btn" onClick={() => setOpen(true)} aria-label="Open Menu"><Menu size={20} /></button>
-            <span className="sl-page-title">{page}</span>
+            <div className="sl-topbar-title-wrap">
+              <span className="sl-portal-pill sl-portal-pill--teacher">Faculty</span>
+              <span className="sl-topbar-divider">/</span>
+              <h1 className="sl-page-title">{page}</h1>
+            </div>
           </div>
           <div className="sl-topbar-right">
             <EthiopianDateBadge />
             <ThemeToggle />
             <NotificationBell portalRoot="/teacher" />
-            <button className="sl-topbar-avatar-btn" onClick={() => navigate('/teacher/profile')} title="My Profile">
-              {avatar}
+            <button
+              className="sl-topbar-user-btn"
+              onClick={() => navigate('/teacher/profile')}
+              title={`Profile: ${name} (${user?.role || 'Teacher'})`}
+              aria-label="My Profile"
+            >
+              <div className="sl-topbar-avatar">{avatar}</div>
+              <div className="sl-topbar-user-meta">
+                <span className="sl-topbar-user-name">{firstName}</span>
+                <span className="sl-topbar-user-role">Faculty</span>
+              </div>
             </button>
           </div>
         </header>

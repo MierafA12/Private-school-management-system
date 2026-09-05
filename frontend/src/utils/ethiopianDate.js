@@ -48,6 +48,8 @@ export function toEthiopian(dateInput) {
   const monthName = ETHIOPIAN_MONTHS[ethMonth - 1] || '';
   const monthNameAm = AMHARIC_MONTHS[ethMonth - 1] || '';
 
+  const shortMonth = monthName.slice(0, 3);
+
   return {
     year: ethYear,
     month: ethMonth,
@@ -57,6 +59,8 @@ export function toEthiopian(dateInput) {
     formatted: `${monthName} ${ethDay}, ${ethYear} E.C.`,
     formattedAm: `${monthNameAm} ${ethDay} ቀን ${ethYear} ዓ.ም.`,
     formattedShort: `${ethDay}/${ethMonth}/${ethYear} E.C.`,
+    formattedCompact: `${ethDay} ${shortMonth} '${String(ethYear).slice(-2)}`,
+    formattedCompactAm: `${ethDay} ${monthNameAm}`,
   };
 }
 

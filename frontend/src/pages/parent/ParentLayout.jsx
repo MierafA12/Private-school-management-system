@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Calendar, Award, GraduationCap,
-  CreditCard, Bell, MessageSquare, User, LogOut,
+  CreditCard, Bell, MessageSquare, LogOut,
   Menu, X, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -35,6 +35,7 @@ export default function ParentLayout() {
 
   const name   = user?.full_name || user?.email || 'Parent';
   const avatar = initials(name);
+  const firstName = name.split(' ')[0] || 'Parent';
   const page   = NAV.find(n => location.pathname.startsWith(n.to))?.label
     || (location.pathname.includes('profile') ? 'My Profile' : 'Dashboard');
 
@@ -44,13 +45,13 @@ export default function ParentLayout() {
 
       <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''} ${collapsed ? 'sl-sidebar--collapsed' : ''}`}>
         <div className="sl-logo">
-          <div className="sl-logo-icon" style={{ background: 'transparent', padding: 0 }}>
-            <img src="/logo.svg" alt="Haile-Manas Academy" style={{ width: 28, height: 28, objectFit: 'contain' }} />
-          </div>
-          <div className="sl-logo-text">
-            <div className="sl-logo-name" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Haile-Manas</div>
-            <div className="sl-logo-sub" style={{ fontSize: '0.65rem' }}>Parent Portal</div>
-          </div>
+          <Link to="/parent/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }} title="Parent Dashboard">
+            <img src="/logo.svg" alt="Haile-Manas Academy" style={{ width: 28, height: 28, flexShrink: 0 }} />
+            <div className="sl-logo-text">
+              <div className="sl-logo-name" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Haile-Manas</div>
+              <div className="sl-logo-sub" style={{ fontSize: '0.68rem', letterSpacing: '0.02em' }}>Parent Portal</div>
+            </div>
+          </Link>
           <button
             type="button"
             className="sl-collapse-btn"
@@ -65,7 +66,10 @@ export default function ParentLayout() {
 
         <nav className="sl-nav">
           {NAV.map(({ to, icon: Icon, label }) => (
-            <NavLink key={to} to={to}
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/parent/dashboard'}
               className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
               onClick={() => setOpen(false)}
               title={label}
@@ -76,20 +80,28 @@ export default function ParentLayout() {
         </nav>
 
         <div className="sl-sidebar-footer">
-          <NavLink to="/parent/profile" className="sl-user-row" onClick={() => setOpen(false)}
-            style={{ textDecoration: 'none', cursor: 'pointer' }}
-            title={`${name} (${user?.role || 'Parent'})`}
-          >
-            <div className="sl-avatar">{avatar}</div>
-            <div className="sl-user-details">
-              <span className="sl-user-name">{name}</span>
-              <span className="sl-user-role">{user?.role || 'Parent'}</span>
-            </div>
-            <User size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-          </NavLink>
-          <button className="sl-logout-full" onClick={() => { logout(); navigate('/login', { replace: true }); }} title="Sign Out">
-            <LogOut size={14} /><span>Sign Out</span>
-          </button>
+          <div className="sl-user-row">
+            <NavLink
+              to="/parent/profile"
+              className="sl-user-link"
+              onClick={() => setOpen(false)}
+              title={`${name} (${user?.role || 'Parent'})`}
+            >
+              <div className="sl-avatar">{avatar}</div>
+              <div className="sl-user-details">
+                <span className="sl-user-name">{name}</span>
+                <span className="sl-user-role">{user?.role || 'Parent'}</span>
+              </div>
+            </NavLink>
+            <button
+              className="sl-logout-btn"
+              onClick={() => { logout(); navigate('/login', { replace: true }); }}
+              title="Sign Out"
+              aria-label="Sign Out"
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -97,14 +109,27 @@ export default function ParentLayout() {
         <header className="sl-topbar">
           <div className="sl-topbar-left">
             <button className="sl-menu-btn" onClick={() => setOpen(true)} aria-label="Open Menu"><Menu size={20} /></button>
-            <span className="sl-page-title">{page}</span>
+            <div className="sl-topbar-title-wrap">
+              <span className="sl-portal-pill sl-portal-pill--parent">Family</span>
+              <span className="sl-topbar-divider">/</span>
+              <h1 className="sl-page-title">{page}</h1>
+            </div>
           </div>
           <div className="sl-topbar-right">
             <EthiopianDateBadge />
             <ThemeToggle />
             <NotificationBell portalRoot="/parent" />
-            <button className="sl-topbar-avatar-btn" onClick={() => navigate('/parent/profile')} title="My Profile">
-              {avatar}
+            <button
+              className="sl-topbar-user-btn"
+              onClick={() => navigate('/parent/profile')}
+              title={`Profile: ${name} (${user?.role || 'Parent'})`}
+              aria-label="My Profile"
+            >
+              <div className="sl-topbar-avatar">{avatar}</div>
+              <div className="sl-topbar-user-meta">
+                <span className="sl-topbar-user-name">{firstName}</span>
+                <span className="sl-topbar-user-role">Parent</span>
+              </div>
             </button>
           </div>
         </header>
