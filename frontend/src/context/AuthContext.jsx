@@ -42,10 +42,12 @@ export function AuthProvider({ children }) {
     return data;
   }, []);
 
-  const logout = useCallback(async () => {
-    if (!isDemoMode()) await authApi.logout();
-    else clearTokens();
+  const logout = useCallback(() => {
+    clearTokens();
     setUser(null);
+    if (!isDemoMode()) {
+      authApi.logout().catch(() => {});
+    }
   }, []);
 
   return (

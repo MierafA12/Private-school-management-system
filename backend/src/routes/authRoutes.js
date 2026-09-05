@@ -100,6 +100,6 @@ router.post(
 // ═════════════════════════════════════════════════════════════════════════════
 // POST /api/auth/logout   (client-side — invalidate refresh token if stored)
 // ═════════════════════════════════════════════════════════════════════════════
-router.post('/logout', authenticate, authController.logout);
+router.post('/logout', authController.logout);
 
 module.exports = router;

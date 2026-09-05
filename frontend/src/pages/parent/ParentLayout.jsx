@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useSidebar } from '../../context/SidebarContext';
 import NotificationBell from '../../components/shared/NotificationBell';
 import ThemeToggle from '../../components/shared/ThemeToggle';
+import EthiopianDateBadge from '../../components/shared/EthiopianDateBadge';
 import '../../styles/portals/layout.css';
 import '../../styles/portals/parent.css';
 
@@ -99,6 +100,7 @@ export default function ParentLayout() {
             <span className="sl-page-title">{page}</span>
           </div>
           <div className="sl-topbar-right">
+            <EthiopianDateBadge />
             <ThemeToggle />
             <NotificationBell portalRoot="/parent" />
             <button className="sl-topbar-avatar-btn" onClick={() => navigate('/parent/profile')} title="My Profile">
