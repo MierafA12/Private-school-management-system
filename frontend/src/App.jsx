@@ -23,6 +23,7 @@ import StudentReportCard from './pages/student/StudentReportCard';
 import StudentFees       from './pages/student/StudentFees';
 import StudentMessages   from './pages/student/StudentMessages';
 import StudentNotices    from './pages/student/StudentNotices';
+import StudentAssignments from './pages/student/StudentAssignments';
 
 // ── Registrar portal ──────────────────────────────────────────────────────────
 import RegistrarLayout    from './pages/registrar/RegistrarLayout';
@@ -63,6 +64,7 @@ import TeacherClasses    from './pages/teacher/TeacherClasses';
 import TeacherTimetable  from './pages/teacher/TeacherTimetable';
 import TeacherAttendance from './pages/teacher/TeacherAttendance';
 import TeacherGrades     from './pages/teacher/TeacherGrades';
+import TeacherAssignments from './pages/teacher/TeacherAssignments';
 
 // ── Accountant portal ─────────────────────────────────────────────────────────
 import AccountantLayout    from './pages/accountant/AccountantLayout';
@@ -116,6 +118,7 @@ export default function App() {
             <Route path="fees"          element={<StudentFees />} />
             <Route path="messages"      element={<StudentMessages />} />
             <Route path="notices"       element={<StudentNotices />} />
+            <Route path="assignments"   element={<StudentAssignments />} />
             <Route path="profile"       element={<MyProfile />} />
             <Route path="notifications" element={<NotificationCenter />} />
           </Route>
@@ -180,6 +183,7 @@ export default function App() {
             <Route path="timetable"     element={<TeacherTimetable />} />
             <Route path="attendance"    element={<TeacherAttendance />} />
             <Route path="grades"        element={<TeacherGrades />} />
+            <Route path="assignments"   element={<TeacherAssignments />} />
             <Route path="profile"       element={<MyProfile />} />
             <Route path="notifications" element={<NotificationCenter />} />
           </Route>
