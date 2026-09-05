@@ -9,6 +9,7 @@ import EthiopiaFlag from '../../components/shared/EthiopiaFlag';
 import { registrarApi } from '../../api';
 import { ErrorBanner } from '../../components/shared/PageState';
 import { useAuth } from '../../context/AuthContext';
+import EthiopianDatePicker from '../../components/shared/EthiopianDatePicker';
 import '../../styles/portals/registrar.css';
 
 const ROLES = [
@@ -37,6 +38,19 @@ function Field({ label, required, hint, optional, className, children }) {
 }
 
 function Input({ value, onChange, placeholder, type = 'text', required, minLength, ...rest }) {
+  if (type === 'date') {
+    return (
+      <EthiopianDatePicker
+        value={value}
+        onChange={onChange}
+        required={required}
+        yearRangeBefore={70}
+        yearRangeAfter={5}
+        {...rest}
+      />
+    );
+  }
+
   return (
     <input
       className="rg-input"

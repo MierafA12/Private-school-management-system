@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Trash2, UserCheck } from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner, EmptyState } from '../../components/shared/PageState';
+import EthiopianDatePicker from '../../components/shared/EthiopianDatePicker';
 import './principal.css';
 
 function Modal({ title, onClose, children }) {
@@ -70,8 +71,8 @@ function AdvisorForm({ years, classes, teachers, onSave, onClose, saving }) {
         </select>
       </div>
       <div className="pf-field">
-        <label className="pf-label">Assigned Date <span>*</span></label>
-        <input type="date" className="pf-input" value={date} onChange={e => setDate(e.target.value)} required />
+        <label className="pf-label">Assigned Date (Ethiopian Calendar) <span>*</span></label>
+        <EthiopianDatePicker value={date} onChange={setDate} required />
       </div>
       <div className="modal-footer">
         <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>

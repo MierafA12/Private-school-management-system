@@ -2,11 +2,12 @@ import { useEffect, useState, useCallback } from 'react';
 import { Plus, Search, RefreshCw, Edit2, ChevronDown } from 'lucide-react';
 import { enrollmentApi } from '../../api';
 import { LoadingSpinner, ErrorBanner, EmptyState } from '../../components/shared/PageState';
+import EthiopianDatePicker from '../../components/shared/EthiopianDatePicker';
+import { formatDualDate } from '../../utils/ethiopianDate';
 import '../principal/principal.css';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
-const fmtDate = (iso) =>
-  iso ? new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+const fmtDate = (iso) => (iso ? formatDualDate(iso) : '—');
 
 const STATUS_COLOR = {
   ACTIVE: 'green', INACTIVE: 'gray', TRANSFERRED: 'blue',
@@ -145,8 +146,8 @@ function EnrollModal({ options, onSave, onClose, saving, error }) {
           </div>
 
           <div className="pf-field">
-            <label className="pf-label">Enrollment Date <span>*</span></label>
-            <input type="date" className="pf-input" value={enrollDate} onChange={e => setEnrollDate(e.target.value)} required />
+            <label className="pf-label">Enrollment Date (Ethiopian Calendar) <span>*</span></label>
+            <EthiopianDatePicker value={enrollDate} onChange={setEnrollDate} required />
           </div>
 
           <div className="modal-footer">

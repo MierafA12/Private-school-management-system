@@ -91,8 +91,29 @@ const createAcademicYear = async ({ name, start_date, end_date, is_current = fal
        VALUES ($1, $2, $3, $4, 'ACTIVE') RETURNING *`,
       [name, start_date, end_date, is_current]
     );
+
+    const year = rows[0];
+
+    // Automatically generate the 2 Ethiopian academic terms (Semester 1 and Semester 2)
+    const startEpoch = new Date(start_date).getTime();
+    const endEpoch = new Date(end_date).getTime();
+    const midEpoch = startEpoch + Math.floor((endEpoch - startEpoch) / 2);
+    const midDate = new Date(midEpoch).toISOString().slice(0, 10);
+    const dayAfterMid = new Date(midEpoch + 86400000).toISOString().slice(0, 10);
+
+    await client.query(
+      `INSERT INTO terms (academic_year_id, name, start_date, end_date, status)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [year.id, 'Semester 1 (Term 1: Meskerem – Tir)', start_date, midDate, 'ACTIVE']
+    );
+    await client.query(
+      `INSERT INTO terms (academic_year_id, name, start_date, end_date, status)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [year.id, 'Semester 2 (Term 2: Yakatit – Sene)', dayAfterMid, end_date, 'INACTIVE']
+    );
+
     await client.query('COMMIT');
-    return rows[0];
+    return year;
   } catch (err) { await client.query('ROLLBACK'); throw err; }
   finally { client.release(); }
 };
@@ -194,6 +215,16 @@ const deleteAcademicYear = async (id) => {
 const createTerm = async ({ academic_year_id, name, start_date, end_date, status = 'ACTIVE' }) => {
   if (new Date(end_date) <= new Date(start_date)) {
     const err = new Error('Term end date must be after start date.');
+    err.status = 400;
+    throw err;
+  }
+
+  const { rows: countRows } = await pool.query(
+    `SELECT COUNT(*) FROM terms WHERE academic_year_id = $1`,
+    [academic_year_id]
+  );
+  if (parseInt(countRows[0].count, 10) >= 2) {
+    const err = new Error('An academic year can only have 2 terms (Semester 1 and Semester 2).');
     err.status = 400;
     throw err;
   }

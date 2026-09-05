@@ -93,3 +93,46 @@ export function formatDualDate(dateInput) {
 export function getTodayEthiopian() {
   return toEthiopian(new Date());
 }
+
+/**
+ * Returns the number of days in an Ethiopian month.
+ * Months 1-12 have 30 days. Pagume (month 13) has 6 days in leap years, 5 otherwise.
+ */
+export function getEthiopianDaysInMonth(ethYear, ethMonth) {
+  const m = parseInt(ethMonth, 10);
+  const y = parseInt(ethYear, 10);
+  if (m < 13) return 30;
+  return (y % 4 === 3) ? 6 : 5;
+}
+
+/**
+ * Converts an Ethiopian Date into a Gregorian Date object and ISO string (YYYY-MM-DD).
+ * @param {number|string} ethYear
+ * @param {number|string} ethMonth (1-13)
+ * @param {number|string} ethDay (1-30)
+ * @returns {{ year: number, month: number, day: number, date: Date, iso: string }|null}
+ */
+export function toGregorian(ethYear, ethMonth, ethDay) {
+  const y = parseInt(ethYear, 10);
+  const m = parseInt(ethMonth, 10);
+  const d = parseInt(ethDay, 10);
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
+
+  // JDN calculation matching toEthiopian
+  const jdn = 1723856 + 365 * y + Math.floor(y / 4) + (m - 1) * 30 + d - 1;
+  const l = jdn + 68569;
+  const n = Math.floor((4 * l) / 146097);
+  const l2 = l - Math.floor((146097 * n + 3) / 4);
+  const i = Math.floor((4000 * (l2 + 1)) / 1461001);
+  const l3 = l2 - Math.floor((1461 * i) / 4) + 31;
+  const j = Math.floor((80 * l3) / 2447);
+  const gregDay = l3 - Math.floor((2447 * j) / 80);
+  const l4 = Math.floor(j / 11);
+  const gregMonth = j + 2 - 12 * l4;
+  const gregYear = 100 * (n - 49) + i + l4;
+
+  const iso = `${gregYear}-${String(gregMonth).padStart(2, '0')}-${String(gregDay).padStart(2, '0')}`;
+  const date = new Date(gregYear, gregMonth - 1, gregDay);
+
+  return { year: gregYear, month: gregMonth, day: gregDay, date, iso };
+}

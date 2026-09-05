@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { Plus, Edit2, ChevronDown, ChevronRight, Trash2, CheckCircle } from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
+import EthiopianDatePicker from '../../components/shared/EthiopianDatePicker';
+import { formatDualDate, toEthiopian } from '../../utils/ethiopianDate';
 import './principal.css';
 
-const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+const fmtDate = (iso) => iso ? formatDualDate(iso) : '—';
 
 // ── Reusable Modal ────────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }) {
   return (
     <div className="modal-backdrop">
-      <div className="modal-box">
+      <div className="modal-box" style={{ maxWidth: '520px' }}>
         <h3>{title}</h3>
         {children}
       </div>
@@ -43,24 +45,43 @@ function YearForm({ initial = {}, onSave, onClose, saving }) {
           {err}
         </div>
       )}
+
+      {!initial.id && (
+        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '0.6rem 0.75rem', marginBottom: '0.85rem', fontSize: '0.8rem', color: '#166534' }}>
+          🇪🇹 <strong>Ethiopian 2-Semester Structure:</strong> Creating this academic year will automatically generate <strong>Semester 1 (Term 1)</strong> and <strong>Semester 2 (Term 2)</strong>.
+        </div>
+      )}
+
       <div className="pf-field">
         <label className="pf-label">Year Name <span>*</span></label>
-        <input className="pf-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. 2026/2027" required />
+        <input className="pf-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. 2018/2019 E.C." required />
       </div>
+
       <div className="pf-grid-2">
         <div className="pf-field">
-          <label className="pf-label">Start Date <span>*</span></label>
-          <input type="date" className="pf-input" value={startDate} onChange={e => { setStartDate(e.target.value); setErr(''); }} required />
+          <label className="pf-label">Start Date (Ethiopian Calendar) <span>*</span></label>
+          <EthiopianDatePicker
+            value={startDate}
+            onChange={(iso) => { setStartDate(iso); setErr(''); }}
+            required
+          />
         </div>
         <div className="pf-field">
-          <label className="pf-label">End Date <span>*</span></label>
-          <input type="date" className="pf-input" value={endDate} min={startDate || undefined} onChange={e => { setEndDate(e.target.value); setErr(''); }} required />
+          <label className="pf-label">End Date (Ethiopian Calendar) <span>*</span></label>
+          <EthiopianDatePicker
+            value={endDate}
+            min={startDate || undefined}
+            onChange={(iso) => { setEndDate(iso); setErr(''); }}
+            required
+          />
         </div>
       </div>
-      <div className="pf-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
+
+      <div className="pf-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
         <input type="checkbox" id="isCurrent" checked={isCurrent} onChange={e => setIsCurrent(e.target.checked)} />
         <label htmlFor="isCurrent" style={{ fontSize: '0.875rem', fontWeight: 500 }}>Set as current academic year</label>
       </div>
+
       <div className="modal-footer">
         <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
         <button type="submit" className="btn-prim" disabled={saving}>
@@ -73,7 +94,7 @@ function YearForm({ initial = {}, onSave, onClose, saving }) {
 
 // ── Term Form ─────────────────────────────────────────────────────────────────
 function TermForm({ yearId, initial = {}, onSave, onClose, saving }) {
-  const [name,      setName]      = useState(initial.name          || '');
+  const [name,      setName]      = useState(initial.name          || 'Semester 1 (Term 1: Meskerem – Tir)');
   const [startDate, setStartDate] = useState(initial.start_date?.slice(0,10) || '');
   const [endDate,   setEndDate]   = useState(initial.end_date?.slice(0,10)   || '');
   const [status,    setStatus]    = useState(initial.status         || 'ACTIVE');
@@ -96,21 +117,51 @@ function TermForm({ yearId, initial = {}, onSave, onClose, saving }) {
           {err}
         </div>
       )}
+
       <div className="pf-field">
-        <label className="pf-label">Term Name <span>*</span></label>
-        <input className="pf-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Term 1" required />
+        <label className="pf-label">Term Name <span>*</span> (2 Terms per Year)</label>
+        <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn-ghost"
+            style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }}
+            onClick={() => setName('Semester 1 (Term 1: Meskerem – Tir)')}
+          >
+            Semester 1
+          </button>
+          <button
+            type="button"
+            className="btn-ghost"
+            style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }}
+            onClick={() => setName('Semester 2 (Term 2: Yakatit – Sene)')}
+          >
+            Semester 2
+          </button>
+        </div>
+        <input className="pf-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Semester 1 (Term 1)" required />
       </div>
+
       <div className="pf-grid-2">
         <div className="pf-field">
-          <label className="pf-label">Start Date <span>*</span></label>
-          <input type="date" className="pf-input" value={startDate} onChange={e => { setStartDate(e.target.value); setErr(''); }} required />
+          <label className="pf-label">Start Date (Ethiopian Calendar) <span>*</span></label>
+          <EthiopianDatePicker
+            value={startDate}
+            onChange={(iso) => { setStartDate(iso); setErr(''); }}
+            required
+          />
         </div>
         <div className="pf-field">
-          <label className="pf-label">End Date <span>*</span></label>
-          <input type="date" className="pf-input" value={endDate} min={startDate || undefined} onChange={e => { setEndDate(e.target.value); setErr(''); }} required />
+          <label className="pf-label">End Date (Ethiopian Calendar) <span>*</span></label>
+          <EthiopianDatePicker
+            value={endDate}
+            min={startDate || undefined}
+            onChange={(iso) => { setEndDate(iso); setErr(''); }}
+            required
+          />
         </div>
       </div>
-      <div className="pf-field">
+
+      <div className="pf-field" style={{ marginTop: '0.5rem' }}>
         <label className="pf-label">Status</label>
         <select className="pf-select" value={status} onChange={e => setStatus(e.target.value)}>
           <option value="ACTIVE">Active</option>
@@ -118,6 +169,7 @@ function TermForm({ yearId, initial = {}, onSave, onClose, saving }) {
           <option value="COMPLETED">Completed</option>
         </select>
       </div>
+
       <div className="modal-footer">
         <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
         <button type="submit" className="btn-prim" disabled={saving}>{saving ? 'Saving…' : 'Save'}</button>
@@ -233,20 +285,26 @@ export default function AcademicYears() {
                     <span className={`sp-badge sp-badge--${yr.status === 'ACTIVE' ? 'blue' : 'gray'}`}>{yr.status}</span>
                   </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                    {fmtDate(yr.start_date)} → {fmtDate(yr.end_date)} · {yr.term_count} term{yr.term_count !== '1' ? 's' : ''} · {yr.enrollment_count} enrolled
+                    {fmtDate(yr.start_date)} → {fmtDate(yr.end_date)} · {yr.terms?.length ?? yr.term_count}/2 terms · {yr.enrollment_count} enrolled
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '0.4rem' }} onClick={e => e.stopPropagation()}>
+                <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }} onClick={e => e.stopPropagation()}>
                   <button className="btn-edit" onClick={() => { setModal({ type: 'year', data: yr }); setMError(null); }} title="Edit Academic Year">
                     <Edit2 size={13} />
                   </button>
                   <button className="btn-danger" onClick={() => deleteYear(yr.id)} title="Delete Academic Year">
                     <Trash2 size={13} />
                   </button>
-                  <button className="btn-prim" style={{ padding: '0.35rem 0.7rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-                    onClick={() => { setModal({ type: 'term', yearId: yr.id }); setMError(null); }}>
-                    <Plus size={13} /> Term
-                  </button>
+                  {(yr.terms?.length || 0) < 2 ? (
+                    <button className="btn-prim" style={{ padding: '0.35rem 0.7rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                      onClick={() => { setModal({ type: 'term', yearId: yr.id }); setMError(null); }}>
+                      <Plus size={13} /> Term
+                    </button>
+                  ) : (
+                    <span className="sp-badge sp-badge--blue" style={{ fontSize: '0.75rem', padding: '0.35rem 0.6rem' }} title="Each academic year has exactly 2 terms (Semesters)">
+                      2/2 Terms
+                    </span>
+                  )}
                 </div>
               </div>
 

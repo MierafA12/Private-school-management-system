@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { Plus, Edit2, Trash2, X, DollarSign, CalendarDays, Layers, Search, CheckCircle2 } from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner } from '../../components/shared/PageState';
+import EthiopianDatePicker from '../../components/shared/EthiopianDatePicker';
 import './principal.css';
 
 const FEE_TYPES = [
@@ -109,12 +110,10 @@ function FeeForm({ initial = {}, years, classes, onSave, onClose, saving }) {
           </select>
         </div>
         <div className="pf-field">
-          <label className="pf-label">Due Date</label>
-          <input
-            type="date"
-            className="pf-input"
+          <label className="pf-label">Due Date (Ethiopian Calendar)</label>
+          <EthiopianDatePicker
             value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
+            onChange={setDueDate}
           />
         </div>
       </div>

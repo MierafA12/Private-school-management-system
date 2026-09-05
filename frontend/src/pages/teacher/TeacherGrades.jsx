@@ -5,10 +5,11 @@ import {
 } from 'lucide-react';
 import { examApi, teacherApi, principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner, EmptyState } from '../../components/shared/PageState';
+import EthiopianDatePicker from '../../components/shared/EthiopianDatePicker';
+import { formatDualDate } from '../../utils/ethiopianDate';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
-const fmtDate = (iso) =>
-  iso ? new Date(iso).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+const fmtDate = (iso) => (iso ? formatDualDate(iso) : '—');
 
 function Modal({ title, onClose, children, wide }) {
   return (
@@ -115,8 +116,8 @@ function ExamForm({ initial = {}, classes, subjects, terms, yearId, onSave, onCl
           <input style={inputSt} value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Term 1 Mathematics Mid-Exam" required />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Exam Date *</label>
-          <input type="date" style={inputSt} value={examDate} onChange={e => setExamDate(e.target.value)} required />
+          <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Exam Date (Ethiopian Calendar) *</label>
+          <EthiopianDatePicker value={examDate} onChange={setExamDate} required />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
           <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Venue</label>

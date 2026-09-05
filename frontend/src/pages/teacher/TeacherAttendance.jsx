@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Save, CheckCircle2 } from 'lucide-react';
 import { teacherApi } from '../../api';
 import { LoadingSpinner, ErrorBanner, EmptyState } from '../../components/shared/PageState';
+import EthiopianDatePicker from '../../components/shared/EthiopianDatePicker';
 
 export default function TeacherAttendance() {
   const [classes, setClasses] = useState([]);
@@ -125,11 +126,10 @@ export default function TeacherAttendance() {
           </div>
 
           <div className="tp-form-group">
-            <label>Date</label>
-            <input
-              type="date"
+            <label>Date (Ethiopian Calendar)</label>
+            <EthiopianDatePicker
               value={date}
-              onChange={(e) => setDate(e.target.value)}
+              onChange={setDate}
             />
           </div>
 
