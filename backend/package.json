@@ -12,6 +12,7 @@
     "migrate:supabase": "node scripts/run-migration.js",
     "seed:admin":     "node scripts/seed-admin.js",
     "seed:passwords": "node scripts/reset-passwords.js",
+    "seed:invoice":   "node scripts/seed-invoice.js",
     "patch:db":       "node scripts/patch-missing-tables.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
