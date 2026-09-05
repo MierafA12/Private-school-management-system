@@ -46,12 +46,6 @@ function YearForm({ initial = {}, onSave, onClose, saving }) {
         </div>
       )}
 
-      {!initial.id && (
-        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '0.6rem 0.75rem', marginBottom: '0.85rem', fontSize: '0.8rem', color: '#166534' }}>
-          🇪🇹 <strong>Ethiopian 2-Semester Structure:</strong> Creating this academic year will automatically generate <strong>Semester 1 (Term 1)</strong> and <strong>Semester 2 (Term 2)</strong>.
-        </div>
-      )}
-
       <div className="pf-field">
         <label className="pf-label">Year Name <span>*</span></label>
         <input className="pf-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. 2018/2019 E.C." required />
