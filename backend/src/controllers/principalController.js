@@ -46,6 +46,12 @@ const updateAcademicYear  = async (req, res, next) => {
     res.json({ success: true, data });
   } catch (err) { next(err); }
 };
+const deleteAcademicYear  = async (req, res, next) => {
+  try {
+    await svc.deleteAcademicYear(req.params.id);
+    res.json({ success: true, message: 'Academic year deleted successfully.' });
+  } catch (err) { next(err); }
+};
 
 // ── Terms ──────────────────────────────────────────────────────────────────────
 const createTerm = async (req, res, next) => {
@@ -257,7 +263,7 @@ const deleteAnnouncement = async (req, res, next) => {
 module.exports = {
   getDashboard,
   getSchoolProfile, updateSchoolProfile,
-  getAcademicYears, getAcademicYearById, createAcademicYear, updateAcademicYear,
+  getAcademicYears, getAcademicYearById, createAcademicYear, updateAcademicYear, deleteAcademicYear,
   createTerm, updateTerm, deleteTerm,
   getClasses, getClassById, createClass, updateClass, deleteClass,
   createSection, updateSection, deleteSection,

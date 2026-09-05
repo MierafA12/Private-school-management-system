@@ -60,6 +60,7 @@ router.patch('/academic-years/:id',
   ],
   validate, ctrl.updateAcademicYear
 );
+router.delete('/academic-years/:id', ctrl.deleteAcademicYear);
 
 // ── Terms ──────────────────────────────────────────────────────────────────────
 router.post('/academic-years/:yearId/terms',

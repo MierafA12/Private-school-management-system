@@ -8,6 +8,7 @@ export const principalApi = {
   getAcademicYearById: (id)       => request(`/principal/academic-years/${id}`),
   createAcademicYear:  (data)     => request('/principal/academic-years', { method: 'POST', body: JSON.stringify(data) }),
   updateAcademicYear:  (id, data) => request(`/principal/academic-years/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteAcademicYear:  (id)       => request(`/principal/academic-years/${id}`, { method: 'DELETE' }),
 
   // Terms
   createTerm: (yearId, data) => request(`/principal/academic-years/${yearId}/terms`, { method: 'POST', body: JSON.stringify(data) }),

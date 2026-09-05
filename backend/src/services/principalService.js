@@ -118,6 +118,50 @@ const updateAcademicYear = async (id, fields) => {
   finally { client.release(); }
 };
 
+const deleteAcademicYear = async (id) => {
+  const { rows: ay } = await pool.query(`SELECT * FROM academic_years WHERE id = $1`, [id]);
+  if (!ay.length) {
+    const err = new Error('Academic year not found.');
+    err.status = 404;
+    throw err;
+  }
+
+  // Check if current
+  if (ay[0].is_current) {
+    const { rows: total } = await pool.query(`SELECT COUNT(*) FROM academic_years`);
+    if (parseInt(total[0].count) > 1) {
+      const err = new Error('Cannot delete the active academic year. Please set another academic year as current first.');
+      err.status = 400;
+      throw err;
+    }
+  }
+
+  // Check enrollments
+  const { rows: enrollments } = await pool.query(
+    `SELECT COUNT(*) FROM enrollments WHERE academic_year_id = $1`,
+    [id]
+  );
+  if (parseInt(enrollments[0].count) > 0) {
+    const err = new Error(`Cannot delete academic year with ${enrollments[0].count} enrolled student(s). Reassign or remove enrollments first.`);
+    err.status = 400;
+    throw err;
+  }
+
+  // Check fee structures
+  const { rows: fees } = await pool.query(
+    `SELECT COUNT(*) FROM fee_structures WHERE academic_year_id = $1`,
+    [id]
+  );
+  if (parseInt(fees[0].count) > 0) {
+    const err = new Error(`Cannot delete academic year with linked fee structure(s).`);
+    err.status = 400;
+    throw err;
+  }
+
+  await pool.query(`DELETE FROM academic_years WHERE id = $1`, [id]);
+  return { success: true };
+};
+
 // ═════════════════════════════════════════════════════════════════════════════
 // TERMS
 // ═════════════════════════════════════════════════════════════════════════════
@@ -745,7 +789,7 @@ module.exports = {
   getDashboardAnalytics,
 
   // Academic years
-  getAcademicYears, getAcademicYearById, createAcademicYear, updateAcademicYear,
+  getAcademicYears, getAcademicYearById, createAcademicYear, updateAcademicYear, deleteAcademicYear,
 
   // Terms
   createTerm, updateTerm, deleteTerm,

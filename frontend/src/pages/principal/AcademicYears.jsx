@@ -160,6 +160,16 @@ export default function AcademicYears() {
     catch (err) { alert(err.message); }
   };
 
+  const deleteYear = async (id) => {
+    if (!confirm('Are you sure you want to delete this academic year? This will delete all terms inside it. This cannot be undone.')) return;
+    try {
+      await principalApi.deleteAcademicYear(id);
+      await load();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   if (loading) return <LoadingSpinner message="Loading academic years…" />;
   if (error)   return <ErrorBanner message={error} onRetry={load} />;
 
@@ -205,8 +215,11 @@ export default function AcademicYears() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.4rem' }} onClick={e => e.stopPropagation()}>
-                  <button className="btn-edit" onClick={() => { setModal({ type: 'year', data: yr }); setMError(null); }}>
+                  <button className="btn-edit" onClick={() => { setModal({ type: 'year', data: yr }); setMError(null); }} title="Edit Academic Year">
                     <Edit2 size={13} />
+                  </button>
+                  <button className="btn-danger" onClick={() => deleteYear(yr.id)} title="Delete Academic Year">
+                    <Trash2 size={13} />
                   </button>
                   <button className="btn-prim" style={{ padding: '0.35rem 0.7rem', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
                     onClick={() => { setModal({ type: 'term', yearId: yr.id }); setMError(null); }}>
