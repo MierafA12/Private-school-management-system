@@ -108,31 +108,6 @@ const deleteSection = async (req, res, next) => {
   try { await svc.deleteSection(req.params.id); res.json({ success: true, message: 'Section deleted.' }); }
   catch (err) { next(err); }
 };
-const getSectionStudents = async (req, res, next) => {
-  try { res.json({ success: true, data: await svc.getSectionStudents(req.params.id) }); }
-  catch (err) { next(err); }
-};
-const getUnenrolledStudents = async (req, res, next) => {
-  try { res.json({ success: true, data: await svc.getUnenrolledStudents(req.query.search) }); }
-  catch (err) { next(err); }
-};
-const enrollStudent = async (req, res, next) => {
-  try {
-    const data = await svc.enrollStudentToSection({
-      sectionId: req.params.id,
-      studentId: req.body.student_id,
-      rollNumber: req.body.roll_number,
-      enrollmentDate: req.body.enrollment_date,
-    });
-    res.status(201).json({ success: true, data });
-  } catch (err) { next(err); }
-};
-const removeStudent = async (req, res, next) => {
-  try {
-    await svc.removeStudentFromSection(req.params.enrollmentId);
-    res.json({ success: true, message: 'Student removed from section.' });
-  } catch (err) { next(err); }
-};
 
 // ── Subjects ───────────────────────────────────────────────────────────────────
 const getSubjects   = async (req, res, next) => {
@@ -286,7 +261,6 @@ module.exports = {
   createTerm, updateTerm, deleteTerm,
   getClasses, getClassById, createClass, updateClass, deleteClass,
   createSection, updateSection, deleteSection,
-  getSectionStudents, getUnenrolledStudents, enrollStudent, removeStudent,
   getSubjects, createSubject, updateSubject, deleteSubject,
   getCurriculum, assignSubject, removeSubject,
   getGradingScales, createGradingScale, updateGradingScale, deleteGradingScale,
