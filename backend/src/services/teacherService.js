@@ -150,10 +150,21 @@ const getAttendanceSheet = async (classId, sectionId, date) => {
 };
 
 // ─── Submit attendance ────────────────────────────────────────────────────────
-const submitAttendance = async (teacherId, { classId, sectionId, date, records }) => {
+const submitAttendance = async (teacherId, { classId, sectionId, date, records }, userId = null) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    // Resolve user_id for created_by and marked_by foreign keys (references users.id)
+    let effectiveUserId = userId;
+    if (!effectiveUserId) {
+      const { rows: tRows } = await client.query(`SELECT user_id FROM teachers WHERE id = $1`, [teacherId]);
+      if (tRows.length && tRows[0].user_id) {
+        effectiveUserId = tRows[0].user_id;
+      } else {
+        effectiveUserId = teacherId;
+      }
+    }
 
     // Get or create the term for this date
     const { rows: termRows } = await client.query(
@@ -177,12 +188,21 @@ const submitAttendance = async (teacherId, { classId, sectionId, date, records }
        WHERE attendance_type = 'DAILY'
        DO UPDATE SET teacher_id = EXCLUDED.teacher_id, updated_at = NOW()
        RETURNING id`,
-      [academic_year_id, termId, classId, sectionId, teacherId, date, teacherId]
+      [academic_year_id, termId, classId, sectionId, teacherId, date, effectiveUserId]
     );
     const sessionId = sessionRows[0].id;
 
+    // Deduplicate records by student_id to prevent any duplicate key errors in a batch
+    const uniqueRecordsMap = new Map();
+    for (const rec of (records || [])) {
+      if (rec && rec.student_id) {
+        uniqueRecordsMap.set(rec.student_id, rec);
+      }
+    }
+    const uniqueRecords = Array.from(uniqueRecordsMap.values());
+
     // Upsert each student record
-    for (const rec of records) {
+    for (const rec of uniqueRecords) {
       await client.query(
         `INSERT INTO attendance_records
            (attendance_session_id, student_id, attendance_status, remarks, marked_by)
@@ -193,12 +213,12 @@ const submitAttendance = async (teacherId, { classId, sectionId, date, records }
            remarks           = EXCLUDED.remarks,
            marked_by         = EXCLUDED.marked_by,
            updated_at        = NOW()`,
-        [sessionId, rec.student_id, rec.attendance_status || 'Present', rec.remarks || null, teacherId]
+        [sessionId, rec.student_id, rec.attendance_status || 'Present', rec.remarks || null, effectiveUserId]
       );
     }
 
     await client.query('COMMIT');
-    return { session_id: sessionId, count: records.length };
+    return { session_id: sessionId, count: uniqueRecords.length };
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;

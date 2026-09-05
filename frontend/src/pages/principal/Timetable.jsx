@@ -2,6 +2,8 @@ import { useEffect, useState, Fragment } from 'react';
 import { Plus, Trash2, RefreshCw, X } from 'lucide-react';
 import { principalApi } from '../../api';
 import { LoadingSpinner, ErrorBanner, EmptyState } from '../../components/shared/PageState';
+import EthiopianTimePicker from '../../components/shared/EthiopianTimePicker';
+import { formatEthTime } from '../../utils/ethiopianDate';
 import './principal.css';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -32,11 +34,22 @@ function Modal({ title, onClose, children }) {
   );
 }
 
+const DEFAULT_PERIOD_TIMES = {
+  1: { start: '08:00', end: '08:45' },
+  2: { start: '08:45', end: '09:30' },
+  3: { start: '09:30', end: '10:15' },
+  4: { start: '10:30', end: '11:15' },
+  5: { start: '11:15', end: '12:00' },
+  6: { start: '13:00', end: '13:45' },
+  7: { start: '13:45', end: '14:30' },
+  8: { start: '14:30', end: '15:15' },
+};
+
 function SlotForm({ yearId, termId, classId, sectionId, period, day, onSave, onClose, saving }) {
   const [currSubjectId, setCurrSubjectId] = useState('');
   const [teacherId,     setTeacherId]     = useState('');
-  const [startTime,     setStartTime]     = useState('');
-  const [endTime,       setEndTime]       = useState('');
+  const [startTime,     setStartTime]     = useState(() => DEFAULT_PERIOD_TIMES[period]?.start || '08:00');
+  const [endTime,       setEndTime]       = useState(() => DEFAULT_PERIOD_TIMES[period]?.end   || '08:45');
   const [room,          setRoom]          = useState('');
 
   // Load own data — never depend on stale parent props
@@ -85,8 +98,10 @@ function SlotForm({ yearId, termId, classId, sectionId, period, day, onSave, onC
         ) : (
           <select className="pf-select" value={currSubjectId} onChange={e => setCurrSubjectId(e.target.value)} required>
             <option value="">— Select Subject —</option>
-            {curriculum.map(cs => (
-              <option key={cs.id} value={cs.id}>{cs.subject_name} ({cs.subject_code})</option>
+            {curriculum.map(c => (
+              <option key={c.id} value={c.id}>
+                {c.subject_name} ({c.periods_per_week}p/wk)
+              </option>
             ))}
           </select>
         )}
@@ -106,12 +121,20 @@ function SlotForm({ yearId, termId, classId, sectionId, period, day, onSave, onC
       </div>
       <div className="pf-grid-2">
         <div className="pf-field">
-          <label className="pf-label">Start Time <span>*</span></label>
-          <input type="time" className="pf-input" value={startTime} onChange={e => setStartTime(e.target.value)} required />
+          <label className="pf-label">Start Time (Ethiopian Time) <span>*</span></label>
+          <EthiopianTimePicker
+            value={startTime}
+            onChange={setStartTime}
+            required
+          />
         </div>
         <div className="pf-field">
-          <label className="pf-label">End Time <span>*</span></label>
-          <input type="time" className="pf-input" value={endTime} onChange={e => setEndTime(e.target.value)} required />
+          <label className="pf-label">End Time (Ethiopian Time) <span>*</span></label>
+          <EthiopianTimePicker
+            value={endTime}
+            onChange={setEndTime}
+            required
+          />
         </div>
       </div>
       <div className="pf-field">
@@ -306,7 +329,7 @@ export default function Timetable() {
                         <div className="tt-teacher">{slot.teacher_name}</div>
                         {slot.room_number && <div className="tt-room">{slot.room_number}</div>}
                         <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                          {slot.start_time?.slice(0,5)} – {slot.end_time?.slice(0,5)}
+                          {formatEthTime(slot.start_time)} – {formatEthTime(slot.end_time)}
                         </div>
                         <button
                           onClick={() => delSlot(slot.id)}

@@ -15,12 +15,9 @@ const subjectColor = (() => {
   };
 })();
 
-const fmtTime = (t) => {
-  if (!t) return '';
-  const [h, m] = t.split(':');
-  const hour = parseInt(h);
-  return `${hour > 12 ? hour - 12 : hour}:${m} ${hour >= 12 ? 'PM' : 'AM'}`;
-};
+import { formatEthTime } from '../../utils/ethiopianDate';
+
+const fmtTime = (t) => formatEthTime(t);
 
 const TODAY_NAME = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()];
 

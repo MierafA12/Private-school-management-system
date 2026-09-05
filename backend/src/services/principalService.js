@@ -78,6 +78,17 @@ const createAcademicYear = async ({ name, start_date, end_date, is_current = fal
     throw err;
   }
 
+  const trimmedName = (name || '').trim();
+  const { rows: existingYear } = await pool.query(
+    `SELECT id FROM academic_years WHERE LOWER(name) = LOWER($1)`,
+    [trimmedName]
+  );
+  if (existingYear.length > 0) {
+    const err = new Error(`An academic year with the name "${trimmedName}" already exists.`);
+    err.status = 409;
+    throw err;
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -89,7 +100,7 @@ const createAcademicYear = async ({ name, start_date, end_date, is_current = fal
     const { rows } = await client.query(
       `INSERT INTO academic_years (name, start_date, end_date, is_current, status)
        VALUES ($1, $2, $3, $4, 'ACTIVE') RETURNING *`,
-      [name, start_date, end_date, is_current]
+      [trimmedName, start_date, end_date, is_current]
     );
 
     const year = rows[0];
@@ -135,6 +146,18 @@ const updateAcademicYear = async (id, fields) => {
         err.status = 400;
         throw err;
       }
+    }
+  }
+
+  if (fields.name) {
+    const { rows: existingYear } = await pool.query(
+      `SELECT id FROM academic_years WHERE LOWER(name) = LOWER($1) AND id != $2`,
+      [fields.name.trim(), id]
+    );
+    if (existingYear.length > 0) {
+      const err = new Error(`An academic year with the name "${fields.name.trim()}" already exists.`);
+      err.status = 409;
+      throw err;
     }
   }
 
@@ -219,6 +242,17 @@ const createTerm = async ({ academic_year_id, name, start_date, end_date, status
     throw err;
   }
 
+  const trimmedName = (name || '').trim();
+  const { rows: existingTerm } = await pool.query(
+    `SELECT id FROM terms WHERE academic_year_id = $1 AND LOWER(name) = LOWER($2)`,
+    [academic_year_id, trimmedName]
+  );
+  if (existingTerm.length > 0) {
+    const err = new Error(`A term with the name "${trimmedName}" already exists in this academic year.`);
+    err.status = 409;
+    throw err;
+  }
+
   const { rows: countRows } = await pool.query(
     `SELECT COUNT(*) FROM terms WHERE academic_year_id = $1`,
     [academic_year_id]
@@ -232,7 +266,7 @@ const createTerm = async ({ academic_year_id, name, start_date, end_date, status
   const { rows } = await pool.query(
     `INSERT INTO terms (academic_year_id, name, start_date, end_date, status)
      VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-    [academic_year_id, name, start_date, end_date, status]
+    [academic_year_id, trimmedName, start_date, end_date, status]
   );
   return rows[0];
 };
@@ -252,6 +286,21 @@ const updateTerm = async (id, fields) => {
       if (e <= s) {
         const err = new Error('Term end date must be after start date.');
         err.status = 400;
+        throw err;
+      }
+    }
+  }
+
+  if (fields.name) {
+    const { rows: curr } = await pool.query(`SELECT academic_year_id FROM terms WHERE id = $1`, [id]);
+    if (curr.length > 0) {
+      const { rows: existingTerm } = await pool.query(
+        `SELECT id FROM terms WHERE academic_year_id = $1 AND LOWER(name) = LOWER($2) AND id != $3`,
+        [curr[0].academic_year_id, fields.name.trim(), id]
+      );
+      if (existingTerm.length > 0) {
+        const err = new Error(`A term with the name "${fields.name.trim()}" already exists in this academic year.`);
+        err.status = 409;
         throw err;
       }
     }
@@ -718,6 +767,68 @@ const getTimetable = async ({ academic_year_id, term_id, class_id, section_id })
 };
 
 const createTimetableSlot = async (fields) => {
+  // 1. Check if teacher is already assigned to another class/section on this day & period
+  const { rows: teacherConflicts } = await pool.query(
+    `SELECT t.*, c.name AS class_name, s.name AS section_name
+     FROM timetables t
+     JOIN classes c ON c.id = t.class_id
+     JOIN sections s ON s.id = t.section_id
+     WHERE t.term_id = $1 AND t.teacher_id = $2 AND t.day_of_week = $3 AND t.period_number = $4
+       AND (t.section_id != $5 OR t.class_id != $6)`,
+    [
+      fields.term_id,
+      fields.teacher_id,
+      fields.day_of_week,
+      fields.period_number,
+      fields.section_id,
+      fields.class_id,
+    ]
+  );
+
+  if (teacherConflicts.length > 0) {
+    const conflict = teacherConflicts[0];
+    const err = new Error(
+      `This teacher is already scheduled for ${conflict.class_name} - ${conflict.section_name} on ${fields.day_of_week} Period ${fields.period_number}.`
+    );
+    err.status = 409;
+    throw err;
+  }
+
+  // 2. Check if this section already has a slot for this day & period — if so, update it (upsert)
+  const { rows: existingSlots } = await pool.query(
+    `SELECT id FROM timetables
+     WHERE term_id = $1 AND section_id = $2 AND day_of_week = $3 AND period_number = $4`,
+    [fields.term_id, fields.section_id, fields.day_of_week, fields.period_number]
+  );
+
+  if (existingSlots.length > 0) {
+    const slotId = existingSlots[0].id;
+    const { rows: updated } = await pool.query(
+      `UPDATE timetables
+       SET academic_year_id      = $1,
+           class_id              = $2,
+           curriculum_subject_id = $3,
+           teacher_id            = $4,
+           start_time            = $5,
+           end_time              = $6,
+           room_number           = $7,
+           updated_at            = NOW()
+       WHERE id = $8
+       RETURNING *`,
+      [
+        fields.academic_year_id,
+        fields.class_id,
+        fields.curriculum_subject_id,
+        fields.teacher_id,
+        fields.start_time,
+        fields.end_time,
+        fields.room_number || null,
+        slotId,
+      ]
+    );
+    return updated[0];
+  }
+
   const { rows } = await pool.query(
     `INSERT INTO timetables
        (academic_year_id, term_id, class_id, section_id,
@@ -738,6 +849,51 @@ const createTimetableSlot = async (fields) => {
 };
 
 const updateTimetableSlot = async (id, fields) => {
+  const { rows: existing } = await pool.query(`SELECT * FROM timetables WHERE id = $1`, [id]);
+  if (!existing.length) {
+    const err = new Error('Timetable slot not found.');
+    err.status = 404;
+    throw err;
+  }
+  const current = existing[0];
+  const termId = current.term_id;
+  const teacherId = fields.teacher_id !== undefined ? fields.teacher_id : current.teacher_id;
+  const day = fields.day_of_week || current.day_of_week;
+  const period = fields.period_number !== undefined ? fields.period_number : current.period_number;
+
+  // Teacher conflict check
+  const { rows: teacherConflicts } = await pool.query(
+    `SELECT t.*, c.name AS class_name, s.name AS section_name
+     FROM timetables t
+     JOIN classes c ON c.id = t.class_id
+     JOIN sections s ON s.id = t.section_id
+     WHERE t.term_id = $1 AND t.teacher_id = $2 AND t.day_of_week = $3 AND t.period_number = $4
+       AND t.id != $5`,
+    [termId, teacherId, day, period, id]
+  );
+  if (teacherConflicts.length > 0) {
+    const conflict = teacherConflicts[0];
+    const err = new Error(
+      `This teacher is already scheduled for ${conflict.class_name} - ${conflict.section_name} on ${day} Period ${period}.`
+    );
+    err.status = 409;
+    throw err;
+  }
+
+  // Section conflict check (if period or day changed)
+  const sectionId = current.section_id;
+  const { rows: sectionConflicts } = await pool.query(
+    `SELECT id FROM timetables
+     WHERE term_id = $1 AND section_id = $2 AND day_of_week = $3 AND period_number = $4
+       AND id != $5`,
+    [termId, sectionId, day, period, id]
+  );
+  if (sectionConflicts.length > 0) {
+    const err = new Error(`This section already has a class scheduled on ${day} Period ${period}.`);
+    err.status = 409;
+    throw err;
+  }
+
   const { rows } = await pool.query(
     `UPDATE timetables
      SET curriculum_subject_id = COALESCE($1, curriculum_subject_id),

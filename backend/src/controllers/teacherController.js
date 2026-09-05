@@ -62,7 +62,7 @@ exports.getAttendance = async (req, res, next) => {
 exports.submitAttendance = async (req, res, next) => {
   try {
     const teacher = await resolveTeacher(req.user.id);
-    const result = await teacherService.submitAttendance(teacher.id, req.body);
+    const result = await teacherService.submitAttendance(teacher.id, req.body, req.user.id);
     res.json({ success: true, data: result });
   } catch (err) {
     next(err);

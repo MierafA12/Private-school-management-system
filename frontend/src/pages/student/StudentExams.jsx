@@ -1,18 +1,11 @@
 import { useEffect, useState } from 'react';
 import { studentApi } from '../../api';
 import { LoadingSpinner, ErrorBanner, EmptyState } from '../../components/shared/PageState';
+import { formatDualDate, formatEthTime } from '../../utils/ethiopianDate';
 
-const fmtDate = (iso) => {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-};
+const fmtDate = (iso) => (iso ? formatDualDate(iso) : '—');
 
-const fmtTime = (t) => {
-  if (!t) return null;
-  const [h, m] = t.split(':');
-  const hour = parseInt(h);
-  return `${hour > 12 ? hour - 12 : hour}:${m} ${hour >= 12 ? 'PM' : 'AM'}`;
-};
+const fmtTime = (t) => (t ? formatEthTime(t) : null);
 
 const daysUntil = (dateStr) => {
   const diff = Math.ceil((new Date(dateStr) - new Date()) / (1000 * 60 * 60 * 24));

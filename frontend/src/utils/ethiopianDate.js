@@ -136,3 +136,103 @@ export function toGregorian(ethYear, ethMonth, ethDay) {
 
   return { year: gregYear, month: gregMonth, day: gregDay, date, iso };
 }
+
+/**
+ * Converts Gregorian time ("HH:MM" or "HH:MM:SS") to Ethiopian time.
+ * Day runs from 06:00 G.C. (12:00 ጥዋት) to 17:59 G.C. (11:59 ከሰዓት).
+ * Night runs from 18:00 G.C. (12:00 ምሽት) to 05:59 G.C. (11:59 ሌሊት).
+ * @param {string|Date} timeInput - "HH:MM" or Date object
+ * @returns {{ ethHour: number, minute: number, period: 'day'|'night', periodLabel: string, formatted: string, formattedDual: string }}
+ */
+export function toEthiopianTime(timeInput) {
+  if (!timeInput) return null;
+  let gregHour = 0;
+  let min = 0;
+
+  if (timeInput instanceof Date) {
+    gregHour = timeInput.getHours();
+    min = timeInput.getMinutes();
+  } else if (typeof timeInput === 'string') {
+    const parts = timeInput.split(':').map(n => parseInt(n, 10));
+    if (isNaN(parts[0])) return null;
+    gregHour = parts[0];
+    min = isNaN(parts[1]) ? 0 : parts[1];
+  } else {
+    return null;
+  }
+
+  let period = 'day';
+  let ethHour = 0;
+  let periodLabel = '';
+
+  if (gregHour >= 6 && gregHour < 18) {
+    period = 'day';
+    ethHour = gregHour - 6;
+    if (ethHour === 0) ethHour = 12;
+
+    if (gregHour < 12) periodLabel = 'ጥዋት';
+    else if (gregHour === 12) periodLabel = 'እኩለ ቀን';
+    else periodLabel = 'ከሰዓት';
+  } else {
+    period = 'night';
+    ethHour = (gregHour + 6) % 12;
+    if (ethHour === 0) ethHour = 12;
+
+    if (gregHour >= 18 && gregHour < 24) periodLabel = 'ማታ';
+    else periodLabel = 'ሌሊት';
+  }
+
+  const minStr = String(min).padStart(2, '0');
+  const greg12H = gregHour > 12 ? gregHour - 12 : (gregHour === 0 ? 12 : gregHour);
+  const gregAmPm = gregHour >= 12 ? 'PM' : 'AM';
+
+  return {
+    ethHour,
+    minute: min,
+    period,
+    periodLabel,
+    formatted: `${ethHour}:${minStr} ${periodLabel}`,
+    formattedDual: `${ethHour}:${minStr} ${periodLabel} (${greg12H}:${minStr} ${gregAmPm})`,
+  };
+}
+
+/**
+ * Converts Ethiopian time (ethHour, minute, period) to Gregorian time string ("HH:MM").
+ * @param {number|string} ethHour - 1 to 12
+ * @param {number|string} minute - 0 to 59
+ * @param {'day'|'night'} period - 'day' (ጥዋት/ከሰዓት) or 'night' (ማታ/ሌሊት)
+ * @returns {{ gregHour: number, minute: number, timeStr: string }}
+ */
+export function toGregorianTime(ethHour, minute = 0, period = 'day') {
+  const h = parseInt(ethHour, 10) || 12;
+  const m = parseInt(minute, 10) || 0;
+
+  let gregHour = 0;
+  if (period === 'day') {
+    gregHour = (h % 12) + 6;
+  } else {
+    gregHour = ((h % 12) + 18) % 24;
+  }
+
+  const timeStr = `${String(gregHour).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  return { gregHour, minute: m, timeStr };
+}
+
+/**
+ * Formats a Gregorian time string into Ethiopian time.
+ * e.g. "08:00" -> "2:00 ጥዋት"
+ */
+export function formatEthTime(timeInput) {
+  const t = toEthiopianTime(timeInput);
+  return t ? t.formatted : (timeInput || '—');
+}
+
+/**
+ * Formats a Gregorian time string into Dual Ethiopian + Gregorian time.
+ * e.g. "08:00" -> "2:00 ጥዋት (8:00 AM)"
+ */
+export function formatDualTime(timeInput) {
+  const t = toEthiopianTime(timeInput);
+  return t ? t.formattedDual : (timeInput || '—');
+}
+
