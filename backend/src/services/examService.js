@@ -410,11 +410,11 @@ const listReportCards = async ({
        ay.name AS academic_year_name
      FROM report_cards rc
      JOIN students s ON s.id = rc.student_id
-     JOIN enrollments e ON e.id = rc.enrollment_id
-     JOIN classes c ON c.id = e.class_id
-     JOIN sections sec ON sec.id = e.section_id
      JOIN terms t ON t.id = rc.term_id
      JOIN academic_years ay ON ay.id = t.academic_year_id
+     LEFT JOIN enrollments e ON (e.id = rc.enrollment_id OR (rc.enrollment_id IS NULL AND e.student_id = rc.student_id AND e.academic_year_id = t.academic_year_id))
+     LEFT JOIN classes c ON c.id = e.class_id
+     LEFT JOIN sections sec ON sec.id = e.section_id
      WHERE ${conditions.join(' AND ')}
      ORDER BY s.last_name, s.first_name`,
     params
@@ -436,11 +436,11 @@ const getReportCard = async (id) => {
        ay.name AS academic_year
      FROM report_cards rc
      JOIN students s ON s.id = rc.student_id
-     JOIN enrollments e ON e.id = rc.enrollment_id
-     JOIN classes c ON c.id = e.class_id
-     JOIN sections sec ON sec.id = e.section_id
      JOIN terms t ON t.id = rc.term_id
      JOIN academic_years ay ON ay.id = t.academic_year_id
+     LEFT JOIN enrollments e ON (e.id = rc.enrollment_id OR (rc.enrollment_id IS NULL AND e.student_id = rc.student_id AND e.academic_year_id = t.academic_year_id))
+     LEFT JOIN classes c ON c.id = e.class_id
+     LEFT JOIN sections sec ON sec.id = e.section_id
      WHERE rc.id = $1`,
     [id]
   );
@@ -461,8 +461,7 @@ const getReportCard = async (id) => {
     [id]
   );
 
-  card.items = items;
-  return card;
+  return { ...card, items };
 };
 
 const generateReportCard = async ({ student_id, term_id }) => {
@@ -491,6 +490,10 @@ const generateReportCard = async ({ student_id, term_id }) => {
   let cardId;
   if (existing.length) {
     cardId = existing[0].id;
+    await pool.query(
+      `UPDATE report_cards SET enrollment_id = COALESCE(enrollment_id, $1) WHERE id = $2`,
+      [enrollmentId, cardId]
+    );
   } else {
     const { rows: created } = await pool.query(
       `INSERT INTO report_cards (student_id, term_id, enrollment_id)

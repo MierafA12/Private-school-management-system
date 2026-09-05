@@ -72,6 +72,12 @@ const getAcademicYearById = async (id) => {
 };
 
 const createAcademicYear = async ({ name, start_date, end_date, is_current = false }) => {
+  if (new Date(end_date) <= new Date(start_date)) {
+    const err = new Error('Academic year end date must be after start date.');
+    err.status = 400;
+    throw err;
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -92,6 +98,25 @@ const createAcademicYear = async ({ name, start_date, end_date, is_current = fal
 };
 
 const updateAcademicYear = async (id, fields) => {
+  if (fields.start_date && fields.end_date) {
+    if (new Date(fields.end_date) <= new Date(fields.start_date)) {
+      const err = new Error('Academic year end date must be after start date.');
+      err.status = 400;
+      throw err;
+    }
+  } else if (fields.start_date || fields.end_date) {
+    const { rows: existing } = await pool.query('SELECT start_date, end_date FROM academic_years WHERE id = $1', [id]);
+    if (existing.length) {
+      const s = fields.start_date ? new Date(fields.start_date) : new Date(existing[0].start_date);
+      const e = fields.end_date ? new Date(fields.end_date) : new Date(existing[0].end_date);
+      if (e <= s) {
+        const err = new Error('Academic year end date must be after start date.');
+        err.status = 400;
+        throw err;
+      }
+    }
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -167,6 +192,12 @@ const deleteAcademicYear = async (id) => {
 // ═════════════════════════════════════════════════════════════════════════════
 
 const createTerm = async ({ academic_year_id, name, start_date, end_date, status = 'ACTIVE' }) => {
+  if (new Date(end_date) <= new Date(start_date)) {
+    const err = new Error('Term end date must be after start date.');
+    err.status = 400;
+    throw err;
+  }
+
   const { rows } = await pool.query(
     `INSERT INTO terms (academic_year_id, name, start_date, end_date, status)
      VALUES ($1, $2, $3, $4, $5) RETURNING *`,
@@ -176,6 +207,25 @@ const createTerm = async ({ academic_year_id, name, start_date, end_date, status
 };
 
 const updateTerm = async (id, fields) => {
+  if (fields.start_date && fields.end_date) {
+    if (new Date(fields.end_date) <= new Date(fields.start_date)) {
+      const err = new Error('Term end date must be after start date.');
+      err.status = 400;
+      throw err;
+    }
+  } else if (fields.start_date || fields.end_date) {
+    const { rows: existing } = await pool.query('SELECT start_date, end_date FROM terms WHERE id = $1', [id]);
+    if (existing.length) {
+      const s = fields.start_date ? new Date(fields.start_date) : new Date(existing[0].start_date);
+      const e = fields.end_date ? new Date(fields.end_date) : new Date(existing[0].end_date);
+      if (e <= s) {
+        const err = new Error('Term end date must be after start date.');
+        err.status = 400;
+        throw err;
+      }
+    }
+  }
+
   const { rows } = await pool.query(
     `UPDATE terms
      SET name       = COALESCE($1, name),

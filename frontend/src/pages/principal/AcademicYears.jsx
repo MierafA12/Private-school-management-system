@@ -24,14 +24,25 @@ function YearForm({ initial = {}, onSave, onClose, saving }) {
   const [startDate,  setStartDate]  = useState(initial.start_date?.slice(0,10) || '');
   const [endDate,    setEndDate]    = useState(initial.end_date?.slice(0,10)   || '');
   const [isCurrent,  setIsCurrent]  = useState(initial.is_current || false);
+  const [err,        setErr]        = useState('');
 
   const submit = (e) => {
     e.preventDefault();
+    if (startDate && endDate && endDate <= startDate) {
+      setErr('End date must be after start date.');
+      return;
+    }
+    setErr('');
     onSave({ name, start_date: startDate, end_date: endDate, is_current: isCurrent });
   };
 
   return (
     <form onSubmit={submit}>
+      {err && (
+        <div style={{ color: '#ef4444', backgroundColor: '#fef2f2', border: '1px solid #fecaca', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+          {err}
+        </div>
+      )}
       <div className="pf-field">
         <label className="pf-label">Year Name <span>*</span></label>
         <input className="pf-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. 2026/2027" required />
@@ -39,11 +50,11 @@ function YearForm({ initial = {}, onSave, onClose, saving }) {
       <div className="pf-grid-2">
         <div className="pf-field">
           <label className="pf-label">Start Date <span>*</span></label>
-          <input type="date" className="pf-input" value={startDate} onChange={e => setStartDate(e.target.value)} required />
+          <input type="date" className="pf-input" value={startDate} onChange={e => { setStartDate(e.target.value); setErr(''); }} required />
         </div>
         <div className="pf-field">
           <label className="pf-label">End Date <span>*</span></label>
-          <input type="date" className="pf-input" value={endDate} onChange={e => setEndDate(e.target.value)} required />
+          <input type="date" className="pf-input" value={endDate} min={startDate || undefined} onChange={e => { setEndDate(e.target.value); setErr(''); }} required />
         </div>
       </div>
       <div className="pf-field" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
@@ -66,14 +77,25 @@ function TermForm({ yearId, initial = {}, onSave, onClose, saving }) {
   const [startDate, setStartDate] = useState(initial.start_date?.slice(0,10) || '');
   const [endDate,   setEndDate]   = useState(initial.end_date?.slice(0,10)   || '');
   const [status,    setStatus]    = useState(initial.status         || 'ACTIVE');
+  const [err,       setErr]       = useState('');
 
   const submit = (e) => {
     e.preventDefault();
+    if (startDate && endDate && endDate <= startDate) {
+      setErr('End date must be after start date.');
+      return;
+    }
+    setErr('');
     onSave({ name, start_date: startDate, end_date: endDate, status });
   };
 
   return (
     <form onSubmit={submit}>
+      {err && (
+        <div style={{ color: '#ef4444', backgroundColor: '#fef2f2', border: '1px solid #fecaca', padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+          {err}
+        </div>
+      )}
       <div className="pf-field">
         <label className="pf-label">Term Name <span>*</span></label>
         <input className="pf-input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Term 1" required />
@@ -81,11 +103,11 @@ function TermForm({ yearId, initial = {}, onSave, onClose, saving }) {
       <div className="pf-grid-2">
         <div className="pf-field">
           <label className="pf-label">Start Date <span>*</span></label>
-          <input type="date" className="pf-input" value={startDate} onChange={e => setStartDate(e.target.value)} required />
+          <input type="date" className="pf-input" value={startDate} onChange={e => { setStartDate(e.target.value); setErr(''); }} required />
         </div>
         <div className="pf-field">
           <label className="pf-label">End Date <span>*</span></label>
-          <input type="date" className="pf-input" value={endDate} onChange={e => setEndDate(e.target.value)} required />
+          <input type="date" className="pf-input" value={endDate} min={startDate || undefined} onChange={e => { setEndDate(e.target.value); setErr(''); }} required />
         </div>
       </div>
       <div className="pf-field">

@@ -46,7 +46,14 @@ router.post('/academic-years',
   [
     body('name').notEmpty().withMessage('name is required.'),
     body('start_date').isDate().withMessage('start_date must be a valid date.'),
-    body('end_date').isDate().withMessage('end_date must be a valid date.'),
+    body('end_date')
+      .isDate().withMessage('end_date must be a valid date.')
+      .custom((val, { req }) => {
+        if (req.body.start_date && new Date(val) <= new Date(req.body.start_date)) {
+          throw new Error('Academic year end date must be after start date.');
+        }
+        return true;
+      }),
     body('is_current').optional().isBoolean(),
   ],
   validate, ctrl.createAcademicYear
@@ -54,7 +61,13 @@ router.post('/academic-years',
 router.patch('/academic-years/:id',
   [
     body('start_date').optional().isDate(),
-    body('end_date').optional().isDate(),
+    body('end_date').optional().isDate()
+      .custom((val, { req }) => {
+        if (req.body.start_date && new Date(val) <= new Date(req.body.start_date)) {
+          throw new Error('Academic year end date must be after start date.');
+        }
+        return true;
+      }),
     body('is_current').optional().isBoolean(),
     body('status').optional().isIn(['ACTIVE', 'INACTIVE']),
   ],
@@ -67,7 +80,14 @@ router.post('/academic-years/:yearId/terms',
   [
     body('name').notEmpty().withMessage('name is required.'),
     body('start_date').isDate().withMessage('start_date must be a valid date.'),
-    body('end_date').isDate().withMessage('end_date must be a valid date.'),
+    body('end_date')
+      .isDate().withMessage('end_date must be a valid date.')
+      .custom((val, { req }) => {
+        if (req.body.start_date && new Date(val) <= new Date(req.body.start_date)) {
+          throw new Error('Term end date must be after start date.');
+        }
+        return true;
+      }),
     body('status').optional().isIn(['ACTIVE', 'INACTIVE', 'COMPLETED']),
   ],
   validate, ctrl.createTerm
@@ -75,7 +95,13 @@ router.post('/academic-years/:yearId/terms',
 router.patch('/terms/:id',
   [
     body('start_date').optional().isDate(),
-    body('end_date').optional().isDate(),
+    body('end_date').optional().isDate()
+      .custom((val, { req }) => {
+        if (req.body.start_date && new Date(val) <= new Date(req.body.start_date)) {
+          throw new Error('Term end date must be after start date.');
+        }
+        return true;
+      }),
     body('status').optional().isIn(['ACTIVE', 'INACTIVE', 'COMPLETED']),
   ],
   validate, ctrl.updateTerm
