@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import ThemeToggle from '../shared/ThemeToggle';
 
+const NAV_LINKS = [
+  { label: 'About Us', to: '/about'   },
+  { label: 'Events',   to: '/events'  },
+  { label: 'Jobs',     to: '/jobs'    },
+  { label: 'Contact',  to: '/contact' },
+  { label: 'Pricing',  pricing: true  },
+];
+
 const Navbar = ({ transparent = false }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled,   setScrolled]   = useState(false);
+  const navigate  = useNavigate();
+  const location  = useLocation();
 
   const closeMenu = () => setMobileOpen(false);
 
@@ -16,45 +26,87 @@ const Navbar = ({ transparent = false }) => {
     return () => window.removeEventListener('scroll', onScroll);
   }, [transparent]);
 
+  /* Pricing click: if already on /landing just scroll, otherwise navigate there first */
+  const handlePricing = (e) => {
+    e.preventDefault();
+    closeMenu();
+    if (location.pathname === '/landing') {
+      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/landing');
+      /* After navigation the landing page mounts; scroll after a short paint delay */
+      setTimeout(() => {
+        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+      }, 350);
+    }
+  };
+
+  const renderLink = ({ label, to, pricing }) => {
+    if (pricing) {
+      return (
+        <a key={label} href="#pricing" onClick={handlePricing}>{label}</a>
+      );
+    }
+    return <Link key={label} to={to}>{label}</Link>;
+  };
+
   return (
-    <nav className={`saas-navbar${transparent ? ' saas-navbar--transparent' : ''}${scrolled ? ' saas-navbar--scrolled' : ''}`}>
+    <nav
+      className={`saas-navbar${transparent ? ' saas-navbar--transparent' : ''}${
+        scrolled ? ' saas-navbar--scrolled' : ''
+      }`}
+    >
       <div className="container nav-container">
-        <div className="nav-brand">
+        {/* Brand */}
+        <Link to="/landing" className="nav-brand" style={{ textDecoration: 'none' }}>
           <img src="/logo.svg" alt="Haile-Manas Academy" className="brand-logo" />
-          <span className="brand-text">Haile-Manas Academy</span>
-        </div>
+          <span className="brand-text">Haile-Manas</span>
+        </Link>
 
-        {/* Desktop Links */}
+        {/* Desktop links */}
         <div className="nav-links">
-          <a href="#product">Product</a>
-          <a href="#solutions">Solutions</a>
-          <a href="#resources">Resources</a>
-          <a href="#pricing">Pricing</a>
+          {NAV_LINKS.map(renderLink)}
         </div>
 
-        {/* Desktop Actions */}
+        {/* Desktop actions */}
         <div className="nav-actions">
           <ThemeToggle />
+          <Link
+            to="/login"
+            className="btn btn-primary"
+            style={{ padding: '0.45rem 1.1rem', fontSize: '0.875rem' }}
+          >
+            Sign In
+          </Link>
         </div>
 
-        {/* Mobile Hamburger Toggle */}
+        {/* Mobile hamburger */}
         <button
           className="mobile-nav-toggle"
-          onClick={() => setMobileOpen(!mobileOpen)}
+          onClick={() => setMobileOpen(v => !v)}
           aria-label="Toggle navigation menu"
         >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Mobile Menu Drawer */}
+      {/* Mobile drawer */}
       {mobileOpen && (
         <div className="mobile-nav-menu">
-          <a href="#product" onClick={closeMenu}>Product</a>
-          <a href="#solutions" onClick={closeMenu}>Solutions</a>
-          <a href="#resources" onClick={closeMenu}>Resources</a>
-          <a href="#pricing" onClick={closeMenu}>Pricing</a>
-          <div className="mobile-nav-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+          {NAV_LINKS.map(({ label, to, pricing }) => {
+            if (pricing) {
+              return (
+                <a key={label} href="#pricing" onClick={handlePricing}>{label}</a>
+              );
+            }
+            return (
+              <Link key={label} to={to} onClick={closeMenu}>{label}</Link>
+            );
+          })}
+          <div
+            className="mobile-nav-actions"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+          >
             <Link to="/login" className="btn btn-primary" onClick={closeMenu} style={{ flex: 1 }}>
               Sign In to Portal
             </Link>

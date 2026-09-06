@@ -10,6 +10,10 @@ import MyProfile from './pages/shared/MyProfile';
 
 // ── Public ────────────────────────────────────────────────────────────────────
 import Landing from './pages/landing/Landing';
+import About   from './pages/landing/About';
+import Events  from './pages/landing/Events';
+import Jobs    from './pages/landing/Jobs';
+import Contact from './pages/landing/Contact';
 import Login   from './pages/auth/Login';
 
 // ── Student portal ────────────────────────────────────────────────────────────
@@ -96,10 +100,14 @@ export default function App() {
     <NotificationProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Navigate to="/landing" replace />} />
 
           {/* ── Public ── */}
           <Route path="/landing" element={<Landing />} />
+          <Route path="/about"   element={<About />} />
+          <Route path="/events"  element={<Events />} />
+          <Route path="/jobs"    element={<Jobs />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login"   element={<PublicRoute><Login /></PublicRoute>} />
 
           {/* ── Student portal ── */}
