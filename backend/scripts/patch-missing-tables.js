@@ -241,10 +241,88 @@ CREATE INDEX IF NOT EXISTS idx_fee_payments_date    ON fee_payments(payment_date
 
 ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS fee_type VARCHAR(100);
 ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS due_date DATE;
-ALTER TABLE fee_structures ALTER COLUMN category DROP NOT NULL;
+
+-- ─── fee_structures — columns the service layer expects ──────────────────────
+ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS term_id       UUID REFERENCES terms(id) ON DELETE SET NULL;
+ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS category      VARCHAR(100);
+ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS is_mandatory  BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS status        VARCHAR(20) NOT NULL DEFAULT 'ACTIVE';
+ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS archived_at   TIMESTAMP;
+ALTER TABLE fee_structures ADD COLUMN IF NOT EXISTS created_by    UUID REFERENCES users(id) ON DELETE SET NULL;
+-- Back-fill category from fee_type where category is null
+UPDATE fee_structures SET category = fee_type WHERE category IS NULL AND fee_type IS NOT NULL;
+
+-- ─── fee_invoices — columns the service layer expects ────────────────────────
+ALTER TABLE fee_invoices ADD COLUMN IF NOT EXISTS fee_structure_id UUID REFERENCES fee_structures(id) ON DELETE SET NULL;
+ALTER TABLE fee_invoices ADD COLUMN IF NOT EXISTS gateway_status   VARCHAR(20);
+ALTER TABLE fee_invoices ADD COLUMN IF NOT EXISTS tx_ref           VARCHAR(200);
+ALTER TABLE fee_invoices ADD COLUMN IF NOT EXISTS checkout_url     TEXT;
+
+-- ─── fee_payments — columns the service layer expects ────────────────────────
+ALTER TABLE fee_payments ADD COLUMN IF NOT EXISTS receipt_number   VARCHAR(60);
+ALTER TABLE fee_payments ADD COLUMN IF NOT EXISTS recorded_by      UUID REFERENCES users(id) ON DELETE SET NULL;
+
+-- ─── fix payment_method constraint to allow MOBILE_MONEY, GATEWAY, WAIVER ────
+ALTER TABLE fee_payments DROP CONSTRAINT IF EXISTS chk_fee_payments_method;
+ALTER TABLE fee_payments ADD CONSTRAINT chk_fee_payments_method
+  CHECK (payment_method IN ('CASH','MPESA','BANK_TRANSFER','CHEQUE','CARD','OTHER','MOBILE_MONEY','GATEWAY','WAIVER'));
+
+-- ─── indexes for new columns ──────────────────────────────────────────────────
+CREATE INDEX IF NOT EXISTS idx_fee_structures_term    ON fee_structures(term_id);
+CREATE INDEX IF NOT EXISTS idx_fee_structures_status  ON fee_structures(status);
+CREATE INDEX IF NOT EXISTS idx_fee_invoices_structure ON fee_invoices(fee_structure_id);
+CREATE INDEX IF NOT EXISTS idx_fee_invoices_txref     ON fee_invoices(tx_ref);
+CREATE INDEX IF NOT EXISTS idx_fee_payments_receipt   ON fee_payments(receipt_number);
 
 
--- ─── announcements ───────────────────────────────────────────────────────────
+-- ─── Notification tables ──────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS notifications (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type       VARCHAR(60)  NOT NULL DEFAULT 'general',
+  title      VARCHAR(255) NOT NULL,
+  body       TEXT,
+  link       TEXT,
+  ref_type   VARCHAR(60),
+  ref_id     UUID,
+  is_read    BOOLEAN NOT NULL DEFAULT FALSE,
+  read_at    TIMESTAMP,
+  archived   BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_notifications_user    ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_unread  ON notifications(user_id, is_read) WHERE is_read = FALSE;
+
+CREATE TABLE IF NOT EXISTS notification_preferences (
+  id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id              UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  email_enabled        BOOLEAN NOT NULL DEFAULT TRUE,
+  sms_enabled          BOOLEAN NOT NULL DEFAULT FALSE,
+  push_enabled         BOOLEAN NOT NULL DEFAULT TRUE,
+  fee_alerts           BOOLEAN NOT NULL DEFAULT TRUE,
+  attendance_alerts    BOOLEAN NOT NULL DEFAULT TRUE,
+  grade_alerts         BOOLEAN NOT NULL DEFAULT TRUE,
+  announcement_alerts  BOOLEAN NOT NULL DEFAULT TRUE,
+  new_message_alerts   BOOLEAN NOT NULL DEFAULT TRUE,
+  results_alerts       BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at           TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at           TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_notif_prefs_user ON notification_preferences(user_id);
+
+CREATE TABLE IF NOT EXISTS notification_delivery_log (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  notification_id   UUID REFERENCES notifications(id) ON DELETE CASCADE,
+  user_id           UUID REFERENCES users(id) ON DELETE CASCADE,
+  channel           VARCHAR(20) NOT NULL,
+  status            VARCHAR(20) NOT NULL,
+  provider_response TEXT,
+  error_message     TEXT,
+  created_at        TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_notif_delivery_notif ON notification_delivery_log(notification_id);
+
+
 CREATE TABLE IF NOT EXISTS announcements (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title       VARCHAR(255) NOT NULL,
@@ -266,6 +344,123 @@ CREATE TABLE IF NOT EXISTS announcements (
 CREATE INDEX IF NOT EXISTS idx_announcements_audience   ON announcements(audience);
 CREATE INDEX IF NOT EXISTS idx_announcements_publish_at ON announcements(publish_at);
 
+-- ─── assignments ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS assignments (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title                 VARCHAR(255) NOT NULL,
+  description           TEXT,
+  curriculum_subject_id UUID REFERENCES curriculum_subjects(id) ON DELETE SET NULL,
+  class_id              UUID NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  section_id            UUID REFERENCES sections(id) ON DELETE SET NULL,
+  teacher_id            UUID NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
+  assignment_type       VARCHAR(20) NOT NULL DEFAULT 'individual',
+  due_date              DATE NOT NULL,
+  max_marks             NUMERIC(6,2) NOT NULL DEFAULT 100,
+  instructions          TEXT,
+  is_published          BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at            TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at            TIMESTAMP NOT NULL DEFAULT NOW(),
+  CONSTRAINT chk_assignment_type CHECK (assignment_type IN ('individual','group'))
+);
+CREATE INDEX IF NOT EXISTS idx_assignments_class   ON assignments(class_id);
+CREATE INDEX IF NOT EXISTS idx_assignments_teacher ON assignments(teacher_id);
+CREATE INDEX IF NOT EXISTS idx_assignments_due     ON assignments(due_date);
+
+-- ─── assignment_groups ───────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS assignment_groups (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  assignment_id UUID NOT NULL REFERENCES assignments(id) ON DELETE CASCADE,
+  group_name    VARCHAR(150) NOT NULL,
+  created_at    TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_assignment_groups_assignment ON assignment_groups(assignment_id);
+
+-- ─── assignment_group_members ────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS assignment_group_members (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  group_id   UUID NOT NULL REFERENCES assignment_groups(id) ON DELETE CASCADE,
+  student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  CONSTRAINT uq_group_member UNIQUE (group_id, student_id)
+);
+CREATE INDEX IF NOT EXISTS idx_agm_group   ON assignment_group_members(group_id);
+CREATE INDEX IF NOT EXISTS idx_agm_student ON assignment_group_members(student_id);
+
+-- ─── assignment_submissions ──────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS assignment_submissions (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  assignment_id UUID NOT NULL REFERENCES assignments(id) ON DELETE CASCADE,
+  student_id    UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+  group_id      UUID REFERENCES assignment_groups(id) ON DELETE SET NULL,
+  content       TEXT,
+  file_url      TEXT,
+  submitted_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+  marks_obtained NUMERIC(6,2),
+  feedback      TEXT,
+  graded_by     UUID REFERENCES users(id) ON DELETE SET NULL,
+  graded_at     TIMESTAMP,
+  status        VARCHAR(20) NOT NULL DEFAULT 'submitted',
+  created_at    TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMP NOT NULL DEFAULT NOW(),
+  CONSTRAINT chk_submission_status CHECK (status IN ('submitted','graded','late','returned')),
+  CONSTRAINT uq_submission_student_assignment UNIQUE (assignment_id, student_id)
+);
+CREATE INDEX IF NOT EXISTS idx_submissions_assignment ON assignment_submissions(assignment_id);
+CREATE INDEX IF NOT EXISTS idx_submissions_student    ON assignment_submissions(student_id);
+
+-- ─── events ──────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS events (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title        VARCHAR(255) NOT NULL,
+  description  TEXT,
+  event_date   DATE NOT NULL,
+  start_time   TIME,
+  end_time     TIME,
+  location     VARCHAR(255),
+  audience     VARCHAR(30) NOT NULL DEFAULT 'ALL',
+  class_id     UUID REFERENCES classes(id) ON DELETE SET NULL,
+  is_published BOOLEAN NOT NULL DEFAULT TRUE,
+  created_by   UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+  created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+  CONSTRAINT chk_events_audience
+    CHECK (audience IN ('ALL','STUDENTS','PARENTS','TEACHERS','STAFF','CLASS'))
+);
+CREATE INDEX IF NOT EXISTS idx_events_date     ON events(event_date);
+CREATE INDEX IF NOT EXISTS idx_events_audience ON events(audience);
+
+-- ─── conversations ───────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS conversations (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  subject      VARCHAR(255),
+  created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+-- ─── conversation_participants ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS conversation_participants (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  joined_at       TIMESTAMP NOT NULL DEFAULT NOW(),
+  CONSTRAINT uq_conversation_participant UNIQUE (conversation_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_conv_participants_conv ON conversation_participants(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_conv_participants_user ON conversation_participants(user_id);
+
+-- ─── messages ────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS messages (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  sender_id       UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  body            TEXT NOT NULL,
+  is_read         BOOLEAN NOT NULL DEFAULT FALSE,
+  read_at         TIMESTAMP,
+  created_at      TIMESTAMP NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_messages_sender       ON messages(sender_id);
+
 `;
 
 async function main() {
@@ -282,7 +477,11 @@ async function main() {
     console.log('   • student_marks');
     console.log('   • report_cards + report_card_items');
     console.log('   • fee_structures + fee_invoices + fee_payments');
-    console.log('   • announcements\n');
+    console.log('   • announcements');
+    console.log('   • notifications + notification_preferences + notification_delivery_log');
+    console.log('   • assignments + assignment_groups + assignment_group_members + assignment_submissions');
+    console.log('   • events');
+    console.log('   • conversations + conversation_participants + messages\n');
   } catch (err) {
     console.error('❌  Patch failed:', err.message);
     process.exit(1);

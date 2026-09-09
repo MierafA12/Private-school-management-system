@@ -11,7 +11,7 @@ const getCollectionsReport = async ({ dateFrom, dateTo, classId, category } = {}
   if (dateFrom) { conds.push(`fp.payment_date >= $${p++}`); params.push(dateFrom); }
   if (dateTo)   { conds.push(`fp.payment_date <= $${p++}`); params.push(dateTo); }
   if (classId)  { conds.push(`e.class_id = $${p++}`);       params.push(classId); }
-  if (category) { conds.push(`fs.category = $${p++}`);      params.push(category); }
+  if (category) { conds.push(`COALESCE(fs.category, fs.fee_type) = $${p++}`); params.push(category); }
 
   const { rows: summary } = await pool.query(
     `SELECT
@@ -120,7 +120,7 @@ const getRevenueByCategory = async ({ academicYearId, termId } = {}) => {
 
   const { rows: byCategory } = await pool.query(
     `SELECT
-       COALESCE(fs.category, 'Uncategorised') AS category,
+       COALESCE(fs.category, fs.fee_type, 'Uncategorised') AS category,
        COALESCE(SUM(fi.total_amount), 0) AS billed,
        COALESCE(SUM(fi.amount_paid),  0) AS collected,
        COALESCE(SUM(fi.balance),      0) AS outstanding,
@@ -130,7 +130,7 @@ const getRevenueByCategory = async ({ academicYearId, termId } = {}) => {
      JOIN academic_years ay ON ay.id = t.academic_year_id
      LEFT JOIN fee_structures fs ON fs.id = fi.fee_structure_id
      WHERE ${conds.join(' AND ')}
-     GROUP BY COALESCE(fs.category,'Uncategorised')
+     GROUP BY COALESCE(fs.category, fs.fee_type, 'Uncategorised')
      ORDER BY billed DESC`,
     params
   );

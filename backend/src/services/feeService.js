@@ -139,7 +139,7 @@ const generateInvoices = async ({ termId, classId, feeStructureId, dueDate, crea
 
     // Get enrolled students for this class/term
     const { rows: students } = await client.query(
-      `SELECT s.id AS student_id
+      `SELECT s.id AS student_id, e.id AS enrollment_id
        FROM enrollments e
        JOIN students s ON s.id = e.student_id
        WHERE e.class_id = $1
@@ -155,7 +155,7 @@ const generateInvoices = async ({ termId, classId, feeStructureId, dueDate, crea
     let generated = 0;
     let skipped   = 0;
 
-    for (const { student_id } of students) {
+    for (const { student_id, enrollment_id } of students) {
       // Skip if invoice already exists for this student/term/structure
       const { rows: existing } = await client.query(
         `SELECT id FROM fee_invoices
@@ -168,11 +168,11 @@ const generateInvoices = async ({ termId, classId, feeStructureId, dueDate, crea
 
       await client.query(
         `INSERT INTO fee_invoices
-           (invoice_number, student_id, term_id, fee_structure_id,
-            total_amount, currency, due_date, status, created_by)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,'UNPAID',$8)`,
+           (invoice_number, student_id, enrollment_id, term_id, fee_structure_id,
+            total_amount, balance, currency, due_date, status, created_by)
+         VALUES ($1,$2,$3,$4,$5,$6,$6,$7,$8,'UNPAID',$9)`,
         [
-          invoiceNumber, student_id, termId, feeStructureId,
+          invoiceNumber, student_id, enrollment_id, termId, feeStructureId,
           structure.amount, structure.currency,
           dueDate || null, createdBy,
         ]

@@ -1,189 +1,115 @@
 import { useState } from 'react';
-import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, School, CalendarDays, Layers, BookOpen,
-  Star, DollarSign, UserCheck, Clock, Megaphone, FileText, LogOut,
-  Menu, X, GraduationCap, ChevronRight, PanelLeftClose, PanelLeftOpen,
+  Star, DollarSign, UserCheck, Clock, Megaphone, FileText,
+  User, LogOut, Menu, X, GraduationCap,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useSidebar } from '../../context/SidebarContext';
 import NotificationBell from '../../components/shared/NotificationBell';
-import ThemeToggle from '../../components/shared/ThemeToggle';
-import EthiopianDateBadge from '../../components/shared/EthiopianDateBadge';
-import '../../styles/portals/layout.css';
-import './principal.css';
+import '../../styles/portals/student.css';
 
-const NAV_GROUPS = [
-  {
-    title: 'Overview',
-    items: [
-      { to: '/principal/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    ],
-  },
-  {
-    title: 'Academic Structure',
-    items: [
-      { to: '/principal/academic-years', icon: CalendarDays, label: 'Academic Years' },
-      { to: '/principal/classes',        icon: Layers,       label: 'Classes & Sections' },
-      { to: '/principal/subjects',       icon: BookOpen,     label: 'Curriculum Subjects' },
-      { to: '/principal/timetable',      icon: Clock,        label: 'Weekly Timetable' },
-    ],
-  },
-  {
-    title: 'Assessment & Grading',
-    items: [
-      { to: '/principal/class-advisors', icon: UserCheck,    label: 'Class Advisors' },
-      { to: '/principal/grading-scales', icon: Star,         label: 'Grading Scales' },
-      { to: '/principal/report-cards',   icon: FileText,     label: 'Report Cards' },
-    ],
-  },
-  {
-    title: 'Administration',
-    items: [
-      { to: '/principal/school-profile', icon: School,       label: 'School Profile' },
-      { to: '/principal/fee-structures', icon: DollarSign,   label: 'Fee Structures' },
-      { to: '/principal/announcements',  icon: Megaphone,    label: 'Announcements' },
-    ],
-  },
+const NAV = [
+  { to: '/principal/dashboard',      icon: LayoutDashboard, label: 'Dashboard'       },
+  { to: '/principal/school-profile', icon: School,          label: 'School Profile'  },
+  { to: '/principal/academic-years', icon: CalendarDays,    label: 'Academic Years'  },
+  { to: '/principal/classes',        icon: Layers,          label: 'Classes'         },
+  { to: '/principal/subjects',       icon: BookOpen,        label: 'Subjects'        },
+  { to: '/principal/grading-scales', icon: Star,            label: 'Grading Scales'  },
+  { to: '/principal/fee-structures', icon: DollarSign,      label: 'Fee Structures'  },
+  { to: '/principal/class-advisors', icon: UserCheck,       label: 'Class Advisors'  },
+  { to: '/principal/timetable',      icon: Clock,           label: 'Timetable'       },
+  { to: '/principal/report-cards',   icon: FileText,        label: 'Report Cards'    },
+  { to: '/principal/announcements',  icon: Megaphone,       label: 'Announcements'   },
 ];
-
-const ALL_NAV_ITEMS = NAV_GROUPS.flatMap(g => g.items);
 
 const initials = (n = '') =>
   n.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'PR';
 
 export default function PrincipalLayout() {
   const [open, setOpen] = useState(false);
-  const { collapsed, toggleSidebar } = useSidebar();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const name   = user?.full_name || user?.email || 'Principal';
   const avatar = initials(name);
-
-  // Find active item and group
-  const activeItem = ALL_NAV_ITEMS.find(n => location.pathname.startsWith(n.to));
-  const activeGroup = NAV_GROUPS.find(g => g.items.some(i => location.pathname.startsWith(i.to)));
-  const pageTitle  = activeItem?.label || 'Dashboard';
-
-  const firstName = name.split(' ')[0] || 'Principal';
+  const page   = NAV.find(n => location.pathname.startsWith(n.to))?.label
+    || (location.pathname.includes('profile') ? 'My Profile' : 'Dashboard');
 
   return (
     <div className="sl-root">
       {open && <div className="sl-overlay" onClick={() => setOpen(false)} />}
 
-      <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''} ${collapsed ? 'sl-sidebar--collapsed' : ''}`}>
+      <aside className={`sl-sidebar ${open ? 'sl-sidebar--open' : ''}`}>
         <div className="sl-logo">
-          <Link to="/principal/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', textDecoration: 'none' }} title="Principal Dashboard">
-            <img src="/logo.svg" alt="Haile-Manas Academy" style={{ width: 28, height: 28, flexShrink: 0 }} />
-            <div className="sl-logo-text">
-              <div className="sl-logo-name" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Haile-Manas</div>
-              <div className="sl-logo-sub" style={{ fontSize: '0.68rem', letterSpacing: '0.02em' }}>Principal Portal</div>
-            </div>
-          </Link>
-          <button
-            type="button"
-            className="sl-collapse-btn"
-            onClick={toggleSidebar}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={16} />}
-          </button>
+          <div className="sl-logo-icon"><GraduationCap size={18} color="white" /></div>
+          <div>
+            <div className="sl-logo-name">Haile-Manas</div>
+            <div className="sl-logo-sub">Principal Portal</div>
+          </div>
           <button className="sl-close-btn" onClick={() => setOpen(false)} aria-label="Close Sidebar">
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
         <nav className="sl-nav">
-          {NAV_GROUPS.map((group) => (
-            <div key={group.title} className="sl-nav-group">
-              <div className="sl-nav-group-title">{group.title}</div>
-              {group.items.map(({ to, icon: Icon, label }) => (
-                <NavLink
-                  key={to}
-                  to={to}
-                  end={to === '/principal/dashboard'}
-                  className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
-                  onClick={() => setOpen(false)}
-                  title={label}
-                >
-                  <Icon size={15} />
-                  <span>{label}</span>
-                </NavLink>
-              ))}
-            </div>
+          {NAV.map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => `sl-nav-item${isActive ? ' sl-nav-item--active' : ''}`}
+              onClick={() => setOpen(false)}
+            >
+              <Icon size={16} /><span>{label}</span>
+            </NavLink>
           ))}
         </nav>
 
         <div className="sl-sidebar-footer">
-          <div className="sl-user-row">
-            <NavLink
-              to="/principal/profile"
-              className="sl-user-link"
-              onClick={() => setOpen(false)}
-              title={`${name} (${user?.role || 'Principal'})`}
-            >
-              <div className="sl-avatar">{avatar}</div>
-              <div className="sl-user-details">
-                <span className="sl-user-name">{name}</span>
-                <span className="sl-user-role">{user?.role || 'Principal'}</span>
-              </div>
-            </NavLink>
-            <button
-              className="sl-logout-btn"
-              onClick={() => { logout(); navigate('/login', { replace: true }); }}
-              title="Sign Out"
-              aria-label="Sign Out"
-            >
-              <LogOut size={15} />
-            </button>
-          </div>
+          <NavLink
+            to="/principal/profile"
+            className="sl-user-row"
+            onClick={() => setOpen(false)}
+            style={{ textDecoration: 'none', cursor: 'pointer' }}
+          >
+            <div className="sl-avatar">{avatar}</div>
+            <div className="sl-user-details">
+              <span className="sl-user-name">{name}</span>
+              <span className="sl-user-role">{user?.role || 'Principal'}</span>
+            </div>
+            <User size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+          </NavLink>
+          <button
+            className="sl-logout-full"
+            onClick={() => { logout(); navigate('/login', { replace: true }); }}
+          >
+            <LogOut size={14} /><span>Sign Out</span>
+          </button>
         </div>
       </aside>
 
-      <div className={`sl-main ${collapsed ? 'sl-main--collapsed' : ''}`}>
+      <div className="sl-main">
         <header className="sl-topbar">
-          <div className="sl-topbar-left">
+          <div className="sl-topbar-left" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <button className="sl-menu-btn" onClick={() => setOpen(true)} aria-label="Open Menu">
               <Menu size={20} />
             </button>
-            <div className="sl-topbar-title-wrap">
-              <span className="sl-portal-pill sl-portal-pill--principal">Principal</span>
-              {activeGroup && activeGroup.title !== 'Overview' && (
-                <>
-                  <span className="sl-topbar-divider">/</span>
-                  <span className="sl-topbar-parent">{activeGroup.title}</span>
-                </>
-              )}
-              <span className="sl-topbar-divider">/</span>
-              <h1 className="sl-page-title">{pageTitle}</h1>
-            </div>
+            <span className="sl-page-title">{page}</span>
           </div>
           <div className="sl-topbar-right">
-            <EthiopianDateBadge />
-            <ThemeToggle />
             <NotificationBell portalRoot="/principal" />
             <button
-              className="sl-topbar-user-btn"
+              className="sl-topbar-avatar-btn"
               onClick={() => navigate('/principal/profile')}
-              title={`Profile: ${name} (${user?.role || 'Principal'})`}
-              aria-label="My Profile"
+              title="My Profile"
             >
-              <div className="sl-topbar-avatar">{avatar}</div>
-              <div className="sl-topbar-user-meta">
-                <span className="sl-topbar-user-name">{firstName}</span>
-                <span className="sl-topbar-user-role">Principal</span>
-              </div>
+              {avatar}
             </button>
           </div>
         </header>
-        <main className="sl-content">
-          <Outlet />
-        </main>
+        <main className="sl-content"><Outlet /></main>
       </div>
     </div>
   );
 }
-
