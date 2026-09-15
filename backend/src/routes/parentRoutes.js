@@ -71,8 +71,20 @@ router.get('/children/:studentId/report-cards/:id',             ctrl.getChildRep
 // ─────────────────────────────────────────────────────────────────────────────
 // Fees
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/fees',                   ctrl.getFees);
-router.get('/fees/:invoiceId',        ctrl.getFeeById);
+router.get('/fees',  ctrl.getFees);
+
+// verify-payment MUST be before /:invoiceId to avoid param collision
+router.post(
+  '/fees/verify-payment',
+  [
+    body('tx_ref').isString().notEmpty().withMessage('tx_ref is required.'),
+    body('invoice_id').optional().isUUID(),
+  ],
+  validate,
+  ctrl.verifyPayment
+);
+
+router.get('/fees/:invoiceId', ctrl.getFeeById);
 router.post(
   '/fees/:invoiceId/pay',
   [

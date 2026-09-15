@@ -198,12 +198,29 @@
 .pp-modal {
   background: var(--bg-card, #FFFFFF);
   border-radius: var(--radius);
-  padding: 2rem;
+  padding: 0;
   width: 100%;
-  max-width: 440px;
+  max-width: 420px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
   animation: fadeIn 0.15s ease;
+  overflow: hidden;
+}
+.pp-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+.pp-modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 0.75rem;
+  background: var(--bg-card, #FFFFFF);
+  flex-shrink: 0;
 }
 .pp-modal-title {
   font-size: 1.2rem;
@@ -612,6 +629,12 @@
 [data-theme="dark"] .pp-modal {
   background: #1E293B;
   border-color: #334155;
+}
+
+[data-theme="dark"] .pp-modal-footer,
+.dark .pp-modal-footer {
+  background: #1E293B;
+  border-top-color: #334155;
 }
 
 [data-theme="dark"] .pp-btn-cancel {

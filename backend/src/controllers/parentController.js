@@ -172,8 +172,183 @@ const getFeeById = safe(async (req, res) => {
   res.json({ success: true, data: rows[0] });
 }, null);
 
-const initiatePayment = async (req, res) => {
-  res.json({ success: false, message: 'Online payment gateway not yet configured.' });
+const initiatePayment = async (req, res, next) => {
+  try {
+    const { invoiceId } = req.params;
+    const { amount }    = req.body;
+
+    // Verify invoice belongs to this parent AND get parent name + email
+    const { rows } = await pool.query(
+      `SELECT fi.*,
+              p.first_name  AS parent_first_name,
+              p.last_name   AS parent_last_name,
+              u.email       AS parent_email
+       FROM fee_invoices fi
+       JOIN students s ON s.id = fi.student_id
+       JOIN parents  p ON p.id = $2
+       JOIN users    u ON u.id = p.user_id
+       WHERE fi.id = $1 AND fi.student_id = ANY($3::uuid[])`,
+      [invoiceId, req.parentId, req.linkedStudentIds]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ success: false, message: 'Invoice not found.' });
+    }
+    const invoice = rows[0];
+
+    if (['PAID','WAIVED','CANCELLED'].includes(invoice.status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invoice is already ${invoice.status.toLowerCase()}.`,
+      });
+    }
+
+    const payAmount = parseFloat(amount || invoice.balance);
+    if (isNaN(payAmount) || payAmount <= 0 || payAmount > parseFloat(invoice.balance)) {
+      return res.status(400).json({ success: false, message: 'Invalid payment amount.' });
+    }
+
+    const gatewaySvc = require('../services/paymentGatewayService');
+    const result = await gatewaySvc.initializeTransaction({
+      invoiceId: invoice.id,
+      amount:    payAmount,
+      currency:  invoice.currency || 'ETB',
+      email:     invoice.parent_email || 'parent@school.com',
+      firstName: invoice.parent_first_name || 'Parent',
+      lastName:  invoice.parent_last_name  || 'User',
+    });
+
+    return res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// POST /api/parent/fees/verify-payment
+// Called by the frontend after Chapa redirects back.
+// Asks Chapa to verify the tx_ref, then records the payment if successful.
+// Safe to call multiple times — processSuccessfulPayment() is idempotent.
+// ═══════════════════════════════════════════════════════════════════════
+const verifyPayment = async (req, res, next) => {
+  try {
+    const { tx_ref, invoice_id } = req.body;
+
+    if (!tx_ref) {
+      return res.status(400).json({ success: false, message: 'tx_ref is required.' });
+    }
+
+    // Ownership check — make sure the invoice belongs to this parent
+    if (invoice_id) {
+      const { rows: invRows } = await pool.query(
+        `SELECT id FROM fee_invoices
+         WHERE id = $1 AND student_id = ANY($2::uuid[])`,
+        [invoice_id, req.linkedStudentIds]
+      );
+      if (!invRows.length) {
+        return res.status(403).json({ success: false, message: 'Access denied.' });
+      }
+    }
+
+    const gatewaySvc = require('../services/paymentGatewayService');
+
+    // 1. Ask Chapa if this transaction succeeded
+    let chapaData;
+    let chapaError = null;
+    try {
+      chapaData = await gatewaySvc.verifyTransaction(tx_ref);
+      console.log('[verifyPayment] Chapa response for tx_ref', tx_ref, ':', JSON.stringify(chapaData).slice(0, 300));
+    } catch (err) {
+      chapaError = err.message;
+      console.warn('[verifyPayment] Chapa verify failed for tx_ref', tx_ref, ':', err.message);
+    }
+
+    // If Chapa call failed, check DB gateway_status as fallback
+    if (!chapaData) {
+      const { rows: invCheck } = await pool.query(
+        `SELECT id, status, gateway_status, amount_paid FROM fee_invoices WHERE tx_ref = $1`,
+        [tx_ref]
+      );
+      if (invCheck.length) {
+        const inv = invCheck[0];
+        if (inv.status === 'PAID' || inv.gateway_status === 'SUCCESS') {
+          return res.json({
+            success: true,
+            data: { verified: true, status: 'success', duplicate: true, message: 'Payment already recorded.' },
+          });
+        }
+        if (inv.gateway_status === 'PENDING') {
+          return res.json({
+            success: true,
+            data: { verified: false, status: 'pending', message: 'Payment is being processed. Please wait a moment and refresh.' },
+          });
+        }
+      }
+      return res.status(200).json({
+        success: true,
+        data: { verified: false, status: 'unknown', message: chapaError || 'Chapa could not verify this transaction.' },
+      });
+    }
+
+    const chapaStatus = (chapaData?.status || chapaData?.data?.status || '').toLowerCase();
+
+    if (chapaStatus === 'abandoned') {
+      // Payment was opened on Chapa but never completed — clear PENDING flag
+      if (invoice_id) {
+        await pool.query(
+          `UPDATE fee_invoices SET gateway_status='ABANDONED', updated_at=NOW() WHERE id=$1`,
+          [invoice_id]
+        ).catch(() => {});
+      }
+      return res.json({
+        success: true,
+        data: { verified: false, status: 'abandoned', message: 'Payment was not completed on Chapa.' },
+      });
+    }
+
+    if (chapaStatus === 'success') {
+      // 2. Record the payment (idempotent — safe if already recorded)
+      const result = await gatewaySvc.processSuccessfulPayment(tx_ref, chapaData);
+
+      return res.json({
+        success: true,
+        data: {
+          verified:      true,
+          status:        'success',
+          duplicate:     result.duplicate || false,
+          invoice_id:    result.invoice_id,
+          receipt_number: result.receipt_number || null,
+          message:       result.duplicate
+            ? 'Payment was already recorded.'
+            : 'Payment confirmed and recorded.',
+        },
+      });
+    }
+
+    if (chapaStatus === 'pending') {
+      return res.json({
+        success: true,
+        data: { verified: false, status: 'pending', message: 'Payment is still being processed by Chapa.' },
+      });
+    }
+
+    // failed / cancelled / anything else
+    // Update gateway_status on the invoice so UI reflects it
+    if (invoice_id) {
+      await pool.query(
+        `UPDATE fee_invoices
+         SET gateway_status = $1, updated_at = NOW()
+         WHERE id = $2`,
+        [chapaStatus === 'cancelled' ? 'CANCELLED' : 'FAILED', invoice_id]
+      );
+    }
+
+    return res.json({
+      success: true,
+      data: { verified: false, status: chapaStatus || 'failed', message: 'Payment was not successful.' },
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -256,7 +431,7 @@ module.exports = {
   getChildren, getChildProfile, getDashboard,
   getChildAttendance, getChildGrades,
   getChildReportCards, getChildReportCardById,
-  getFees, getFeeById, initiatePayment,
+  getFees, getFeeById, initiatePayment, verifyPayment,
   getAnnouncements, getEvents, rsvpEvent,
   getMessages, getConversation, startConversation, sendMessage,
   getProfile, updateNotificationPrefs,

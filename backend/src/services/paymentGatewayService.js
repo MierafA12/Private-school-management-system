@@ -61,12 +61,21 @@ const chapaFetch = async (path, options = {}) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const initializeTransaction = async ({ invoiceId, amount, currency = 'ETB', email, firstName, lastName, phone, tx_ref }) => {
   // Generate a unique tx_ref if not provided
-  const ref = tx_ref || `EDUFLOW-${invoiceId.slice(0, 8).toUpperCase()}-${Date.now()}`;
+  const ref = tx_ref || `HAILEMANAS-${invoiceId.slice(0, 8).toUpperCase()}-${Date.now()}`;
+
+  // Chapa requires a valid email with at least 3 chars before @
+  // k@gmail.com fails — use a proper school fallback
+  const localPart = email ? email.split('@')[0] : '';
+  const safeEmail = (localPart.length >= 3)
+    ? email
+    : `parent.${invoiceId.slice(0, 8).toLowerCase()}@hailemanas.edu.et`;
+
+  console.log(`[chapa] initializeTransaction — email: ${email} → safeEmail: ${safeEmail}`);
 
   const payload = {
     amount:        String(parseFloat(amount).toFixed(2)),
     currency,
-    email:         email || 'parent@school.com',
+    email:         safeEmail,
     first_name:    firstName || 'Parent',
     last_name:     lastName  || 'User',
     phone_number:  phone     || '',
@@ -103,11 +112,24 @@ const initializeTransaction = async ({ invoiceId, amount, currency = 'ETB', emai
 // ─────────────────────────────────────────────────────────────────────────────
 // verifyTransaction()
 // Calls Chapa GET /transaction/verify/:tx_ref
-// Returns Chapa's status + amount
-// Used as webhook fallback and for manual reconciliation
+// Returns { status, amount, currency, ... } or { status: 'abandoned' }
 // ─────────────────────────────────────────────────────────────────────────────
 const verifyTransaction = async (tx_ref) => {
-  const data = await chapaFetch(`/transaction/verify/${encodeURIComponent(tx_ref)}`);
+  let data;
+  try {
+    data = await chapaFetch(`/transaction/verify/${encodeURIComponent(tx_ref)}`);
+  } catch (err) {
+    // Chapa 400 "Invalid transaction reference" = payment was abandoned (never completed)
+    // Chapa 404 = tx_ref never existed
+    // In both cases return a safe 'abandoned' status instead of throwing
+    const msg = err.message || '';
+    if (msg.toLowerCase().includes('invalid transaction') ||
+        msg.toLowerCase().includes('not found') ||
+        err.status === 400 || err.status === 404) {
+      return { status: 'abandoned' };
+    }
+    throw err; // re-throw genuine errors (network, auth, etc.)
+  }
   return data?.data || data;
 };
 
@@ -195,9 +217,9 @@ const processSuccessfulPayment = async (tx_ref, chapaData) => {
     // Insert payment
     const { rows: pmtRows } = await client.query(
       `INSERT INTO fee_payments
-         (fee_invoice_id, amount, payment_method, transaction_reference,
+         (fee_invoice_id, amount, payment_date, payment_method, transaction_reference,
           receipt_number, notes)
-       VALUES ($1, $2, 'GATEWAY', $3, $4, $5)
+       VALUES ($1, $2, CURRENT_DATE, 'GATEWAY', $3, $4, $5)
        RETURNING *`,
       [invoice.id, amount, tx_ref, receiptNumber, `Chapa gateway — ${chapaData?.status || 'success'}`]
     );
